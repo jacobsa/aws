@@ -22,6 +22,7 @@ import (
 	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/s3/time"
 	"net/url"
+	"unicode/utf8"
 )
 
 // NonExistentBucketError represents an error due to an attempt to work with a
@@ -100,5 +101,14 @@ func (b *bucket) GetObject(key string) (data []byte, err error) {
 }
 
 func (b *bucket) StoreObject(key string, data []byte) error {
+	// Validate the key.
+	if len(key) > 1024 {
+		return fmt.Errorf("Keys may be no longer than 1024 bytes.")
+	}
+
+	if !utf8.ValidString(key) {
+		return fmt.Errorf("Keys must be valid UTF-8.")
+	}
+
 	return fmt.Errorf("TODO: Implement bucket.StoreObject.")
 }
