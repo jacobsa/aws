@@ -17,9 +17,11 @@ package s3
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/auth"
 	"github.com/jacobsa/aws/s3/http"
+	"net/url"
 )
 
 // NonExistentBucketError represents an error due to an attempt to work with a
@@ -56,7 +58,20 @@ type Bucket interface {
 //     http://aws.amazon.com/console/
 //
 func OpenBucket(name string, region Region, key aws.AccessKey) (Bucket, error) {
-	return nil, errors.New("TODO: Implement OpenBucket.")
+	// Create a connection to the given region's endpoint.
+	endpoint := &url.URL{Scheme: "https", Host: string(region)}
+	httpConn, err := http.NewConn(endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("http.NewConn: %v", err)
+	}
+
+	// Create an appropriate request signer.
+	signer, err := auth.NewSigner(&key)
+	if err != nil {
+		return nil, fmt.Errorf("auth.NewSigner: %v", err)
+	}
+
+	return openBucket(name, httpConn, signer)
 }
 
 func (e *NonExistentBucketError) Error() string {
