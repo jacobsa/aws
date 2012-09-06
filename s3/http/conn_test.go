@@ -47,7 +47,7 @@ func (t *ConnTest) InvalidScheme() {
 
 func (t *ConnTest) UnknownHost() {
 	// Connection
-	conn, err := http.NewConn("localhost", "taco")
+	conn, err := http.NewConn("foo.bar.baz.sidofhdksjhf", "http")
 	AssertEq(nil, err)
 
 	// Request
