@@ -66,11 +66,53 @@ func (t *StringToSignTest) MinimalRequest() {
 }
 
 func (t *StringToSignTest) IncludesContentMd5() {
-	ExpectEq("TODO", "")
+	// Request
+	req := &http.Request {
+		Verb: "PUT",
+		Path: "/foo/bar/baz",
+		Headers: map[string]string {
+			"Date": "some_date",
+			"Content-MD5": "deadbeeffeedface",
+		},
+	}
+
+	// Call
+	s, err := stringToSign(req)
+	AssertEq(nil, err)
+
+	ExpectThat(
+		s,
+		Equals(
+			"PUT\n" +
+			"deadbeeffeedface\n" +
+			"\n" +  // Content-Type
+			"some_date" +
+			"/foo/bar/baz"))
 }
 
 func (t *StringToSignTest) IncludesContentType() {
-	ExpectEq("TODO", "")
+	// Request
+	req := &http.Request {
+		Verb: "PUT",
+		Path: "/foo/bar/baz",
+		Headers: map[string]string {
+			"Date": "some_date",
+			"Content-Type": "blah/foo",
+		},
+	}
+
+	// Call
+	s, err := stringToSign(req)
+	AssertEq(nil, err)
+
+	ExpectThat(
+		s,
+		Equals(
+			"PUT\n" +
+			"\n" +  // Content-MD5
+			"blah/foo\n" +
+			"some_date" +
+			"/foo/bar/baz"))
 }
 
 func (t *StringToSignTest) IncludesDate() {
