@@ -16,6 +16,8 @@
 package auth
 
 import (
+	"github.com/jacobsa/aws"
+	"github.com/jacobsa/aws/s3/http"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -35,7 +37,19 @@ func init() { RegisterTestSuite(&SignerTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *SignerTest) CallsFunction() {
-	ExpectEq("TODO", "")
+	// Function
+	var stsArg *http.Request
+	sts := func(r *http.Request)(string, error) { stsArg = r; return "", nil }
+
+	// Signer
+	signer, err := newSigner(sts, aws.AccessKey{})
+	AssertEq(nil, err)
+
+	// Call
+	req := &http.Request{}
+	signer.Sign(req)
+
+	ExpectEq(req, stsArg)
 }
 
 func (t *SignerTest) FunctionReturnsError() {
