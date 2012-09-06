@@ -16,16 +16,17 @@
 package auth
 
 import (
+	"errors"
 	"github.com/jacobsa/aws/s3/http"
 )
 
 // Given an HTTP request, return the string that should be signed for that
-// request.
+// request. The request must include a `Date` header.
 //
 // See here for more info:
 //
 //     http://goo.gl/Z8DiC
 //
-func stringToSign(r *http.Request) string {
-	return "TODO: Implement stringToSign."
+func stringToSign(r *http.Request) (string, error) {
+	return "", errors.New("TODO: Implement stringToSign.")
 }

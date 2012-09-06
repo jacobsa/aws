@@ -16,6 +16,8 @@
 package auth
 
 import (
+	"github.com/jacobsa/aws/s3/http"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -35,8 +37,32 @@ func init() { RegisterTestSuite(&StringToSignTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *StringToSignTest) MinimalRequest() {
+func (t *StringToSignTest) MissingDateHeader() {
 	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) MinimalRequest() {
+	// Request
+	req := &http.Request {
+		Verb: "PUT",
+		Path: "/foo/bar/baz",
+		Headers: map[string]string {
+			"Date": "Tue, 27 Mar 2007 19:36:42 +0000",
+		},
+	}
+
+	// Call
+	s, err := stringToSign(req)
+	AssertEq(nil, err)
+
+	ExpectThat(
+		s,
+		Equals(
+			"PUT\n" +
+			"\n" +  // Content-MD5
+			"\n" +  // Content-Type
+			"Tue, 27 Mar 2007 19:36:42 +0000\n" +
+			"/foo/bar/baz"))
 }
 
 func (t *StringToSignTest) IncludesContentMd5() {
