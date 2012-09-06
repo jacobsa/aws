@@ -32,6 +32,12 @@ type Conn interface {
 }
 
 func NewConn(host, scheme string) (Conn, error) {
+	switch scheme {
+	case "http", "https":
+	default:
+		return nil, fmt.Errorf("Unsupported scheme: %s", scheme)
+	}
+
 	return &conn{host, scheme}, nil
 }
 
