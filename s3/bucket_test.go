@@ -217,5 +217,24 @@ func (t *StoreObjectTest) ServerReturnsError() {
 }
 
 func (t *StoreObjectTest) ServerSaysOkay() {
-	ExpectEq("TODO", "")
+	key := ""
+	data := []byte{}
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 200,
+		Body: []byte("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	err := t.bucket.StoreObject(key, data)
+
+	ExpectEq(nil, err)
 }
