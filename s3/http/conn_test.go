@@ -133,8 +133,6 @@ func (t *ConnTest) PassesOnRequestInfo() {
 	sysReq := t.handler.req
 
 	ExpectEq("PUT", sysReq.Method)
-	ExpectEq(t.endpoint.Scheme, sysReq.URL.Scheme)
-	ExpectEq(t.endpoint.Host, sysReq.URL.Host)
 	ExpectEq("/foo/bar", sysReq.URL.Path)
 
 	ExpectThat(sysReq.Header["taco"], ElementsAre("burrito"))
