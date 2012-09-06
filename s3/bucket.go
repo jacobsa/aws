@@ -18,6 +18,8 @@ package s3
 import (
 	"errors"
 	"github.com/jacobsa/aws"
+	"github.com/jacobsa/aws/s3/auth"
+	"github.com/jacobsa/aws/s3/http"
 )
 
 // NonExistentBucketError represents an error due to an attempt to work with a
@@ -59,4 +61,13 @@ func OpenBucket(name string, region Region, key aws.AccessKey) (Bucket, error) {
 
 func (e *NonExistentBucketError) Error() string {
 	return e.s
+}
+
+// A version of OpenBucket with the ability to inject dependencies, for
+// testability.
+func openBucket(
+	name string,
+	httpConn http.Conn,
+	signer auth.Signer) (Bucket, error) {
+	return nil, errors.New("TODO: Implement openBucket.")
 }
