@@ -19,6 +19,8 @@ import (
 	"github.com/jacobsa/aws/s3/http"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	sys_http "net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -28,10 +30,26 @@ func TestConn(t *testing.T) { RunTests(t) }
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
+type localHandler struct {
+}
+
+func (h *localHandler) ServeHTTP(sys_http.ResponseWriter, *sys_http.Request) {
+}
+
 type ConnTest struct {
+	handler localHandler
+	server *httptest.Server
 }
 
 func init() { RegisterTestSuite(&ConnTest{}) }
+
+func (t *ConnTest) SetUp(i *TestInfo) {
+	t.server = httptest.NewServer(&t.handler)
+}
+
+func (t *ConnTest) TearDown() {
+	t.server.Close()
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Tests
