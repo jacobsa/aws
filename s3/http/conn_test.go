@@ -16,8 +16,9 @@
 package http_test
 
 import (
+	"github.com/jacobsa/aws/s3/http"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
-	"net/httptest"
 	"testing"
 )
 
@@ -37,7 +38,10 @@ func init() { RegisterTestSuite(&ConnTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *ConnTest) InvalidScheme() {
-	ExpectEq("TODO", "")
+	_, err := http.NewConn("localhost", "taco")
+
+	ExpectThat(err, Error(HasSubstr("scheme")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *ConnTest) UnknownHost() {
