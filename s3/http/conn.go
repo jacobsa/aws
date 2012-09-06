@@ -34,7 +34,7 @@ type Conn interface {
 
 // Return a connection to the supplied endpoint, based on its scheme and host
 // fields.
-func NewConn(endpoint url.URL) (Conn, error) {
+func NewConn(endpoint *url.URL) (Conn, error) {
 	switch endpoint.Scheme {
 	case "http", "https":
 	default:
@@ -45,7 +45,7 @@ func NewConn(endpoint url.URL) (Conn, error) {
 }
 
 type conn struct {
-	endpoint url.URL
+	endpoint *url.URL
 }
 
 func (c *conn) SendRequest(r *Request) (*Response, error) {

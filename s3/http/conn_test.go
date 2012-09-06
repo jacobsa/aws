@@ -47,13 +47,17 @@ func (h *localHandler) ServeHTTP(w sys_http.ResponseWriter, r *sys_http.Request)
 type ConnTest struct {
 	handler localHandler
 	server *httptest.Server
-
+	endpoint *url.URL
 }
 
 func init() { RegisterTestSuite(&ConnTest{}) }
 
 func (t *ConnTest) SetUp(i *TestInfo) {
 	t.server = httptest.NewServer(&t.handler)
+
+	var err error
+	t.endpoint, err = url.Parse(t.server.URL)
+	AssertEq(nil, err)
 }
 
 func (t *ConnTest) TearDown() {
@@ -66,7 +70,7 @@ func (t *ConnTest) TearDown() {
 
 func (t *ConnTest) InvalidScheme() {
 	// Connection
-	_, err := http.NewConn(url.URL{Scheme: "taco", Host: "localhost"})
+	_, err := http.NewConn(&url.URL{Scheme: "taco", Host: "localhost"})
 
 	ExpectThat(err, Error(HasSubstr("scheme")))
 	ExpectThat(err, Error(HasSubstr("taco")))
@@ -74,7 +78,7 @@ func (t *ConnTest) InvalidScheme() {
 
 func (t *ConnTest) UnknownHost() {
 	// Connection
-	conn, err := http.NewConn(url.URL{Scheme: "http", Host: "foo.sidofhdksjhf"})
+	conn, err := http.NewConn(&url.URL{Scheme: "http", Host: "foo.sidofhdksjhf"})
 	AssertEq(nil, err)
 
 	// Request
