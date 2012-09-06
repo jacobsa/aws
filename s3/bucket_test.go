@@ -18,6 +18,7 @@ package s3
 import (
 	"github.com/jacobsa/aws/s3/auth/mock"
 	"github.com/jacobsa/aws/s3/http/mock"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -68,7 +69,14 @@ type StoreObjectTest struct {
 func init() { RegisterTestSuite(&StoreObjectTest{}) }
 
 func (t *StoreObjectTest) KeyNotValidUtf8() {
-	ExpectEq("TODO", "")
+	key := "\x80\x81\x82"
+	data := []byte{}
+
+	// Call
+	err := t.bucket.StoreObject(key, data)
+
+	ExpectThat(err, Error(HasSubstr("valid")))
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *StoreObjectTest) KeyTooLong() {
