@@ -32,12 +32,23 @@ func TestConn(t *testing.T) { RunTests(t) }
 ////////////////////////////////////////////////////////////////////////
 
 type localHandler struct {
+	// Input seen.
+	req *sys_http.Request
+
 	// To be returned.
 	statusCode int
 	body []byte
 }
 
 func (h *localHandler) ServeHTTP(w sys_http.ResponseWriter, r *sys_http.Request) {
+	// Record the request.
+	if h.req != nil {
+		panic("Called twice.")
+	}
+
+	h.req = r
+
+	// Write out the response.
 	w.WriteHeader(h.statusCode)
 	if _, err := w.Write(h.body); err != nil {
 		panic(err)
@@ -100,7 +111,34 @@ func (t *ConnTest) InvalidVerb() {
 }
 
 func (t *ConnTest) PassesOnRequestInfo() {
-	ExpectEq("TODO", "")
+	// Connection
+	conn, err := http.NewConn(t.endpoint)
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb: "PUT",
+		Path: "/foo/bar",
+		Headers: map[string]string{
+			"taco": "burrito",
+			"enchilada": "queso",
+		},
+	}
+
+	// Call
+	_, err = conn.SendRequest(req)
+	AssertEq(nil, err)
+
+	AssertNe(nil, t.handler.req)
+	sysReq := t.handler.req
+
+	ExpectEq("PUT", sysReq.Method)
+	ExpectEq(t.endpoint.Scheme, sysReq.URL.Scheme)
+	ExpectEq(t.endpoint.Host, sysReq.URL.Host)
+	ExpectEq("/foo/bar", sysReq.URL.Path)
+
+	ExpectThat(sysReq.Header["taco"], ElementsAre("burrito"))
+	ExpectThat(sysReq.Header["enchilada"], ElementsAre("queso"))
 }
 
 func (t *ConnTest) ReturnsStatusCode() {
