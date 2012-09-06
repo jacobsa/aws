@@ -32,28 +32,27 @@ type Conn interface {
 	SendRequest(r *Request) (*Response, error)
 }
 
-// Return a connection to the supplied endpoint, based on its scheme, host, and
-// port fields.
+// Return a connection to the supplied endpoint, based on its scheme and host
+// fields.
 func NewConn(endpoint url.URL) (Conn, error) {
-	switch scheme {
+	switch endpoint.Scheme {
 	case "http", "https":
 	default:
-		return nil, fmt.Errorf("Unsupported scheme: %s", scheme)
+		return nil, fmt.Errorf("Unsupported scheme: %s", endpoint.Scheme)
 	}
 
-	return &conn{host, scheme}, nil
+	return &conn{endpoint}, nil
 }
 
 type conn struct {
-	host string
-	scheme string
+	endpoint url.URL
 }
 
 func (c *conn) SendRequest(r *Request) (*Response, error) {
 	// Create an appropriate URL.
 	url := url.URL{
-		Scheme: c.scheme,
-		Host: c.host,
+		Scheme: c.endpoint.Scheme,
+		Host: c.endpoint.Host,
 		Path: r.Path,
 	}
 

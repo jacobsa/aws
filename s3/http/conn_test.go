@@ -21,6 +21,7 @@ import (
 	. "github.com/jacobsa/ogletest"
 	sys_http "net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -65,7 +66,7 @@ func (t *ConnTest) TearDown() {
 
 func (t *ConnTest) InvalidScheme() {
 	// Connection
-	_, err := http.NewConn("localhost", "taco")
+	_, err := http.NewConn(url.URL{Scheme: "taco", Host: "localhost"})
 
 	ExpectThat(err, Error(HasSubstr("scheme")))
 	ExpectThat(err, Error(HasSubstr("taco")))
@@ -73,7 +74,7 @@ func (t *ConnTest) InvalidScheme() {
 
 func (t *ConnTest) UnknownHost() {
 	// Connection
-	conn, err := http.NewConn("foo.sidofhdksjhf", "http")
+	conn, err := http.NewConn(url.URL{Scheme: "http", Host: "foo.sidofhdksjhf"})
 	AssertEq(nil, err)
 
 	// Request
