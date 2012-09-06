@@ -116,5 +116,27 @@ func (t *StringToSignTest) IncludesContentType() {
 }
 
 func (t *StringToSignTest) ComplicatedRequest() {
-	ExpectEq("TODO", "")
+	// Request
+	req := &http.Request {
+		Verb: "PUT",
+		Path: "/foo/bar/baz",
+		Headers: map[string]string {
+			"Date": "some_date",
+			"Content-MD5": "deadbeeffeedface",
+			"Content-Type": "blah/foo",
+		},
+	}
+
+	// Call
+	s, err := stringToSign(req)
+	AssertEq(nil, err)
+
+	ExpectThat(
+		s,
+		Equals(
+			"PUT\n" +
+			"deadbeeffeedface\n" +
+			"blah/foo\n" +
+			"some_date" +
+			"/foo/bar/baz"))
 }
