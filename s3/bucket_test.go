@@ -20,6 +20,7 @@ import (
 	"github.com/jacobsa/aws/s3/http/mock"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"strings"
 	"testing"
 )
 
@@ -80,10 +81,21 @@ func (t *StoreObjectTest) KeyNotValidUtf8() {
 }
 
 func (t *StoreObjectTest) KeyTooLong() {
-	ExpectEq("TODO", "")
+	key := strings.Repeat("a", 1025)
+	data := []byte{}
+
+	// Call
+	err := t.bucket.StoreObject(key, data)
+
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
 }
 
 func (t *StoreObjectTest) CallsSignerAndConn() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StoreObjectTest) CorrectlyEscapesKey() {
 	ExpectEq("TODO", "")
 }
 
