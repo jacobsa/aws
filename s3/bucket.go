@@ -39,7 +39,7 @@ type Bucket interface {
 	GetObject(key string) (data []byte, err error)
 
 	// Store the supplied data with the given key, overwriting any previous
-	// version.
+	// version. The object is created with the default ACL of "private".
 	StoreObject(key string, data []byte) error
 }
 
