@@ -16,7 +16,6 @@
 package auth
 
 import (
-	"errors"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/http"
 )
@@ -29,7 +28,7 @@ type Signer interface {
 }
 
 // NewSigner creates a Signer using the supplied access key.
-func NewSigner(key aws.AccessKey) (Signer, error) {
+func NewSigner(key *aws.AccessKey) (Signer, error) {
 	return newSigner(stringToSign, key)
 }
 
@@ -38,6 +37,11 @@ func NewSigner(key aws.AccessKey) (Signer, error) {
 // sign for any given request.
 func newSigner(
 	sts func(*http.Request) (string, error),
-	key aws.AccessKey) (Signer, error) {
-	return nil, errors.New("TODO: Implement newSigner.")
+	key *aws.AccessKey) (Signer, error) {
+	return &signer{sts, key}
+}
+
+type signer struct {
+	sts func(*http.Request) (string, error)
+	key *aws.AccessKey
 }
