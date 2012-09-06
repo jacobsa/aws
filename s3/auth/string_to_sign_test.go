@@ -115,10 +115,6 @@ func (t *StringToSignTest) IncludesContentType() {
 			"/foo/bar/baz"))
 }
 
-func (t *StringToSignTest) IncludesDate() {
-	ExpectEq("TODO", "")
-}
-
 func (t *StringToSignTest) ComplicatedRequest() {
 	ExpectEq("TODO", "")
 }
