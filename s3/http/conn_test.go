@@ -67,6 +67,10 @@ func (t *ConnTest) InvalidVerb() {
 	ExpectEq("TODO", "")
 }
 
+func (t *ConnTest) PassesOnRequestInfo() {
+	ExpectEq("TODO", "")
+}
+
 func (t *ConnTest) ServerReturns200() {
 	ExpectEq("TODO", "")
 }
