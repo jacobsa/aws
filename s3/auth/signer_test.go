@@ -16,8 +16,10 @@
 package auth
 
 import (
+	"errors"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/http"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -53,7 +55,18 @@ func (t *SignerTest) CallsFunction() {
 }
 
 func (t *SignerTest) FunctionReturnsError() {
-	ExpectEq("TODO", "")
+	// Function
+	sts := func(r *http.Request)(string, error) { return "", errors.New("taco") }
+
+	// Signer
+	signer, err := newSigner(sts, aws.AccessKey{})
+	AssertEq(nil, err)
+
+	// Call
+	err = signer.Sign(&http.Request{})
+
+	ExpectThat(err, Error(HasSubstr("Sign")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *SignerTest) FunctionReturnsString() {
