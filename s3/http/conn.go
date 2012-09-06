@@ -18,6 +18,7 @@ package http
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -57,10 +58,26 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 	urlStr := url.String()
 
 	// Call the system HTTP library.
-	_, err := http.NewRequest(r.Verb, urlStr, bytes.NewBuffer(r.Body))
+	sysReq, err := http.NewRequest(r.Verb, urlStr, bytes.NewBuffer(r.Body))
 	if err != nil {
 		return nil, fmt.Errorf("http.NewRequest: %v", err)
 	}
 
-	return nil, fmt.Errorf("TODO")
+	sysResp, err := http.DefaultClient.Do(sysReq)
+	if err != nil {
+		return nil, fmt.Errorf("http.DefaultClient.Do: %v", err)
+	}
+
+	// Convert the response.
+	resp := &Response {
+		StatusCode: sysResp.StatusCode,
+	}
+
+	if resp.Body, err = ioutil.ReadAll(sysResp.Body); err != nil {
+		return nil, fmt.Errorf("Reading body: %v", err)
+	}
+
+	sysResp.Body.Close()
+
+	return resp, nil
 }
