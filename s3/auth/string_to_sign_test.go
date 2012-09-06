@@ -39,11 +39,10 @@ func init() { RegisterTestSuite(&StringToSignTest{}) }
 
 func (t *StringToSignTest) MissingDateHeader() {
 	// Request
-	req := &http.Request {
-		Verb: "PUT",
-		Path: "/foo/bar/baz",
-		Headers: map[string]string {
-		},
+	req := &http.Request{
+		Verb:    "PUT",
+		Path:    "/foo/bar/baz",
+		Headers: map[string]string{},
 	}
 
 	// Call
@@ -54,10 +53,10 @@ func (t *StringToSignTest) MissingDateHeader() {
 
 func (t *StringToSignTest) MinimalRequest() {
 	// Request
-	req := &http.Request {
+	req := &http.Request{
 		Verb: "PUT",
 		Path: "/foo/bar/baz",
-		Headers: map[string]string {
+		Headers: map[string]string{
 			"Date": "Tue, 27 Mar 2007 19:36:42 +0000",
 		},
 	}
@@ -69,20 +68,20 @@ func (t *StringToSignTest) MinimalRequest() {
 	ExpectThat(
 		s,
 		Equals(
-			"PUT\n" +
-			"\n" +  // Content-MD5
-			"\n" +  // Content-Type
-			"Tue, 27 Mar 2007 19:36:42 +0000\n" +
-			"/foo/bar/baz"))
+			"PUT\n"+
+				"\n"+ // Content-MD5
+				"\n"+ // Content-Type
+				"Tue, 27 Mar 2007 19:36:42 +0000\n"+
+				"/foo/bar/baz"))
 }
 
 func (t *StringToSignTest) IncludesContentMd5() {
 	// Request
-	req := &http.Request {
+	req := &http.Request{
 		Verb: "PUT",
 		Path: "/foo/bar/baz",
-		Headers: map[string]string {
-			"Date": "some_date",
+		Headers: map[string]string{
+			"Date":        "some_date",
 			"Content-MD5": "deadbeeffeedface",
 		},
 	}
@@ -94,20 +93,20 @@ func (t *StringToSignTest) IncludesContentMd5() {
 	ExpectThat(
 		s,
 		Equals(
-			"PUT\n" +
-			"deadbeeffeedface\n" +
-			"\n" +  // Content-Type
-			"some_date\n" +
-			"/foo/bar/baz"))
+			"PUT\n"+
+				"deadbeeffeedface\n"+
+				"\n"+ // Content-Type
+				"some_date\n"+
+				"/foo/bar/baz"))
 }
 
 func (t *StringToSignTest) IncludesContentType() {
 	// Request
-	req := &http.Request {
+	req := &http.Request{
 		Verb: "PUT",
 		Path: "/foo/bar/baz",
-		Headers: map[string]string {
-			"Date": "some_date",
+		Headers: map[string]string{
+			"Date":         "some_date",
 			"Content-Type": "blah/foo",
 		},
 	}
@@ -119,21 +118,21 @@ func (t *StringToSignTest) IncludesContentType() {
 	ExpectThat(
 		s,
 		Equals(
-			"PUT\n" +
-			"\n" +  // Content-MD5
-			"blah/foo\n" +
-			"some_date\n" +
-			"/foo/bar/baz"))
+			"PUT\n"+
+				"\n"+ // Content-MD5
+				"blah/foo\n"+
+				"some_date\n"+
+				"/foo/bar/baz"))
 }
 
 func (t *StringToSignTest) ComplicatedRequest() {
 	// Request
-	req := &http.Request {
+	req := &http.Request{
 		Verb: "PUT",
 		Path: "/foo/bar/baz",
-		Headers: map[string]string {
-			"Date": "some_date",
-			"Content-MD5": "deadbeeffeedface",
+		Headers: map[string]string{
+			"Date":         "some_date",
+			"Content-MD5":  "deadbeeffeedface",
 			"Content-Type": "blah/foo",
 		},
 	}
@@ -145,9 +144,9 @@ func (t *StringToSignTest) ComplicatedRequest() {
 	ExpectThat(
 		s,
 		Equals(
-			"PUT\n" +
-			"deadbeeffeedface\n" +
-			"blah/foo\n" +
-			"some_date\n" +
-			"/foo/bar/baz"))
+			"PUT\n"+
+				"deadbeeffeedface\n"+
+				"blah/foo\n"+
+				"some_date\n"+
+				"/foo/bar/baz"))
 }
