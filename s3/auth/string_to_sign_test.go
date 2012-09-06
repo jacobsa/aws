@@ -38,7 +38,18 @@ func init() { RegisterTestSuite(&StringToSignTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *StringToSignTest) MissingDateHeader() {
-	ExpectEq("TODO", "")
+	// Request
+	req := &http.Request {
+		Verb: "PUT",
+		Path: "/foo/bar/baz",
+		Headers: map[string]string {
+		},
+	}
+
+	// Call
+	_, err := stringToSign(req)
+
+	ExpectThat(err, Error(HasSubstr("Date")))
 }
 
 func (t *StringToSignTest) MinimalRequest() {

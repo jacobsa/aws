@@ -32,7 +32,7 @@ func stringToSign(r *http.Request) (string, error) {
 	// Grab the HTTP headers specifically called out by the signing algorithm.
 	date, ok := r.Headers["Date"]
 	if !ok {
-		return "", errors.New("stringToSign requires a Date header.")
+		return "", errors.New("A Date header is required.")
 	}
 
 	contentMd5 := r.Headers["Content-MD5"]
