@@ -16,6 +16,8 @@
 package s3
 
 import (
+	"github.com/jacobsa/aws/s3/auth/mock"
+	"github.com/jacobsa/aws/s3/http/mock"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -32,7 +34,7 @@ type bucketTest struct {
 	bucket Bucket
 }
 
-func (t *ConnTest) SetUp(i *TestInfo) {
+func (t *bucketTest) SetUp(i *TestInfo) {
 	var err error
 
 	t.httpConn = mock_http.NewMockConn(i.MockController, "httpConn")
