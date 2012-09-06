@@ -25,12 +25,6 @@ import (
 	"unicode/utf8"
 )
 
-// NonExistentBucketError represents an error due to an attempt to work with a
-// bucket that doesn't exist according to S3.
-type NonExistentBucketError struct {
-	s string
-}
-
 // Bucket represents an S3 bucket, which is a collection of objects keyed on
 // Unicode strings. The UTF-8 encoding of a key must be no more than 1024 bytes
 // long.
@@ -52,8 +46,6 @@ type Bucket interface {
 // must have previously created the bucket in the region, and the supplied
 // access key must have access to it.
 //
-// If the supplied bucket doesn't exist, a *NonExistentBucketError is returned.
-//
 // To easily create a bucket, use the AWS Console:
 //
 //     http://aws.amazon.com/console/
@@ -73,10 +65,6 @@ func OpenBucket(name string, region Region, key aws.AccessKey) (Bucket, error) {
 	}
 
 	return openBucket(name, httpConn, signer, time.RealClock())
-}
-
-func (e *NonExistentBucketError) Error() string {
-	return e.s
 }
 
 // A version of OpenBucket with the ability to inject dependencies, for
@@ -108,6 +96,23 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 
 	if !utf8.ValidString(key) {
 		return fmt.Errorf("Keys must be valid UTF-8.")
+	}
+
+	// Build an appropriate HTTP request.
+	httpReq := &http.Request{
+		Verb: "PUT",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	_, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
 	}
 
 	return fmt.Errorf("TODO: Implement bucket.StoreObject.")
