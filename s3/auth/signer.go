@@ -30,5 +30,14 @@ type Signer interface {
 
 // NewSigner creates a Signer using the supplied access key.
 func NewSigner(key aws.AccessKey) (Signer, error) {
-	return nil, errors.New("TODO: Implement NewSigner.")
+	return newSigner(stringToSign, key)
+}
+
+// newSigner is a helper used by NewSigner, split out for testability. It
+// allows you to inject the function that is used to determine the string to
+// sign for any given request.
+func newSigner(
+	sts func(*http.Request) (string, error),
+	key aws.AccessKey) (Signer, error) {
+	return nil, errors.New("TODO: Implement newSigner.")
 }
