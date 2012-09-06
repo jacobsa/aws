@@ -17,6 +17,7 @@ package http_test
 
 import (
 	. "github.com/jacobsa/ogletest"
+	"net/httptest"
 	"testing"
 )
 
@@ -26,7 +27,8 @@ func TestConn(t *testing.T) { RunTests(t) }
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
-type ConnTest struct {}
+type ConnTest struct {
+}
 
 func init() { RegisterTestSuite(&ConnTest{}) }
 
@@ -34,6 +36,26 @@ func init() { RegisterTestSuite(&ConnTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *ConnTest) DoesFoo() {
+func (t *ConnTest) InvalidScheme() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) UnknownHost() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) ServerReturns200() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) ServerReturns404() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) ServerReturns500() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) ServerReturnsEmptyBody() {
 	ExpectEq("TODO", "")
 }
