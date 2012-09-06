@@ -104,7 +104,25 @@ func (t *ConnTest) PassesOnRequestInfo() {
 }
 
 func (t *ConnTest) ReturnsStatusCode() {
-	ExpectEq("TODO", "")
+	// Handler
+	t.handler.statusCode = 123
+
+	// Connection
+	conn, err := http.NewConn(t.endpoint)
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb: "GET",
+		Path: "/",
+		Headers: map[string]string{},
+	}
+
+	// Call
+	resp, err := conn.SendRequest(req)
+	AssertEq(nil, err)
+
+	ExpectEq(123, resp.StatusCode)
 }
 
 func (t *ConnTest) ReturnsBody() {
