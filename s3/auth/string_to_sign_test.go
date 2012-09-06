@@ -35,6 +35,22 @@ func init() { RegisterTestSuite(&StringToSignTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *StringToSignTest) DoesFoo() {
+func (t *StringToSignTest) MinimalRequest() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) IncludesContentMd5() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) IncludesContentType() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) IncludesDate() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) ComplicatedRequest() {
 	ExpectEq("TODO", "")
 }
