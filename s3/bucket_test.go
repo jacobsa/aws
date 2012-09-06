@@ -67,6 +67,26 @@ type StoreObjectTest struct {
 
 func init() { RegisterTestSuite(&StoreObjectTest{}) }
 
-func (t *StoreObjectTest) DoesFoo() {
+func (t *StoreObjectTest) KeyNotValidUtf8() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StoreObjectTest) KeyTooLong() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StoreObjectTest) CallsSignerAndConn() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StoreObjectTest) ConnReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StoreObjectTest) ServerReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StoreObjectTest) ServerSaysOkay() {
 	ExpectEq("TODO", "")
 }
