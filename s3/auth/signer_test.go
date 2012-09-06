@@ -16,6 +16,8 @@
 package auth
 
 import (
+	"crypto/hmac"
+	"crypto/sha1"
 	"errors"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/http"
@@ -70,7 +72,31 @@ func (t *SignerTest) FunctionReturnsError() {
 }
 
 func (t *SignerTest) FunctionReturnsString() {
-	ExpectEq("TODO", "")
+	// Function
+	sts := func(r *http.Request)(string, error) { return "taco", nil }
+
+	// Signer
+	key := aws.AccessKey{Secret: "burrito"}
+	signer, err := newSigner(sts, key)
+	AssertEq(nil, err)
+
+	// Call
+	req := &http.Request{
+		Headers: map[string]string {
+			"foo": "bar",
+		},
+	}
+
+	err = signer.Sign(req)
+	AssertEq(nil, err)
+
+	h := hmac.New(sha1.New, []byte("burrito"))
+	_, err = h.Write([]byte("taco"))
+	AssertEq(nil, err)
+	expected := string(h.Sum(nil))
+
+	ExpectEq("bar", req.Headers["foo"])
+	ExpectEq(expected, req.Headers["Authorization"])
 }
 
 func (t *SignerTest) GoldenTests() {
