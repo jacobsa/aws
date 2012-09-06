@@ -40,18 +40,31 @@ func (t *ConnTest) SetUp(i *TestInfo) {
 	t.bucket, err = openBucket("some.bucket", t.httpConn, t.signer)
 	AssertEq(nil, err)
 }
-}
 
 ////////////////////////////////////////////////////////////////////////
-// Storebject
+// GetObject
 ////////////////////////////////////////////////////////////////////////
 
-type StorebjectTest {
+type GetObjectTest struct {
 	bucketTest
 }
 
-func init() { RegisterTestSuite(&StorebjectTest{}) }
+func init() { RegisterTestSuite(&GetObjectTest{}) }
 
-func (t *StorebjectTest) DoesFoo() {
+func (t *GetObjectTest) DoesFoo() {
+	ExpectEq("TODO", "")
+}
+
+////////////////////////////////////////////////////////////////////////
+// StoreObject
+////////////////////////////////////////////////////////////////////////
+
+type StoreObjectTest struct {
+	bucketTest
+}
+
+func init() { RegisterTestSuite(&StoreObjectTest{}) }
+
+func (t *StoreObjectTest) DoesFoo() {
 	ExpectEq("TODO", "")
 }
