@@ -79,10 +79,10 @@ func openBucket(
 }
 
 type bucket struct {
-	name string
+	name     string
 	httpConn http.Conn
-	signer auth.Signer
-	clock time.Clock
+	signer   auth.Signer
+	clock    time.Clock
 }
 
 func (b *bucket) GetObject(key string) (data []byte, err error) {
@@ -104,7 +104,7 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 		Verb: "PUT",
 		Path: fmt.Sprintf("/%s/%s", b.name, key),
 		Body: data,
-		Headers: map[string]string {
+		Headers: map[string]string{
 			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
 		},
 	}

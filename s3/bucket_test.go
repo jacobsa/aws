@@ -202,7 +202,7 @@ func (t *StoreObjectTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body: []byte("taco"),
+		Body:       []byte("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -227,7 +227,7 @@ func (t *StoreObjectTest) ServerSaysOkay() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body: []byte("taco"),
+		Body:       []byte("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
