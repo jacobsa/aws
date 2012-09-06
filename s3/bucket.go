@@ -15,6 +15,17 @@
 
 package s3
 
+import (
+	"errors"
+	"github.com/jacobsa/aws"
+)
+
+// NonExistentBucketError represents an error due to an attempt to work with a
+// bucket that doesn't exist according to S3.
+type NonExistentBucketError struct {
+	s string
+}
+
 // Bucket represents an S3 bucket, which is a collection of objects keyed on
 // Unicode strings. The UTF-8 encoding of a key must be no more than 1024 bytes
 // long.
@@ -30,4 +41,22 @@ type Bucket interface {
 	// Store the supplied data with the given key, overwriting any previous
 	// version.
 	StoreObject(key string, data []byte) error
+}
+
+// OpenBucket returns a Bucket tied to a given name in whe given region. You
+// must have previously created the bucket in the region, and the supplied
+// access key must have access to it.
+//
+// If the supplied bucket doesn't exist, a *NonExistentBucketError is returned.
+//
+// To easily create a bucket, use the AWS Console:
+//
+//     http://aws.amazon.com/console/
+//
+func OpenBucket(name string, region Region, key aws.AccessKey) (Bucket, error) {
+	return nil, errors.New("TODO: Implement OpenBucket.")
+}
+
+func (e *NonExistentBucketError) Error() string {
+	return e.s
 }
