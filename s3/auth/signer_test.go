@@ -52,7 +52,7 @@ func (t *SignerTest) CallsFunction() {
 	AssertEq(nil, err)
 
 	// Call
-	req := &http.Request{}
+	req := &http.Request{Headers: make(map[string]string)}
 	signer.Sign(req)
 
 	ExpectEq(req, stsArg)
@@ -67,7 +67,7 @@ func (t *SignerTest) FunctionReturnsError() {
 	AssertEq(nil, err)
 
 	// Call
-	err = signer.Sign(&http.Request{})
+	err = signer.Sign(&http.Request{Headers: make(map[string]string)})
 
 	ExpectThat(err, Error(HasSubstr("Sign")))
 	ExpectThat(err, Error(HasSubstr("taco")))
@@ -153,7 +153,7 @@ func (t *SignerTest) GoldenTests() {
 		AssertEq(nil, err)
 
 		// Call
-		req := &http.Request{}
+		req := &http.Request{Headers: make(map[string]string)}
 		err = signer.Sign(req)
 		AssertEq(nil, err)
 
