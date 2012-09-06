@@ -29,4 +29,7 @@ type Request struct {
 
 	// HTTP headers to be included in the request.
 	Headers map[string]string
+
+	// The body of the request.
+	Body []byte
 }

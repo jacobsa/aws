@@ -16,7 +16,10 @@
 package http
 
 import (
-	"errors"
+	"bytes"
+	"fmt"
+	"net/http"
+	"net/url"
 )
 
 // A connection to a particular server over a particular protocol (HTTP or
@@ -29,5 +32,29 @@ type Conn interface {
 }
 
 func NewConn(host, scheme string) (Conn, error) {
-	return nil, errors.New("TODO: Implement NewConn.")
+	return &conn{host, scheme}, nil
+}
+
+type conn struct {
+	host string
+	scheme string
+}
+
+func (c *conn) SendRequest(r *Request) (*Response, error) {
+	// Create an appropriate URL.
+	url := url.URL{
+		Scheme: c.scheme,
+		Host: c.host,
+		Path: r.Path,
+	}
+
+	urlStr := url.String()
+
+	// Call the system HTTP library.
+	_, err := http.NewRequest(r.Verb, urlStr, bytes.NewBuffer(r.Body))
+	if err != nil {
+		return nil, fmt.Errorf("http.NewRequest: %v", err)
+	}
+
+	return nil, fmt.Errorf("TODO")
 }
