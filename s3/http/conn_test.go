@@ -148,7 +148,25 @@ func (t *ConnTest) ReturnsBody() {
 }
 
 func (t *ConnTest) ServerReturnsEmptyBody() {
-	ExpectEq("TODO", "")
+	// Handler
+	t.handler.body = []byte{}
+
+	// Connection
+	conn, err := http.NewConn(t.endpoint)
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb: "GET",
+		Path: "/",
+		Headers: map[string]string{},
+	}
+
+	// Call
+	resp, err := conn.SendRequest(req)
+	AssertEq(nil, err)
+
+	ExpectThat(resp.Body, ElementsAre())
 }
 
 func (t *ConnTest) HttpsWorksProperly() {
