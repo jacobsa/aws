@@ -16,8 +16,10 @@
 package auth
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
+	"encoding/base64"
 	"errors"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/http"
@@ -80,6 +82,19 @@ func (t *SignerTest) FunctionReturnsString() {
 	signer, err := newSigner(sts, key)
 	AssertEq(nil, err)
 
+	// Expected output
+	h := hmac.New(sha1.New, []byte("burrito"))
+	_, err = h.Write([]byte("taco"))
+	AssertEq(nil, err)
+
+	buf := new(bytes.Buffer)
+	encoder := base64.NewEncoder(base64.StdEncoding, buf)
+	_, err = encoder.Write(h.Sum(nil))
+	AssertEq(nil, err)
+	AssertEq(nil, encoder.Close())
+
+	expected := buf.String()
+
 	// Call
 	req := &http.Request{
 		Headers: map[string]string {
@@ -89,11 +104,6 @@ func (t *SignerTest) FunctionReturnsString() {
 
 	err = signer.Sign(req)
 	AssertEq(nil, err)
-
-	h := hmac.New(sha1.New, []byte("burrito"))
-	_, err = h.Write([]byte("taco"))
-	AssertEq(nil, err)
-	expected := string(h.Sum(nil))
 
 	ExpectEq("bar", req.Headers["foo"])
 	ExpectEq(expected, req.Headers["Authorization"])
