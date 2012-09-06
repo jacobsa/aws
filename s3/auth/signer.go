@@ -16,6 +16,8 @@
 package auth
 
 import (
+	"errors"
+	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/http"
 )
 
@@ -24,4 +26,9 @@ import (
 type Signer interface {
 	// Add an appropriate signature header to the supplied HTTP request.
 	Sign(r *http.Request) error
+}
+
+// NewSigner creates a Signer using the supplied access key.
+func NewSigner(key aws.AccessKey) (Signer, error) {
+	return nil, errors.New("TODO: Implement NewSigner.")
 }
