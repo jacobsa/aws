@@ -17,6 +17,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jacobsa/aws/s3/http"
 )
 
@@ -28,5 +29,28 @@ import (
 //     http://goo.gl/Z8DiC
 //
 func stringToSign(r *http.Request) (string, error) {
-	return "", errors.New("TODO: Implement stringToSign.")
+	// Grab the HTTP headers specifically called out by the signing algorithm.
+	date, ok := r.Headers["Date"]
+	if !ok {
+		return "", errors.New("stringToSign requires a Date header.")
+	}
+
+	contentMd5 := r.Headers["Content-MD5"]
+	contentType := r.Headers["Content-Type"]
+
+	// We don't yet support CanonicalizedAmzHeaders.
+	canonicalizedAmzHeaders := ""
+
+	// We currently only support simple path-style requests.
+	canonicalizedResource := r.Path
+
+	// Put everything together.
+	return fmt.Sprintf(
+		"%s\n%s\n%s\n%s\n%s%s",
+		r.Verb,
+		contentMd5,
+		contentType,
+		date,
+		canonicalizedAmzHeaders,
+		canonicalizedResource), nil
 }
