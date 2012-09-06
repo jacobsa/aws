@@ -86,7 +86,7 @@ func (t *StringToSignTest) IncludesContentMd5() {
 			"PUT\n" +
 			"deadbeeffeedface\n" +
 			"\n" +  // Content-Type
-			"some_date" +
+			"some_date\n" +
 			"/foo/bar/baz"))
 }
 
@@ -111,7 +111,7 @@ func (t *StringToSignTest) IncludesContentType() {
 			"PUT\n" +
 			"\n" +  // Content-MD5
 			"blah/foo\n" +
-			"some_date" +
+			"some_date\n" +
 			"/foo/bar/baz"))
 }
 
@@ -137,6 +137,6 @@ func (t *StringToSignTest) ComplicatedRequest() {
 			"PUT\n" +
 			"deadbeeffeedface\n" +
 			"blah/foo\n" +
-			"some_date" +
+			"some_date\n" +
 			"/foo/bar/baz"))
 }
