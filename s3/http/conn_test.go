@@ -47,7 +47,7 @@ func (t *ConnTest) InvalidScheme() {
 
 func (t *ConnTest) UnknownHost() {
 	// Connection
-	conn, err := http.NewConn("foo.bar.baz.sidofhdksjhf", "http")
+	conn, err := http.NewConn("foo.sidofhdksjhf", "http")
 	AssertEq(nil, err)
 
 	// Request
@@ -60,7 +60,8 @@ func (t *ConnTest) UnknownHost() {
 	// Call
 	_, err = conn.SendRequest(req)
 
-	ExpectThat(err, Error(HasSubstr("TODO")))
+	ExpectThat(err, Error(HasSubstr("foo.sidofhdksjhf")))
+	ExpectThat(err, Error(HasSubstr("no such host")))
 }
 
 func (t *ConnTest) InvalidVerb() {
