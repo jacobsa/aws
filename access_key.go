@@ -29,7 +29,7 @@ type AccessKey struct {
 	//
 	//     AKIAIOSFODNN7EXAMPLE
 	//
-	Id     string
+	Id string
 
 	// The key's associated secret.
 	//
