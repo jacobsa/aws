@@ -201,32 +201,10 @@ func (t *ConnTest) ServerReturnsEmptyBody() {
 	ExpectThat(resp.Body, ElementsAre())
 }
 
-func (t *ConnTest) HttpsWorksProperly() {
-	// Server
-	t.server = httptest.NewTLSServer(&t.handler)
-
-	var err error
-	t.endpoint, err = url.Parse(t.server.URL)
-	AssertEq(nil, err)
-	AssertEq("https", t.endpoint.Scheme)
-
-	// Handler
-	t.handler.body = []byte("taco")
+func (t *ConnTest) HttpsAllowed() {
+	t.endpoint.Scheme = "https"
 
 	// Connection
-	conn, err := http.NewConn(t.endpoint)
+	_, err := http.NewConn(t.endpoint)
 	AssertEq(nil, err)
-
-	// Request
-	req := &http.Request{
-		Verb: "GET",
-		Path: "/",
-		Headers: map[string]string{},
-	}
-
-	// Call
-	resp, err := conn.SendRequest(req)
-	AssertEq(nil, err)
-
-	ExpectThat(resp.Body, DeepEquals([]byte("taco")))
 }
