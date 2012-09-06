@@ -16,7 +16,6 @@
 package s3
 
 import (
-	"errors"
 	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/auth"
@@ -86,5 +85,20 @@ func openBucket(
 	httpConn http.Conn,
 	signer auth.Signer,
 	clock time.Clock) (Bucket, error) {
-	return nil, errors.New("TODO: Implement openBucket.")
+	return &bucket{name, httpConn, signer, clock}, nil
+}
+
+type bucket struct {
+	name string
+	httpConn http.Conn
+	signer auth.Signer
+	clock time.Clock
+}
+
+func (b *bucket) GetObject(key string) (data []byte, err error) {
+	return nil, fmt.Errorf("TODO: Implement bucket.GetObject.")
+}
+
+func (b *bucket) StoreObject(key string, data []byte) error {
+	return fmt.Errorf("TODO: Implement bucket.StoreObject.")
 }
