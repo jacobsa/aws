@@ -58,12 +58,18 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 
 	urlStr := url.String()
 
-	// Call the system HTTP library.
+	// Create a request to the system HTTP library.
 	sysReq, err := http.NewRequest(r.Verb, urlStr, bytes.NewBuffer(r.Body))
 	if err != nil {
 		return nil, fmt.Errorf("http.NewRequest: %v", err)
 	}
 
+	// Copy headers.
+	for key, val := range r.Headers {
+		sysReq.Header[key] = append(sysReq.Header[key], val)
+	}
+
+	// Call the system HTTP library.
 	sysResp, err := http.DefaultClient.Do(sysReq)
 	if err != nil {
 		return nil, fmt.Errorf("http.DefaultClient.Do: %v", err)

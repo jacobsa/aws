@@ -135,8 +135,8 @@ func (t *ConnTest) PassesOnRequestInfo() {
 	ExpectEq("PUT", sysReq.Method)
 	ExpectEq("/foo/bar", sysReq.URL.Path)
 
-	ExpectThat(sysReq.Header["taco"], ElementsAre("burrito"))
-	ExpectThat(sysReq.Header["enchilada"], ElementsAre("queso"))
+	ExpectThat(sysReq.Header["Taco"], ElementsAre("burrito"))
+	ExpectThat(sysReq.Header["Enchilada"], ElementsAre("queso"))
 }
 
 func (t *ConnTest) ReturnsStatusCode() {
