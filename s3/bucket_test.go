@@ -16,9 +16,12 @@
 package s3
 
 import (
+	"errors"
 	"github.com/jacobsa/aws/s3/auth/mock"
+	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/s3/http/mock"
 	. "github.com/jacobsa/oglematchers"
+	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
 	"strings"
 	"testing"
@@ -91,11 +94,33 @@ func (t *StoreObjectTest) KeyTooLong() {
 	ExpectThat(err, Error(HasSubstr("bytes")))
 }
 
-func (t *StoreObjectTest) CallsSignerAndConn() {
+func (t *StoreObjectTest) CallsSigner() {
+	key := "foo/bar/baz"
+	data := []byte{0x00, 0xde, 0xad, 0xbe, 0xef}
+
+	// Signer
+	var httpReq *http.Request
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func (r *http.Request) error {
+			httpReq = r
+			return errors.New("")
+		}))
+
+	// Call
+	t.bucket.StoreObject(key, data)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("PUT", httpReq.Verb)
+	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
+	ExpectEq("TODO", httpReq.Headers["Date"])
+	ExpectThat(httpReq.Body, DeepEquals(data))
+}
+
+func (t *StoreObjectTest) SignerReturnsError() {
 	ExpectEq("TODO", "")
 }
 
-func (t *StoreObjectTest) CorrectlyEscapesKey() {
+func (t *StoreObjectTest) CallsConn() {
 	ExpectEq("TODO", "")
 }
 
