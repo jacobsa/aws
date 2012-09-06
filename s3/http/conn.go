@@ -52,8 +52,8 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 	// Create an appropriate URL.
 	url := url.URL{
 		Scheme: c.endpoint.Scheme,
-		Host: c.endpoint.Host,
-		Path: r.Path,
+		Host:   c.endpoint.Host,
+		Path:   r.Path,
 	}
 
 	urlStr := url.String()
@@ -76,7 +76,7 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 	}
 
 	// Convert the response.
-	resp := &Response {
+	resp := &Response{
 		StatusCode: sysResp.StatusCode,
 	}
 

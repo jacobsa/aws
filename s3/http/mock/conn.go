@@ -20,16 +20,16 @@ type MockConn interface {
 }
 
 type mockConn struct {
-	controller	oglemock.Controller
-	description	string
+	controller  oglemock.Controller
+	description string
 }
 
 func NewMockConn(
 	c oglemock.Controller,
 	desc string) MockConn {
 	return &mockConn{
-		controller:	c,
-		description:	desc,
+		controller:  c,
+		description: desc,
 	}
 }
 

@@ -35,8 +35,8 @@ func TestBucket(t *testing.T) { RunTests(t) }
 
 type bucketTest struct {
 	httpConn mock_http.MockConn
-	signer mock_auth.MockSigner
-	bucket Bucket
+	signer   mock_auth.MockSigner
+	bucket   Bucket
 }
 
 func (t *bucketTest) SetUp(i *TestInfo) {
@@ -101,10 +101,10 @@ func (t *StoreObjectTest) CallsSigner() {
 	// Signer
 	var httpReq *http.Request
 	ExpectCall(t.signer, "Sign")(Any()).
-		WillOnce(oglemock.Invoke(func (r *http.Request) error {
-			httpReq = r
-			return errors.New("")
-		}))
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		httpReq = r
+		return errors.New("")
+	}))
 
 	// Call
 	t.bucket.StoreObject(key, data)

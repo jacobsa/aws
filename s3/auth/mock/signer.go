@@ -7,8 +7,8 @@
 package mock_auth
 
 import (
-	auth "github.com/jacobsa/aws/s3/auth"
 	fmt "fmt"
+	auth "github.com/jacobsa/aws/s3/auth"
 	http "github.com/jacobsa/aws/s3/http"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
@@ -21,16 +21,16 @@ type MockSigner interface {
 }
 
 type mockSigner struct {
-	controller	oglemock.Controller
-	description	string
+	controller  oglemock.Controller
+	description string
 }
 
 func NewMockSigner(
 	c oglemock.Controller,
 	desc string) MockSigner {
 	return &mockSigner{
-		controller:	c,
-		description:	desc,
+		controller:  c,
+		description: desc,
 	}
 }
 

@@ -34,7 +34,7 @@ func TestSigner(t *testing.T) { RunTests(t) }
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
-type SignerTest struct {}
+type SignerTest struct{}
 
 func init() { RegisterTestSuite(&SignerTest{}) }
 
@@ -45,7 +45,7 @@ func init() { RegisterTestSuite(&SignerTest{}) }
 func (t *SignerTest) CallsFunction() {
 	// Function
 	var stsArg *http.Request
-	sts := func(r *http.Request)(string, error) { stsArg = r; return "", nil }
+	sts := func(r *http.Request) (string, error) { stsArg = r; return "", nil }
 
 	// Signer
 	signer, err := newSigner(sts, &aws.AccessKey{})
@@ -60,7 +60,7 @@ func (t *SignerTest) CallsFunction() {
 
 func (t *SignerTest) FunctionReturnsError() {
 	// Function
-	sts := func(r *http.Request)(string, error) { return "", errors.New("taco") }
+	sts := func(r *http.Request) (string, error) { return "", errors.New("taco") }
 
 	// Signer
 	signer, err := newSigner(sts, &aws.AccessKey{})
@@ -75,7 +75,7 @@ func (t *SignerTest) FunctionReturnsError() {
 
 func (t *SignerTest) FunctionReturnsString() {
 	// Function
-	sts := func(r *http.Request)(string, error) { return "taco", nil }
+	sts := func(r *http.Request) (string, error) { return "taco", nil }
 
 	// Signer
 	key := &aws.AccessKey{Id: "queso", Secret: "burrito"}
@@ -97,7 +97,7 @@ func (t *SignerTest) FunctionReturnsString() {
 
 	// Call
 	req := &http.Request{
-		Headers: map[string]string {
+		Headers: map[string]string{
 			"foo": "bar",
 		},
 	}
@@ -111,13 +111,13 @@ func (t *SignerTest) FunctionReturnsString() {
 
 func (t *SignerTest) GoldenTests() {
 	type testCase struct {
-		stringToSign string
+		stringToSign        string
 		expectedHeaderValue string
 	}
 
 	// Golden tests taken from Amazon doc examples.
 	key := &aws.AccessKey{
-		Id: "AKIAIOSFODNN7EXAMPLE",
+		Id:     "AKIAIOSFODNN7EXAMPLE",
 		Secret: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 	}
 
@@ -146,7 +146,7 @@ func (t *SignerTest) GoldenTests() {
 
 	for i, c := range cases {
 		// Function
-		sts := func(r *http.Request)(string, error) { return c.stringToSign, nil }
+		sts := func(r *http.Request) (string, error) { return c.stringToSign, nil }
 
 		// Signer
 		signer, err := newSigner(sts, key)

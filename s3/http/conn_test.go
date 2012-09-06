@@ -37,7 +37,7 @@ type localHandler struct {
 
 	// To be returned.
 	statusCode int
-	body []byte
+	body       []byte
 }
 
 func (h *localHandler) ServeHTTP(w sys_http.ResponseWriter, r *sys_http.Request) {
@@ -56,8 +56,8 @@ func (h *localHandler) ServeHTTP(w sys_http.ResponseWriter, r *sys_http.Request)
 }
 
 type ConnTest struct {
-	handler localHandler
-	server *httptest.Server
+	handler  localHandler
+	server   *httptest.Server
 	endpoint *url.URL
 }
 
@@ -94,8 +94,8 @@ func (t *ConnTest) UnknownHost() {
 
 	// Request
 	req := &http.Request{
-		Verb: "GET",
-		Path: "/foo",
+		Verb:    "GET",
+		Path:    "/foo",
 		Headers: map[string]string{},
 	}
 
@@ -116,7 +116,7 @@ func (t *ConnTest) PassesOnRequestInfo() {
 		Verb: "PUT",
 		Path: "/foo/bar",
 		Headers: map[string]string{
-			"taco": "burrito",
+			"taco":      "burrito",
 			"enchilada": "queso",
 		},
 	}
@@ -145,8 +145,8 @@ func (t *ConnTest) ReturnsStatusCode() {
 
 	// Request
 	req := &http.Request{
-		Verb: "GET",
-		Path: "/",
+		Verb:    "GET",
+		Path:    "/",
 		Headers: map[string]string{},
 	}
 
@@ -167,8 +167,8 @@ func (t *ConnTest) ReturnsBody() {
 
 	// Request
 	req := &http.Request{
-		Verb: "GET",
-		Path: "/",
+		Verb:    "GET",
+		Path:    "/",
 		Headers: map[string]string{},
 	}
 
@@ -189,8 +189,8 @@ func (t *ConnTest) ServerReturnsEmptyBody() {
 
 	// Request
 	req := &http.Request{
-		Verb: "GET",
-		Path: "/",
+		Verb:    "GET",
+		Path:    "/",
 		Headers: map[string]string{},
 	}
 
