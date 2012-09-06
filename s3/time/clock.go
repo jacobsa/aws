@@ -21,11 +21,11 @@ import (
 )
 
 type Clock interface {
-	// Return the current time.
+	// Return the current local time.
 	Now() time.Time
 }
 
-// Return a clock that uses the real time, with locations set to UTC.
+// Return a clock that uses the real time.
 func RealClock() Clock {
 	return &realClock{}
 }
@@ -33,5 +33,5 @@ func RealClock() Clock {
 type realClock struct {}
 
 func (c *realClock) Now() time.Time {
-	return time.Now().UTC()
+	return time.Now()
 }
