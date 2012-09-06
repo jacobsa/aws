@@ -182,7 +182,7 @@ func (t *StoreObjectTest) ConnReturnsError() {
 
 	// Conn
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
-		WillOnce(oglemock.Return(errors.New("taco")))
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
 
 	// Call
 	err := t.bucket.StoreObject(key, data)
@@ -192,7 +192,28 @@ func (t *StoreObjectTest) ConnReturnsError() {
 }
 
 func (t *StoreObjectTest) ServerReturnsError() {
-	ExpectEq("TODO", "")
+	key := ""
+	data := []byte{}
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 500,
+		Body: []byte("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	err := t.bucket.StoreObject(key, data)
+
+	ExpectThat(err, Error(HasSubstr("server")))
+	ExpectThat(err, Error(HasSubstr("123")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *StoreObjectTest) ServerSaysOkay() {
