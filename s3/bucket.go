@@ -21,6 +21,7 @@ import (
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/auth"
 	"github.com/jacobsa/aws/s3/http"
+	"github.com/jacobsa/aws/s3/time"
 	"net/url"
 )
 
@@ -71,7 +72,7 @@ func OpenBucket(name string, region Region, key aws.AccessKey) (Bucket, error) {
 		return nil, fmt.Errorf("auth.NewSigner: %v", err)
 	}
 
-	return openBucket(name, httpConn, signer)
+	return openBucket(name, httpConn, signer, time.RealClock())
 }
 
 func (e *NonExistentBucketError) Error() string {
@@ -83,6 +84,7 @@ func (e *NonExistentBucketError) Error() string {
 func openBucket(
 	name string,
 	httpConn http.Conn,
-	signer auth.Signer) (Bucket, error) {
+	signer auth.Signer,
+	clock time.Clock) (Bucket, error) {
 	return nil, errors.New("TODO: Implement openBucket.")
 }

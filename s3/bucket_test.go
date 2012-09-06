@@ -25,6 +25,7 @@ import (
 	. "github.com/jacobsa/ogletest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestBucket(t *testing.T) { RunTests(t) }
@@ -33,10 +34,19 @@ func TestBucket(t *testing.T) { RunTests(t) }
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
+type fakeClock struct {
+	now time.Time
+}
+
+func (c *fakeClock) Now() time.Time {
+	return c.now
+}
+
 type bucketTest struct {
 	httpConn mock_http.MockConn
 	signer   mock_auth.MockSigner
 	bucket   Bucket
+	clock    *fakeClock
 }
 
 func (t *bucketTest) SetUp(i *TestInfo) {
@@ -44,7 +54,9 @@ func (t *bucketTest) SetUp(i *TestInfo) {
 
 	t.httpConn = mock_http.NewMockConn(i.MockController, "httpConn")
 	t.signer = mock_auth.NewMockSigner(i.MockController, "signer")
-	t.bucket, err = openBucket("some.bucket", t.httpConn, t.signer)
+	t.clock = &fakeClock{}
+
+	t.bucket, err = openBucket("some.bucket", t.httpConn, t.signer, t.clock)
 	AssertEq(nil, err)
 }
 

@@ -24,3 +24,14 @@ type Clock interface {
 	// Return the current time.
 	Now() time.Time
 }
+
+// Return a clock that uses the real time, with locations set to UTC.
+func RealClock() Clock {
+	return &realClock{}
+}
+
+type realClock struct {}
+
+func (c *realClock) Now() time.Time {
+	return time.Now().UTC()
+}
