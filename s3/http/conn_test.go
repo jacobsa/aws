@@ -13,21 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package http
+package http_test
 
 import (
-	"errors"
+	. "github.com/jacobsa/ogletest"
+	"testing"
 )
 
-// A connection to a particular server over a particular protocol (HTTP or
-// HTTPS).
-type Conn interface {
-	// Call the server with the supplied request, returning a response if and
-	// only if a response was received from the server. (That is, a 500 error
-	// from the server will be returned here as a response with a nil error).
-	SendRequest(r *Request) (*Response, error)
-}
+func TestConn(t *testing.T) { RunTests(t) }
 
-func NewConn(host, scheme string) (Conn, error) {
-	return nil, errors.New("TODO: Implement NewConn.")
+////////////////////////////////////////////////////////////////////////
+// Helpers
+////////////////////////////////////////////////////////////////////////
+
+type ConnTest struct {}
+
+func init() { RegisterTestSuite(&ConnTest{}) }
+
+////////////////////////////////////////////////////////////////////////
+// Tests
+////////////////////////////////////////////////////////////////////////
+
+func (t *ConnTest) DoesFoo() {
+	ExpectEq("TODO", "")
 }
