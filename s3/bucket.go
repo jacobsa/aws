@@ -22,6 +22,7 @@ import (
 	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/s3/time"
 	"net/url"
+	sys_time "time"
 	"unicode/utf8"
 )
 
@@ -102,6 +103,9 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	httpReq := &http.Request{
 		Verb: "PUT",
 		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Headers: map[string]string {
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
 	}
 
 	// Sign the request.

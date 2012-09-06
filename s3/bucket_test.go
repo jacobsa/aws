@@ -111,7 +111,7 @@ func (t *StoreObjectTest) CallsSigner() {
 	data := []byte{0x00, 0xde, 0xad, 0xbe, 0xef}
 
 	// Clock
-	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.Local)
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
 
 	// Signer
 	var httpReq *http.Request
@@ -127,7 +127,7 @@ func (t *StoreObjectTest) CallsSigner() {
 	AssertNe(nil, httpReq)
 	ExpectEq("PUT", httpReq.Verb)
 	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
-	ExpectEq("Mon, 18 Mar 1985 123:33:17 UTC", httpReq.Headers["Date"])
+	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
 	ExpectThat(httpReq.Body, DeepEquals(data))
 }
 
