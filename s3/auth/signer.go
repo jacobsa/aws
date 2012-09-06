@@ -16,6 +16,10 @@
 package auth
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/http"
@@ -48,5 +52,31 @@ type signer struct {
 }
 
 func (s *signer) Sign(r *http.Request) error {
-	return fmt.Errorf("TODO")
+	// Canonicalize the request.
+	toSign, err := s.sts(r)
+	if err != nil {
+		return fmt.Errorf("stringToSign: %v", err)
+	}
+
+	// Sign the request.
+	h := hmac.New(sha1.New, []byte(s.key.Secret))
+	if _, err := h.Write([]byte(toSign)); err != nil {
+		return fmt.Errorf("hmac.Write: %v", err)
+	}
+
+	signature := h.Sum(nil)
+
+	// Base64-encode the result.
+	buf := new(bytes.Buffer)
+	encoder := base64.NewEncoder(base64.StdEncoding, buf)
+	if _, err := encoder.Write(signature); err != nil {
+		return fmt.Errorf("encoder.Write: %v", err)
+	}
+
+	encoder.Close()
+
+	// Add the appropriate header.
+	r.Headers["Authorization"] = fmt.Sprintf("AWS %s:%s", s.key.Id, buf.String())
+
+	return nil
 }
