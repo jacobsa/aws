@@ -38,6 +38,7 @@ func init() { RegisterTestSuite(&ConnTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *ConnTest) InvalidScheme() {
+	// Connection
 	_, err := http.NewConn("localhost", "taco")
 
 	ExpectThat(err, Error(HasSubstr("scheme")))
@@ -45,6 +46,24 @@ func (t *ConnTest) InvalidScheme() {
 }
 
 func (t *ConnTest) UnknownHost() {
+	// Connection
+	conn, err := http.NewConn("localhost", "taco")
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb: "GET",
+		Path: "/foo",
+		Headers: map[string]string{},
+	}
+
+	// Call
+	_, err = conn.SendRequest(req)
+
+	ExpectThat(err, Error(HasSubstr("TODO")))
+}
+
+func (t *ConnTest) InvalidVerb() {
 	ExpectEq("TODO", "")
 }
 
