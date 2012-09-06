@@ -78,7 +78,7 @@ func (t *SignerTest) FunctionReturnsString() {
 	sts := func(r *http.Request)(string, error) { return "taco", nil }
 
 	// Signer
-	key := aws.AccessKey{Secret: "burrito"}
+	key := aws.AccessKey{Id: "queso", Secret: "burrito"}
 	signer, err := newSigner(sts, key)
 	AssertEq(nil, err)
 
@@ -93,7 +93,7 @@ func (t *SignerTest) FunctionReturnsString() {
 	AssertEq(nil, err)
 	AssertEq(nil, encoder.Close())
 
-	expected := buf.String()
+	expected := "AWS queso:" + buf.String()
 
 	// Call
 	req := &http.Request{
@@ -110,5 +110,53 @@ func (t *SignerTest) FunctionReturnsString() {
 }
 
 func (t *SignerTest) GoldenTests() {
-	ExpectEq("TODO", "")
+	type testCase struct {
+		stringToSign string
+		expectedHeaderValue string
+	}
+
+	// Golden tests taken from Amazon doc examples.
+	key := aws.AccessKey{
+		Id: "AKIAIOSFODNN7EXAMPLE",
+		Secret: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+	}
+
+	cases := []testCase{
+		testCase{
+			"GET\n\n\nTue, 27 Mar 2007 19:36:42 +0000\n/johnsmith/photos/puppy.jpg",
+			"AWS AKIAIOSFODNN7EXAMPLE:bWq2s1WEIj+Ydj0vQ697zp+IXMU=",
+		},
+		testCase{
+			"PUT\n\nimage/jpeg\nTue, 27 Mar 2007 21:15:45 +0000\n/johnsmith/photos/puppy.jpg",
+			"AWS AKIAIOSFODNN7EXAMPLE:MyyxeRY7whkBe+bq8fHCL/2kKUg=",
+		},
+		testCase{
+			"GET\n\n\nTue, 27 Mar 2007 19:42:41 +0000\n/johnsmith/",
+			"AWS AKIAIOSFODNN7EXAMPLE:htDYFYduRNen8P9ZfE/s9SuKy0U=",
+		},
+		testCase{
+			"GET\n\n\nTue, 27 Mar 2007 19:44:46 +0000\n/johnsmith/?acl",
+			"AWS AKIAIOSFODNN7EXAMPLE:c2WLPFtWHVgbEmeEG93a4cG37dM=",
+		},
+		testCase{
+			"DELETE\n\n\nx-amz-date:Tue, 27 Mar 2007 21:20:26 +0000\n/johnsmith/photos/puppy.jpg",
+			"AWS AKIAIOSFODNN7EXAMPLE:9b2sXq0KfxsxHtdZkzx/9Ngqyh8=",
+		},
+	}
+
+	for i, c := range cases {
+		// Function
+		sts := func(r *http.Request)(string, error) { return c.stringToSign, nil }
+
+		// Signer
+		signer, err := newSigner(sts, key)
+		AssertEq(nil, err)
+
+		// Call
+		req := &http.Request{}
+		err = signer.Sign(req)
+		AssertEq(nil, err)
+
+		ExpectEq(c.expectedHeaderValue, req.Headers["Authorization"], "Case %d: %v", i, c)
+	}
 }
