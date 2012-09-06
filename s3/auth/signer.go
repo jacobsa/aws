@@ -16,6 +16,7 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/http"
 )
@@ -38,10 +39,14 @@ func NewSigner(key *aws.AccessKey) (Signer, error) {
 func newSigner(
 	sts func(*http.Request) (string, error),
 	key *aws.AccessKey) (Signer, error) {
-	return &signer{sts, key}
+	return &signer{sts, key}, nil
 }
 
 type signer struct {
 	sts func(*http.Request) (string, error)
 	key *aws.AccessKey
+}
+
+func (s *signer) Sign(r *http.Request) error {
+	return fmt.Errorf("TODO")
 }

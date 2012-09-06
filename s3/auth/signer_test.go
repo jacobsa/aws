@@ -48,7 +48,7 @@ func (t *SignerTest) CallsFunction() {
 	sts := func(r *http.Request)(string, error) { stsArg = r; return "", nil }
 
 	// Signer
-	signer, err := newSigner(sts, aws.AccessKey{})
+	signer, err := newSigner(sts, &aws.AccessKey{})
 	AssertEq(nil, err)
 
 	// Call
@@ -63,7 +63,7 @@ func (t *SignerTest) FunctionReturnsError() {
 	sts := func(r *http.Request)(string, error) { return "", errors.New("taco") }
 
 	// Signer
-	signer, err := newSigner(sts, aws.AccessKey{})
+	signer, err := newSigner(sts, &aws.AccessKey{})
 	AssertEq(nil, err)
 
 	// Call
@@ -78,7 +78,7 @@ func (t *SignerTest) FunctionReturnsString() {
 	sts := func(r *http.Request)(string, error) { return "taco", nil }
 
 	// Signer
-	key := aws.AccessKey{Id: "queso", Secret: "burrito"}
+	key := &aws.AccessKey{Id: "queso", Secret: "burrito"}
 	signer, err := newSigner(sts, key)
 	AssertEq(nil, err)
 
@@ -116,7 +116,7 @@ func (t *SignerTest) GoldenTests() {
 	}
 
 	// Golden tests taken from Amazon doc examples.
-	key := aws.AccessKey{
+	key := &aws.AccessKey{
 		Id: "AKIAIOSFODNN7EXAMPLE",
 		Secret: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 	}
