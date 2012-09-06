@@ -59,3 +59,7 @@ func (t *ConnTest) ServerReturns500() {
 func (t *ConnTest) ServerReturnsEmptyBody() {
 	ExpectEq("TODO", "")
 }
+
+func (t *ConnTest) HttpsWorksProperly() {
+	ExpectEq("TODO", "")
+}
