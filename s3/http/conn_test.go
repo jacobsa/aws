@@ -106,10 +106,6 @@ func (t *ConnTest) UnknownHost() {
 	ExpectThat(err, Error(HasSubstr("no such host")))
 }
 
-func (t *ConnTest) InvalidVerb() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ConnTest) PassesOnRequestInfo() {
 	// Connection
 	conn, err := http.NewConn(t.endpoint)
@@ -206,5 +202,31 @@ func (t *ConnTest) ServerReturnsEmptyBody() {
 }
 
 func (t *ConnTest) HttpsWorksProperly() {
-	ExpectEq("TODO", "")
+	// Server
+	t.server = httptest.NewTLSServer(&t.handler)
+
+	var err error
+	t.endpoint, err = url.Parse(t.server.URL)
+	AssertEq(nil, err)
+	AssertEq("https", t.endpoint.Scheme)
+
+	// Handler
+	t.handler.body = []byte("taco")
+
+	// Connection
+	conn, err := http.NewConn(t.endpoint)
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb: "GET",
+		Path: "/",
+		Headers: map[string]string{},
+	}
+
+	// Call
+	resp, err := conn.SendRequest(req)
+	AssertEq(nil, err)
+
+	ExpectThat(resp.Body, DeepEquals([]byte("taco")))
 }
