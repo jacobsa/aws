@@ -103,16 +103,30 @@ func (t *ConnTest) PassesOnRequestInfo() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ConnTest) ServerReturns200() {
+func (t *ConnTest) ReturnsStatusCode() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ConnTest) ServerReturns404() {
-	ExpectEq("TODO", "")
-}
+func (t *ConnTest) ReturnsBody() {
+	// Handler
+	t.handler.body = []byte{0xde, 0xad, 0x00, 0xbe, 0xef}
 
-func (t *ConnTest) ServerReturns500() {
-	ExpectEq("TODO", "")
+	// Connection
+	conn, err := http.NewConn(t.endpoint)
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb: "GET",
+		Path: "/",
+		Headers: map[string]string{},
+	}
+
+	// Call
+	resp, err := conn.SendRequest(req)
+	AssertEq(nil, err)
+
+	ExpectThat(resp.Body, DeepEquals(t.handler.body))
 }
 
 func (t *ConnTest) ServerReturnsEmptyBody() {
