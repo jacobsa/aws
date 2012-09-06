@@ -212,7 +212,7 @@ func (t *StoreObjectTest) ServerReturnsError() {
 	err := t.bucket.StoreObject(key, data)
 
 	ExpectThat(err, Error(HasSubstr("server")))
-	ExpectThat(err, Error(HasSubstr("123")))
+	ExpectThat(err, Error(HasSubstr("500")))
 	ExpectThat(err, Error(HasSubstr("taco")))
 }
 

@@ -103,6 +103,7 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	httpReq := &http.Request{
 		Verb: "PUT",
 		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Body: data,
 		Headers: map[string]string {
 			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
 		},
@@ -121,7 +122,7 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 
 	// Check the response.
 	if httpResp.StatusCode != 200 {
-		return fmt.Errorf("Error from server: %s", httpResp.Body)
+		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
 	}
 
 	return nil
