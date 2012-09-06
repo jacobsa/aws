@@ -128,6 +128,14 @@ func (t *StoreObjectTest) CallsSigner() {
 	ExpectThat(httpReq.Body, DeepEquals(data))
 }
 
+func (t *StoreObjectTest) ClockReturnsLocalTime() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StoreObjectTest) ClockReturnsUtcTime() {
+	ExpectEq("TODO", "")
+}
+
 func (t *StoreObjectTest) SignerReturnsError() {
 	ExpectEq("TODO", "")
 }
