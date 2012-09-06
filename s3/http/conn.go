@@ -32,7 +32,9 @@ type Conn interface {
 	SendRequest(r *Request) (*Response, error)
 }
 
-func NewConn(host, scheme string) (Conn, error) {
+// Return a connection to the supplied endpoint, based on its scheme, host, and
+// port fields.
+func NewConn(endpoint url.URL) (Conn, error) {
 	switch scheme {
 	case "http", "https":
 	default:

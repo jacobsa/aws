@@ -31,14 +31,22 @@ func TestConn(t *testing.T) { RunTests(t) }
 ////////////////////////////////////////////////////////////////////////
 
 type localHandler struct {
+	// To be returned.
+	statusCode int
+	body []byte
 }
 
-func (h *localHandler) ServeHTTP(sys_http.ResponseWriter, *sys_http.Request) {
+func (h *localHandler) ServeHTTP(w sys_http.ResponseWriter, r *sys_http.Request) {
+	w.WriteHeader(h.statusCode)
+	if _, err := w.Write(h.body); err != nil {
+		panic(err)
+	}
 }
 
 type ConnTest struct {
 	handler localHandler
 	server *httptest.Server
+
 }
 
 func init() { RegisterTestSuite(&ConnTest{}) }
