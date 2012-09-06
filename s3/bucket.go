@@ -110,10 +110,15 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	}
 
 	// Send the request.
-	_, err := b.httpConn.SendRequest(httpReq)
+	httpResp, err := b.httpConn.SendRequest(httpReq)
 	if err != nil {
 		return fmt.Errorf("SendRequest: %v", err)
 	}
 
-	return fmt.Errorf("TODO: Implement bucket.StoreObject.")
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return fmt.Errorf("Error from server: %s", httpResp.Body)
+	}
+
+	return nil
 }
