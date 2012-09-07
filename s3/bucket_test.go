@@ -90,7 +90,13 @@ type GetObjectTest struct {
 func init() { RegisterTestSuite(&GetObjectTest{}) }
 
 func (t *GetObjectTest) KeyNotValidUtf8() {
-	ExpectEq("TODO", "")
+	key := "\x80\x81\x82"
+
+	// Call
+	_, err := t.bucket.GetObject(key)
+
+	ExpectThat(err, Error(HasSubstr("valid")))
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *GetObjectTest) KeyTooLong() {
