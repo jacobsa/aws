@@ -187,6 +187,12 @@ func validateKey(key string) error {
 		return fmt.Errorf("Keys may not contain null characters.")
 	}
 
+	// An empty sequence is also a sequence, but as of 2012-09 it fails in the
+	// same way.
+	if key == "" {
+		return fmt.Errorf("Keys must be non-empty.")
+	}
+
 	return nil
 }
 

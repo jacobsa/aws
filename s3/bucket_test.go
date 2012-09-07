@@ -118,6 +118,15 @@ func (t *GetObjectTest) KeyContainsNullByte() {
 	ExpectThat(err, Error(HasSubstr("null")))
 }
 
+func (t *GetObjectTest) KeyIsEmpty() {
+	key := ""
+
+	// Call
+	_, err := t.bucket.GetObject(key)
+
+	ExpectThat(err, Error(HasSubstr("empty")))
+}
+
 func (t *GetObjectTest) CallsSigner() {
 	key := "foo/bar/baz"
 
@@ -142,7 +151,7 @@ func (t *GetObjectTest) CallsSigner() {
 }
 
 func (t *GetObjectTest) SignerReturnsError() {
-	key := ""
+	key := "a"
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -156,7 +165,7 @@ func (t *GetObjectTest) SignerReturnsError() {
 }
 
 func (t *GetObjectTest) CallsConn() {
-	key := ""
+	key := "a"
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -181,7 +190,7 @@ func (t *GetObjectTest) CallsConn() {
 }
 
 func (t *GetObjectTest) ConnReturnsError() {
-	key := ""
+	key := "a"
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -199,7 +208,7 @@ func (t *GetObjectTest) ConnReturnsError() {
 }
 
 func (t *GetObjectTest) ServerReturnsError() {
-	key := ""
+	key := "a"
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -223,7 +232,7 @@ func (t *GetObjectTest) ServerReturnsError() {
 }
 
 func (t *GetObjectTest) ReturnsResponseBody() {
-	key := ""
+	key := "a"
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -287,6 +296,16 @@ func (t *StoreObjectTest) KeyContainsNullByte() {
 	ExpectThat(err, Error(HasSubstr("null")))
 }
 
+func (t *StoreObjectTest) KeyIsEmpty() {
+	key := ""
+	data := []byte{}
+
+	// Call
+	err := t.bucket.StoreObject(key, data)
+
+	ExpectThat(err, Error(HasSubstr("empty")))
+}
+
 func (t *StoreObjectTest) CallsSigner() {
 	key := "foo/bar/baz"
 	data := []byte{0x00, 0xde, 0xad, 0xbe, 0xef}
@@ -314,7 +333,7 @@ func (t *StoreObjectTest) CallsSigner() {
 }
 
 func (t *StoreObjectTest) SignerReturnsError() {
-	key := ""
+	key := "a"
 	data := []byte{}
 
 	// Signer
@@ -329,7 +348,7 @@ func (t *StoreObjectTest) SignerReturnsError() {
 }
 
 func (t *StoreObjectTest) CallsConn() {
-	key := ""
+	key := "a"
 	data := []byte{}
 
 	// Signer
@@ -355,7 +374,7 @@ func (t *StoreObjectTest) CallsConn() {
 }
 
 func (t *StoreObjectTest) ConnReturnsError() {
-	key := ""
+	key := "a"
 	data := []byte{}
 
 	// Signer
@@ -374,7 +393,7 @@ func (t *StoreObjectTest) ConnReturnsError() {
 }
 
 func (t *StoreObjectTest) ServerReturnsError() {
-	key := ""
+	key := "a"
 	data := []byte{}
 
 	// Signer
@@ -399,7 +418,7 @@ func (t *StoreObjectTest) ServerReturnsError() {
 }
 
 func (t *StoreObjectTest) ServerSaysOkay() {
-	key := ""
+	key := "a"
 	data := []byte{}
 
 	// Signer
