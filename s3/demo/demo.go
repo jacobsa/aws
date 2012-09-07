@@ -59,17 +59,18 @@ func main() {
 	}
 
 	// Attempt to create an object.
+	objectName := "타코"
 	data := []byte("taco")
 	data = append(data, 0x00)
 	data = append(data, []byte("burrito")...)
 
-	if err := bucket.StoreObject("some_taco", data); err != nil {
+	if err := bucket.StoreObject(objectName, data); err != nil {
 		fmt.Println("StoreObject:", err)
 		os.Exit(1)
 	}
 
 	// Read the object back.
-	dataRead, err := bucket.GetObject("some_taco")
+	dataRead, err := bucket.GetObject(objectName)
 	if err != nil {
 		fmt.Println("GetObject:", err)
 		os.Exit(1)
