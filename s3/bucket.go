@@ -94,12 +94,8 @@ func (b *bucket) GetObject(key string) (data []byte, err error) {
 
 func (b *bucket) StoreObject(key string, data []byte) error {
 	// Validate the key.
-	if len(key) > 1024 {
-		return fmt.Errorf("Keys may be no longer than 1024 bytes.")
-	}
-
-	if !utf8.ValidString(key) {
-		return fmt.Errorf("Keys must be valid UTF-8.")
+	if err := validateKey(key); err != nil {
+		return err
 	}
 
 	// Build an appropriate HTTP request.
@@ -134,6 +130,18 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	// Check the response.
 	if httpResp.StatusCode != 200 {
 		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	return nil
+}
+
+func validateKey(key string) error {
+	if len(key) > 1024 {
+		return fmt.Errorf("Keys may be no longer than 1024 bytes.")
+	}
+
+	if !utf8.ValidString(key) {
+		return fmt.Errorf("Keys must be valid UTF-8.")
 	}
 
 	return nil
