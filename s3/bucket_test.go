@@ -70,7 +70,35 @@ type GetObjectTest struct {
 
 func init() { RegisterTestSuite(&GetObjectTest{}) }
 
-func (t *GetObjectTest) DoesFoo() {
+func (t *GetObjectTest) KeyNotValidUtf8() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetObjectTest) KeyTooLong() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetObjectTest) CallsSigner() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetObjectTest) SignerReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetObjectTest) CallsConn() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetObjectTest) ConnReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetObjectTest) ServerReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetObjectTest) ServerSaysOkay() {
 	ExpectEq("TODO", "")
 }
 
