@@ -100,7 +100,13 @@ func (t *GetObjectTest) KeyNotValidUtf8() {
 }
 
 func (t *GetObjectTest) KeyTooLong() {
-	ExpectEq("TODO", "")
+	key := strings.Repeat("a", 1025)
+
+	// Call
+	_, err := t.bucket.GetObject(key)
+
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
 }
 
 func (t *GetObjectTest) CallsSigner() {
