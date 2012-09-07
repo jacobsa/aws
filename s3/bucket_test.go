@@ -133,7 +133,17 @@ func (t *GetObjectTest) CallsSigner() {
 }
 
 func (t *GetObjectTest) SignerReturnsError() {
-	ExpectEq("TODO", "")
+	key := ""
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(errors.New("taco")))
+
+	// Call
+	_, err := t.bucket.GetObject(key)
+
+	ExpectThat(err, Error(HasSubstr("Sign")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *GetObjectTest) CallsConn() {
