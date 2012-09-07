@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package s3 contains types for working with the Amazon Simple Storage
-// Service, also known as Amazon S3.
+// Package s3 contains a very simple client for the Amazon Simple Storage
+// Service, also known as Amazon S3. Only the most basic of operations are
+// supported.
 //
 // See here for more info:
 //

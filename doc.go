@@ -13,29 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package aws contains sub-packages for working with the various Amazon Web
+// Services.
 package aws
-
-// AccessKey represents an AWS access key, including its ID and associated
-// secret.
-//
-// To manage your access keys, use this site:
-//
-//     https://portal.aws.amazon.com/gp/aws/securityCredentials
-//
-type AccessKey struct {
-	// The key's ID.
-	//
-	// For example:
-	//
-	//     AKIAIOSFODNN7EXAMPLE
-	//
-	Id string
-
-	// The key's associated secret.
-	//
-	// For example:
-	//
-	//     wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-	//
-	Secret string
-}
