@@ -129,7 +129,11 @@ func (t *GetObjectTest) ServerReturnsError() {
 	ExpectEq("TODO", "")
 }
 
-func (t *GetObjectTest) ServerSaysOkay() {
+func (t *GetObjectTest) ServerReturnsWrongContentLength() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetObjectTest) ReturnsResponseBody() {
 	ExpectEq("TODO", "")
 }
 
