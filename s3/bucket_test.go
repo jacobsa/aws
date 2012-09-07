@@ -147,7 +147,28 @@ func (t *GetObjectTest) SignerReturnsError() {
 }
 
 func (t *GetObjectTest) CallsConn() {
-	ExpectEq("TODO", "")
+	key := ""
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		r.Verb = "burrito"
+		return nil
+	}))
+
+	// Conn
+	var httpReq *http.Request
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) (*http.Response, error) {
+		httpReq = r
+		return nil, errors.New("")
+	}))
+
+	// Call
+	t.bucket.GetObject(key)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("burrito", httpReq.Verb)
 }
 
 func (t *GetObjectTest) ConnReturnsError() {
