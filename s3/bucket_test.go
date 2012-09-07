@@ -172,11 +172,45 @@ func (t *GetObjectTest) CallsConn() {
 }
 
 func (t *GetObjectTest) ConnReturnsError() {
-	ExpectEq("TODO", "")
+	key := ""
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
+
+	// Call
+	_, err := t.bucket.GetObject(key)
+
+	ExpectThat(err, Error(HasSubstr("SendRequest")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *GetObjectTest) ServerReturnsError() {
-	ExpectEq("TODO", "")
+	key := ""
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 500,
+		Body:       []byte("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	_, err := t.bucket.GetObject(key)
+
+	ExpectThat(err, Error(HasSubstr("server")))
+	ExpectThat(err, Error(HasSubstr("500")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *GetObjectTest) ServerReturnsWrongContentLength() {
