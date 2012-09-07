@@ -213,10 +213,6 @@ func (t *GetObjectTest) ServerReturnsError() {
 	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
-func (t *GetObjectTest) ServerReturnsWrongContentLength() {
-	ExpectEq("TODO", "")
-}
-
 func (t *GetObjectTest) ReturnsResponseBody() {
 	ExpectEq("TODO", "")
 }
