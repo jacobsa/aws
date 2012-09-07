@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// Attempt to create an object.
-	objectName := "타코"
+	objectName := "타코&burrito?enchilada"
 	data := []byte("taco")
 	data = append(data, 0x00)
 	data = append(data, []byte("burrito")...)
