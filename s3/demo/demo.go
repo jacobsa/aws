@@ -16,6 +16,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"github.com/jacobsa/aws"
@@ -23,11 +24,17 @@ import (
 	"os"
 )
 
+var keyId = flag.String("key_id", "", "Access key ID.")
 var bucketName = flag.String("bucket", "", "Bucket name.")
 var region = flag.String("region", "", "Region endpoint server.")
 
 func main() {
 	flag.Parse()
+
+	if *keyId == "" {
+		fmt.Println("You must set the -key_id flag.")
+		os.Exit(1)
+	}
 
 	if *bucketName == "" {
 		fmt.Println("You must set the -bucket flag.")
@@ -40,15 +47,41 @@ func main() {
 	}
 
 	// Read in the access key.
-	accessKey := aws.AccessKey{}
-	accessKey.Id = readPassword("Access key ID: ")
+	accessKey := aws.AccessKey{Id: *keyId}
 	accessKey.Secret = readPassword("Access key secret: ")
 
-	// Create a bucket object.
-	_, err := s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
+	// Open a bucket.
+	bucket, err := s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
 	if err != nil {
 		fmt.Println("Opening bucket:", err)
 		os.Exit(1)
 	}
+
+	// Attempt to create an object.
+	data := []byte("taco")
+	data = append(data, 0x00)
+	data = append(data, []byte("burrito")...)
+
+	if err := bucket.StoreObject("some_taco", data); err != nil {
+		fmt.Println("StoreObject:", err)
+		os.Exit(1)
+	}
+
+	// Read the object back.
+	dataRead, err := bucket.GetObject("some_taco")
+	if err != nil {
+		fmt.Println("GetObject:", err)
+		os.Exit(1)
+	}
+
+	// Make sure the result is identical.
+	if !bytes.Equal(data, dataRead) {
+		fmt.Printf("Mismatch; %x vs. %x\n", data, dataRead)
+		os.Exit(1)
+	}
+
+	// Attempt to load a non-existent object.
+	_, err = bucket.GetObject("other_name")
+	fmt.Println("404 error:", err)
 }
 
