@@ -89,7 +89,40 @@ type bucket struct {
 }
 
 func (b *bucket) GetObject(key string) (data []byte, err error) {
-	return nil, fmt.Errorf("TODO: Implement bucket.GetObject.")
+	// Validate the key.
+	if err := validateKey(key); err != nil {
+		return nil, err
+	}
+
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectGET.html
+	httpReq := &http.Request{
+		Verb: "GET",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Headers: map[string]string{
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return nil, fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	return httpResp.Body, nil
 }
 
 func (b *bucket) StoreObject(key string, data []byte) error {
