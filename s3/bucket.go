@@ -25,6 +25,7 @@ import (
 	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/s3/time"
 	"net/url"
+	"strings"
 	sys_time "time"
 	"unicode/utf8"
 )
@@ -169,12 +170,21 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 }
 
 func validateKey(key string) error {
+	// Keys must be valid UTF-8 no more than 1024 bytes long.
 	if len(key) > 1024 {
 		return fmt.Errorf("Keys may be no longer than 1024 bytes.")
 	}
 
 	if !utf8.ValidString(key) {
 		return fmt.Errorf("Keys must be valid UTF-8.")
+	}
+
+	// The Amazon docs only put the above restrictions on keys. However as of
+	// 2012-09, sending a request for a bucket with a null character in its name
+	// fails with a silent HTTP 400, despite the fact that it is a valid Unicode
+	// character.
+	if strings.ContainsRune(key, 0x00) {
+		return fmt.Errorf("Keys may not contain null characters.")
 	}
 
 	return nil

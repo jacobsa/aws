@@ -109,6 +109,15 @@ func (t *GetObjectTest) KeyTooLong() {
 	ExpectThat(err, Error(HasSubstr("bytes")))
 }
 
+func (t *GetObjectTest) KeyContainsNullByte() {
+	key := "taco\x00burrito"
+
+	// Call
+	_, err := t.bucket.GetObject(key)
+
+	ExpectThat(err, Error(HasSubstr("null")))
+}
+
 func (t *GetObjectTest) CallsSigner() {
 	key := "foo/bar/baz"
 
@@ -266,6 +275,16 @@ func (t *StoreObjectTest) KeyTooLong() {
 
 	ExpectThat(err, Error(HasSubstr("1024")))
 	ExpectThat(err, Error(HasSubstr("bytes")))
+}
+
+func (t *StoreObjectTest) KeyContainsNullByte() {
+	key := "taco\x00burrito"
+	data := []byte{}
+
+	// Call
+	err := t.bucket.StoreObject(key, data)
+
+	ExpectThat(err, Error(HasSubstr("null")))
 }
 
 func (t *StoreObjectTest) CallsSigner() {
