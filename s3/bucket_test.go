@@ -110,7 +110,26 @@ func (t *GetObjectTest) KeyTooLong() {
 }
 
 func (t *GetObjectTest) CallsSigner() {
-	ExpectEq("TODO", "")
+	key := "foo/bar/baz"
+
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+
+	// Signer
+	var httpReq *http.Request
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		httpReq = r
+		return errors.New("")
+	}))
+
+	// Call
+	t.bucket.GetObject(key)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("GET", httpReq.Verb)
+	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
+	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
 }
 
 func (t *GetObjectTest) SignerReturnsError() {
