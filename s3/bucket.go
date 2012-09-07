@@ -100,6 +100,9 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	}
 
 	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectPUT.html
 	httpReq := &http.Request{
 		Verb: "PUT",
 		Path: fmt.Sprintf("/%s/%s", b.name, key),
