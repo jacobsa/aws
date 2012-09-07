@@ -17,7 +17,7 @@ package s3
 
 // Region represents a regional endpoint to S3. Resources created within one
 // region are entirely independent of those created in others. You should use
-// one of the Region* constants defined by this package when referring to
+// one of the region constants defined by this package when referring to
 // regions.
 //
 // See here for more info:
