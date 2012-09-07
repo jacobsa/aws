@@ -16,6 +16,9 @@
 package s3
 
 import (
+	"bytes"
+	"crypto/md5"
+	"encoding/base64"
 	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/auth"
@@ -111,6 +114,21 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
 		},
 	}
+
+	// Add a Content-MD5 header, as advised in the Amazon docs.
+	md5Hash := md5.New()
+	if _, err := md5Hash.Write(data); err != nil {
+		return fmt.Errorf("md5Hash.Write: %v", err)
+	}
+
+	base64Md5Buf := new(bytes.Buffer)
+	base64Encoder := base64.NewEncoder(base64.StdEncoding, base64Md5Buf)
+	if _, err := base64Encoder.Write(md5Hash.Sum(nil)); err != nil {
+		return fmt.Errorf("base64Encoder.Write: %v", err)
+	}
+
+	base64Encoder.Close()
+	httpReq.Headers["Content-MD5"] = base64Md5Buf.String()
 
 	// Sign the request.
 	if err := b.signer.Sign(httpReq); err != nil {

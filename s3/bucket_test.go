@@ -16,6 +16,9 @@
 package s3
 
 import (
+	"bytes"
+	"crypto/md5"
+	"encoding/base64"
 	"errors"
 	"github.com/jacobsa/aws/s3/auth/mock"
 	"github.com/jacobsa/aws/s3/http"
@@ -33,6 +36,22 @@ func TestBucket(t *testing.T) { RunTests(t) }
 ////////////////////////////////////////////////////////////////////////
 // Helpers
 ////////////////////////////////////////////////////////////////////////
+
+func computeBase64Md5(d []byte) string {
+	h := md5.New()
+	if _, err := h.Write(d); err != nil {
+		panic(err);
+	}
+
+	buf := new(bytes.Buffer)
+	e := base64.NewEncoder(base64.StdEncoding, buf)
+	if _, err := e.Write(h.Sum(nil)); err != nil {
+		panic(err)
+	}
+
+	e.Close()
+	return buf.String()
+}
 
 type fakeClock struct {
 	now time.Time
@@ -156,6 +175,7 @@ func (t *StoreObjectTest) CallsSigner() {
 	ExpectEq("PUT", httpReq.Verb)
 	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
 	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
+	ExpectEq(computeBase64Md5(data), httpReq.Headers["Content-MD5"])
 	ExpectThat(httpReq.Body, DeepEquals(data))
 }
 
