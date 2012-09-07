@@ -214,7 +214,26 @@ func (t *GetObjectTest) ServerReturnsError() {
 }
 
 func (t *GetObjectTest) ReturnsResponseBody() {
-	ExpectEq("TODO", "")
+	key := ""
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 200,
+		Body:       []byte("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	data, err := t.bucket.GetObject(key)
+	AssertEq(nil, err)
+
+	ExpectThat(data, DeepEquals([]byte("taco")))
 }
 
 ////////////////////////////////////////////////////////////////////////
