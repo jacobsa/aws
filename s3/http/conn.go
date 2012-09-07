@@ -66,7 +66,7 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 
 	// Copy headers.
 	for key, val := range r.Headers {
-		sysReq.Header[key] = append(sysReq.Header[key], val)
+		sysReq.Header.Set(key, val)
 	}
 
 	// Call the system HTTP library.
