@@ -22,6 +22,7 @@ import (
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3"
 	"os"
+	"strings"
 )
 
 var keyId = flag.String("key_id", "", "Access key ID.")
@@ -80,8 +81,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Attempt to load a non-existent object.
+	// Attempt to load a non-existent object. We should get a 404 back.
 	_, err = bucket.GetObject("other_name")
-	fmt.Println("404 error:", err)
+	if err == nil || strings.Count(err.Error(), "404") != 1 {
+		fmt.Println("Unexpected 404 error:", err)
+		os.Exit(1)
+	}
 }
 
