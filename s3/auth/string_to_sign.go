@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jacobsa/aws/s3/http"
+	"net/url"
 )
 
 // Given an HTTP request, return the string that should be signed for that
@@ -41,8 +42,10 @@ func stringToSign(r *http.Request) (string, error) {
 	// We don't yet support CanonicalizedAmzHeaders.
 	canonicalizedAmzHeaders := ""
 
-	// We currently only support simple path-style requests.
-	canonicalizedResource := r.Path
+	// Amazon's signing algorithm is weird -- it requires URL encoding for paths,
+	// but not query parameters. Luckily we currently only support simple
+	// path-style requests.
+	canonicalizedResource := (&url.URL{Path: r.Path}).RequestURI()
 
 	// Put everything together.
 	return fmt.Sprintf(

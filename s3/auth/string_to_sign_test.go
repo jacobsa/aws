@@ -75,6 +75,102 @@ func (t *StringToSignTest) MinimalRequest() {
 				"/foo/bar/baz"))
 }
 
+func (t *StringToSignTest) EmptyPath() {
+	// Request
+	req := &http.Request{
+		Verb: "PUT",
+		Path: "",
+		Headers: map[string]string{
+			"Date": "some_date",
+		},
+	}
+
+	// Call
+	s, err := stringToSign(req)
+	AssertEq(nil, err)
+
+	ExpectThat(
+		s,
+		Equals(
+			"PUT\n"+
+				"\n"+ // Content-MD5
+				"\n"+ // Content-Type
+				"some_date\n" +
+				"/"))
+}
+
+func (t *StringToSignTest) PathContainsKorean() {
+	// Request
+	req := &http.Request{
+		Verb: "PUT",
+		Path: "/타코",
+		Headers: map[string]string{
+			"Date": "some_date",
+		},
+	}
+
+	// Call
+	s, err := stringToSign(req)
+	AssertEq(nil, err)
+
+	ExpectThat(
+		s,
+		Equals(
+			"PUT\n"+
+				"\n"+ // Content-MD5
+				"\n"+ // Content-Type
+				"some_date\n" +
+				"/%ED%83%80%EC%BD%94"))
+}
+
+func (t *StringToSignTest) PathContainsQuestionMark() {
+	// Request
+	req := &http.Request{
+		Verb: "PUT",
+		Path: "/?/blah",
+		Headers: map[string]string{
+			"Date": "some_date",
+		},
+	}
+
+	// Call
+	s, err := stringToSign(req)
+	AssertEq(nil, err)
+
+	ExpectThat(
+		s,
+		Equals(
+			"PUT\n"+
+				"\n"+ // Content-MD5
+				"\n"+ // Content-Type
+				"some_date\n" +
+				"/%3F/blah"))
+}
+
+func (t *StringToSignTest) PathContainsAmpersand() {
+	// Request
+	req := &http.Request{
+		Verb: "PUT",
+		Path: "/&/blah",
+		Headers: map[string]string{
+			"Date": "some_date",
+		},
+	}
+
+	// Call
+	s, err := stringToSign(req)
+	AssertEq(nil, err)
+
+	ExpectThat(
+		s,
+		Equals(
+			"PUT\n"+
+				"\n"+ // Content-MD5
+				"\n"+ // Content-Type
+				"some_date\n" +
+				"/&/blah"))
+}
+
 func (t *StringToSignTest) IncludesContentMd5() {
 	// Request
 	req := &http.Request{

@@ -20,7 +20,8 @@ type Request struct {
 	// The HTTP verb; e.g. "PUT" or "GET".
 	Verb string
 
-	// The path of the HTTP request URI, including the bucket name.
+	// The path of the HTTP request URI, including the bucket name. This should
+	// not be URL-encoded.
 	//
 	// For example:
 	//     /mybucket/foo/bar/baz.jpg
