@@ -66,7 +66,7 @@ type Bucket interface {
 //
 // To easily create a bucket, use the AWS Console:
 //
-//     http://aws.amazon.com/console/
+//     https://console.aws.amazon.com/s3/
 //
 func OpenBucket(name string, region Region, key aws.AccessKey) (Bucket, error) {
 	// Create a connection to the given region's endpoint.

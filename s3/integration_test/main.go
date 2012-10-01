@@ -149,7 +149,7 @@ func main() {
 	if *bucketName == "" {
 		fmt.Println("You must set the -bucket flag.")
 		fmt.Println("Manage your buckets here:")
-		fmt.Println("    http://aws.amazon.com/console/")
+		fmt.Println("    https://console.aws.amazon.com/s3/")
 		os.Exit(1)
 	}
 
