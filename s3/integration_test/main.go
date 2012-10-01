@@ -156,3 +156,43 @@ func main() {
 		[]testing.InternalExample{},
 	)
 }
+
+func (t *BucketTest) ListEmptyBucket() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) ListWithEmptyMinimum() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) ListWithInvalidUtf8Minimum() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) ListWithLongMinimum() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) ListWithNullByteInMinimum() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) ListFewKeys() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) ListManyKeys() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) GetNonExistentObject() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) StoreThenGetObject() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) StoreThenDeleteObject() {
+	ExpectFalse(true, "TODO")
+}
