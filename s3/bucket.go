@@ -101,131 +101,9 @@ type bucket struct {
 	clock    time.Clock
 }
 
-func (b *bucket) GetObject(key string) (data []byte, err error) {
-	// Validate the key.
-	if err := validateKey(key); err != nil {
-		return nil, err
-	}
-
-	// Build an appropriate HTTP request.
-	//
-	// Reference:
-	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectGET.html
-	httpReq := &http.Request{
-		Verb: "GET",
-		Path: fmt.Sprintf("/%s/%s", b.name, key),
-		Headers: map[string]string{
-			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
-		},
-	}
-
-	// Sign the request.
-	if err := b.signer.Sign(httpReq); err != nil {
-		return nil, fmt.Errorf("Sign: %v", err)
-	}
-
-	// Send the request.
-	httpResp, err := b.httpConn.SendRequest(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("SendRequest: %v", err)
-	}
-
-	// Check the response.
-	if httpResp.StatusCode != 200 {
-		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
-	}
-
-	return httpResp.Body, nil
-}
-
-func (b *bucket) StoreObject(key string, data []byte) error {
-	// Validate the key.
-	if err := validateKey(key); err != nil {
-		return err
-	}
-
-	// Build an appropriate HTTP request.
-	//
-	// Reference:
-	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectPUT.html
-	httpReq := &http.Request{
-		Verb: "PUT",
-		Path: fmt.Sprintf("/%s/%s", b.name, key),
-		Body: data,
-		Headers: map[string]string{
-			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
-		},
-	}
-
-	// Add a Content-MD5 header, as advised in the Amazon docs.
-	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
-		return err
-	}
-
-	// Sign the request.
-	if err := b.signer.Sign(httpReq); err != nil {
-		return fmt.Errorf("Sign: %v", err)
-	}
-
-	// Send the request.
-	httpResp, err := b.httpConn.SendRequest(httpReq)
-	if err != nil {
-		return fmt.Errorf("SendRequest: %v", err)
-	}
-
-	// Check the response.
-	if httpResp.StatusCode != 200 {
-		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
-	}
-
-	return nil
-}
-
-func (b *bucket) DeleteObject(key string) error {
-	// Validate the key.
-	if err := validateKey(key); err != nil {
-		return err
-	}
-
-	// Build an appropriate HTTP request.
-	//
-	// Reference:
-	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectDELETE.html
-	httpReq := &http.Request{
-		Verb: "DELETE",
-		Path: fmt.Sprintf("/%s/%s", b.name, key),
-		Headers: map[string]string{
-			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
-		},
-	}
-
-	// Add a Content-MD5 header, as advised in the Amazon docs.
-	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
-		return err
-	}
-
-	// Sign the request.
-	if err := b.signer.Sign(httpReq); err != nil {
-		return fmt.Errorf("Sign: %v", err)
-	}
-
-	// Send the request.
-	httpResp, err := b.httpConn.SendRequest(httpReq)
-	if err != nil {
-		return fmt.Errorf("SendRequest: %v", err)
-	}
-
-	// Check the response.
-	if httpResp.StatusCode != 200 {
-		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
-	}
-
-	return nil
-}
-
-func (b *bucket) ListKeys(min string) (keys []string, err error) {
-	return nil, fmt.Errorf("TODO(jacobsa): Implement ListKeys.")
-}
+////////////////////////////////////////////////////////////////////////
+// Common
+////////////////////////////////////////////////////////////////////////
 
 func validateKey(key string) error {
 	// Keys must be valid UTF-8 no more than 1024 bytes long.
@@ -270,4 +148,146 @@ func addMd5Header(r *http.Request, body []byte) error {
 	r.Headers["Content-MD5"] = base64Md5Buf.String()
 
 	return nil
+}
+
+////////////////////////////////////////////////////////////////////////
+// GetObject
+////////////////////////////////////////////////////////////////////////
+
+func (b *bucket) GetObject(key string) (data []byte, err error) {
+	// Validate the key.
+	if err := validateKey(key); err != nil {
+		return nil, err
+	}
+
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectGET.html
+	httpReq := &http.Request{
+		Verb: "GET",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Headers: map[string]string{
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return nil, fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	return httpResp.Body, nil
+}
+
+////////////////////////////////////////////////////////////////////////
+// StoreObject
+////////////////////////////////////////////////////////////////////////
+
+func (b *bucket) StoreObject(key string, data []byte) error {
+	// Validate the key.
+	if err := validateKey(key); err != nil {
+		return err
+	}
+
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectPUT.html
+	httpReq := &http.Request{
+		Verb: "PUT",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Body: data,
+		Headers: map[string]string{
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
+	}
+
+	// Add a Content-MD5 header, as advised in the Amazon docs.
+	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
+		return err
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////
+// DeleteObject
+////////////////////////////////////////////////////////////////////////
+
+func (b *bucket) DeleteObject(key string) error {
+	// Validate the key.
+	if err := validateKey(key); err != nil {
+		return err
+	}
+
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectDELETE.html
+	httpReq := &http.Request{
+		Verb: "DELETE",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Headers: map[string]string{
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
+	}
+
+	// Add a Content-MD5 header, as advised in the Amazon docs.
+	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
+		return err
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////
+// ListKeys
+////////////////////////////////////////////////////////////////////////
+
+func (b *bucket) ListKeys(min string) (keys []string, err error) {
+	return nil, fmt.Errorf("TODO(jacobsa): Implement ListKeys.")
 }
