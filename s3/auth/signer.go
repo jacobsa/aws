@@ -27,6 +27,9 @@ import (
 
 // A Signer knows how to create signatures suitable for inclusion in an HTTP
 // request to S3.
+//
+// Reference:
+//     http://goo.gl/bOVNo
 type Signer interface {
 	// Add an appropriate signature header to the supplied HTTP request.
 	Sign(r *http.Request) error
