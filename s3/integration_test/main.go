@@ -54,25 +54,27 @@ type integrationTest struct {
 
 type BucketTest struct {
 	integrationTest
+	bucket s3.Bucket
 }
 
 func init() { RegisterTestSuite(&BucketTest{}) }
 
-func (t *BucketTest) TodoRefactorMe() {
-	// Open a bucket.
-	bucket, err := s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
-	if err != nil {
-		fmt.Println("Opening bucket:", err)
-		os.Exit(1)
-	}
+func (t *BucketTest) SetUp(i *TestInfo) {
+	var err error
 
+	// Open a bucket.
+	t.bucket, err = s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
+	AssertEq(nil, err)
+}
+
+func (t *BucketTest) TodoRefactorMe() {
 	// Attempt to create an object.
 	objectName := "타코&burrito?enchilada"
 	data := []byte("taco")
 	data = append(data, 0x00)
 	data = append(data, []byte("burrito")...)
 
-	if err := bucket.StoreObject(objectName, data); err != nil {
+	if err := t.bucket.StoreObject(objectName, data); err != nil {
 		fmt.Println("StoreObject:", err)
 		os.Exit(1)
 	}
@@ -80,7 +82,7 @@ func (t *BucketTest) TodoRefactorMe() {
 	// TODO(jacobsa): Test ListKeys.
 
 	// Read the object back.
-	dataRead, err := bucket.GetObject(objectName)
+	dataRead, err := t.bucket.GetObject(objectName)
 	if err != nil {
 		fmt.Println("GetObject:", err)
 		os.Exit(1)
@@ -93,7 +95,7 @@ func (t *BucketTest) TodoRefactorMe() {
 	}
 
 	// Attempt to load a non-existent object. We should get a 404 back.
-	_, err = bucket.GetObject("other_name")
+	_, err = t.bucket.GetObject("other_name")
 	if err == nil || strings.Count(err.Error(), "404") != 1 {
 		fmt.Println("Unexpected 404 error:", err)
 		os.Exit(1)
