@@ -15,7 +15,10 @@
 //
 // An integration test that uses a real S3 account. Run as follows:
 //
-//     go run integration_test/*.go -TODO
+//     go run integration_test/*.go \
+//         -key_id <key ID> \
+//         -bucket <bucket> \
+//         -region s3-ap-northeast-1.amazonaws.com
 //
 
 package main
