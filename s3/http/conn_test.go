@@ -222,7 +222,7 @@ func (t *ConnTest) PathAndParametersNeedEscaping() {
 	// Request
 	req := &http.Request{
 		Verb:    "GET",
-		Path:    "/타코/&bar?",
+		Path:    "/타코/&bar ?",
 		Headers: map[string]string{},
 		Parameters: map[string]string{
 			"b&az": "qu?x",
@@ -236,8 +236,16 @@ func (t *ConnTest) PathAndParametersNeedEscaping() {
 	AssertNe(nil, t.handler.req)
 	sysReq := t.handler.req
 
-	ExpectEq("/타코/&bar??b az=qu x", sysReq.URL.Path)
-	ExpectEq("/%ED%83%80%EC%BD%94/&bar%3F?b%26az=qu%3Fx", sysReq.RequestURI)
+	// Raw
+	ExpectEq("/%ED%83%80%EC%BD%94/&bar%20%3F?b%26az=qu%3Fx", sysReq.RequestURI)
+
+	// Path
+	ExpectEq("/타코/&bar ?", sysReq.URL.Path)
+
+	// Parameters
+	query := sysReq.URL.Query()
+	AssertEq(1, len(query), "%v", query)
+	ExpectEq("qu?x", query.Get("b&az"))
 }
 
 func (t *ConnTest) ReturnsStatusCode() {
