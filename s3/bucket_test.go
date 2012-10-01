@@ -660,5 +660,36 @@ func (t *ListKeysTest) ResponseContainsNoKeys() {
 }
 
 func (t *ListKeysTest) ResponseContainsSomeKeys() {
-	ExpectFalse(true, "TODO")
+	min := ""
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 200,
+		Body:       []byte(`
+			<?xml version="1.0" encoding="UTF-8"?>
+			<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+				<Contents>
+					<Key>bar</Key>
+				</Contents>
+				<Contents>
+					<Key>baz</Key>
+				</Contents>
+				<Contents>
+					<Key>foo</Key>
+				</Contents>
+			</ListBucketResult>`),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	keys, err := t.bucket.ListKeys(min)
+	AssertEq(nil, err)
+
+	ExpectThat(keys, ElementsAre("bar", "baz", "foo"))
 }
