@@ -50,7 +50,7 @@ func (t *BucketTest) SetUp(i *TestInfo) {
 	var err error
 
 	// Open a bucket.
-	t.bucket, err = s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
+	t.bucket, err = s3.OpenBucket(*g_bucketName, s3.Region(*g_region), g_accessKey)
 	AssertEq(nil, err)
 }
 
@@ -60,10 +60,10 @@ func (t *BucketTest) SetUp(i *TestInfo) {
 
 func (t *BucketTest) WrongAccessKeySecret() {
 	// Open a bucket with the wrong key.
-	wrongKey := accessKey
+	wrongKey := g_accessKey
 	wrongKey.Secret += "taco"
 
-	bucket, err := s3.OpenBucket(*bucketName, s3.Region(*region), wrongKey)
+	bucket, err := s3.OpenBucket(*g_bucketName, s3.Region(*g_region), wrongKey)
 	AssertEq(nil, err)
 
 	// Attempt to do something.

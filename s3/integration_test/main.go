@@ -39,10 +39,10 @@ import (
 // Globals
 ////////////////////////////////////////////////////////////////////////
 
-var keyId = flag.String("key_id", "", "Access key ID.")
-var bucketName = flag.String("bucket", "", "Bucket name.")
-var region = flag.String("region", "", "Region endpoint server.")
-var accessKey aws.AccessKey
+var g_keyId = flag.String("key_id", "", "Access key ID.")
+var g_bucketName = flag.String("bucket", "", "Bucket name.")
+var g_region = flag.String("region", "", "Region endpoint server.")
+var g_accessKey aws.AccessKey
 
 ////////////////////////////////////////////////////////////////////////
 // main
@@ -51,28 +51,28 @@ var accessKey aws.AccessKey
 func main() {
 	flag.Parse()
 
-	if *keyId == "" {
+	if *g_keyId == "" {
 		fmt.Println("You must set the -key_id flag.")
 		fmt.Println("Find a key ID here:")
 		fmt.Println("    https://portal.aws.amazon.com/gp/aws/securityCredentials")
 		os.Exit(1)
 	}
 
-	if *bucketName == "" {
+	if *g_bucketName == "" {
 		fmt.Println("You must set the -bucket flag.")
 		fmt.Println("Manage your buckets here:")
 		fmt.Println("    https://console.aws.amazon.com/s3/")
 		os.Exit(1)
 	}
 
-	if *region == "" {
+	if *g_region == "" {
 		fmt.Println("You must set the -region flag. See region.go.")
 		os.Exit(1)
 	}
 
 	// Read in the access key.
-	accessKey.Id = *keyId
-	accessKey.Secret = readPassword("Access key secret: ")
+	g_accessKey.Id = *g_keyId
+	g_accessKey.Secret = readPassword("Access key secret: ")
 
 	// Run the tests.
 	matchString := func(pat, str string) (bool, error) {
