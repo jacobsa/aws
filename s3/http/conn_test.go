@@ -160,7 +160,7 @@ func (t *ConnTest) RequestContainsOneParameter() {
 	ExpectEq("/foo/bar?baz=qux", sysReq.URL.Path)
 }
 
-func (t *ConnTest) PathAndParametersNeedEscaping() {
+func (t *ConnTest) RequestContainsMultipleParameters() {
 	// Connection
 	conn, err := http.NewConn(t.endpoint)
 	AssertEq(nil, err)
@@ -168,10 +168,11 @@ func (t *ConnTest) PathAndParametersNeedEscaping() {
 	// Request
 	req := &http.Request{
 		Verb:    "GET",
-		Path:    "/타코/bar",
+		Path:    "/foo/bar",
 		Headers: map[string]string{},
 		Parameters: map[string]string{
-			"b az": "qu?x",
+			"baz": "qux",
+			"taco": "burrito",
 		},
 	}
 
@@ -182,8 +183,33 @@ func (t *ConnTest) PathAndParametersNeedEscaping() {
 	AssertNe(nil, t.handler.req)
 	sysReq := t.handler.req
 
-	ExpectEq("/타코/bar?b az=qu x", sysReq.URL.Path)
-	ExpectEq("/%ED%83%80%EC%BD%94/bar?b%20az=qu%3Fx", sysReq.RequestURI)
+	ExpectEq("/foo/bar?baz=qux&taco=burrito", sysReq.URL.Path)
+}
+
+func (t *ConnTest) PathAndParametersNeedEscaping() {
+	// Connection
+	conn, err := http.NewConn(t.endpoint)
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb:    "GET",
+		Path:    "/타코/&bar?",
+		Headers: map[string]string{},
+		Parameters: map[string]string{
+			"b&az": "qu?x",
+		},
+	}
+
+	// Call
+	_, err = conn.SendRequest(req)
+	AssertEq(nil, err)
+
+	AssertNe(nil, t.handler.req)
+	sysReq := t.handler.req
+
+	ExpectEq("/타코/&bar??b az=qu x", sysReq.URL.Path)
+	ExpectEq("/%ED%83%80%EC%BD%94/&bar%3F?b%26az=qu%3Fx", sysReq.RequestURI)
 }
 
 func (t *ConnTest) ReturnsStatusCode() {
