@@ -82,7 +82,11 @@ func (t *BucketTest) WrongAccessKeySecret() {
 }
 
 func (t *BucketTest) GetNonExistentObject() {
-	ExpectFalse(true, "TODO")
+	_, err := t.bucket.GetObject("some_key")
+
+	ExpectThat(err, Error(HasSubstr("404")))
+	ExpectThat(err, Error(HasSubstr("some_key")))
+	ExpectThat(err, Error(HasSubstr("exist")))
 }
 
 func (t *BucketTest) StoreThenGetObject() {
