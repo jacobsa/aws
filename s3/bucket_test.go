@@ -604,6 +604,35 @@ func (t *ListKeysTest) ResponseBodyIsJunk() {
 	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
+func (t *ListKeysTest) WrongRootTag() {
+	min := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 200,
+		Body:       []byte(`
+			<?xml version="1.0" encoding="UTF-8"?>
+			<FooBar xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+				<Contents>
+					<Key>some_key</Key>
+				</Contents>
+			</FooBar>`),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	_, err := t.bucket.ListKeys(min)
+
+	ExpectThat(err, Error(HasSubstr("invalid")))
+	ExpectThat(err, Error(HasSubstr("FooBar")))
+}
+
 func (t *ListKeysTest) ResponseContainsNoKeys() {
 	ExpectFalse(true, "TODO")
 }
