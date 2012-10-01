@@ -48,12 +48,22 @@ type conn struct {
 	endpoint *url.URL
 }
 
+func makeRawQuery(r *Request) string {
+	values := url.Values{}
+	for key, val := range r.Parameters {
+		values.Set(key, val)
+	}
+
+	return values.Encode()
+}
+
 func (c *conn) SendRequest(r *Request) (*Response, error) {
 	// Create an appropriate URL.
 	url := url.URL{
 		Scheme: c.endpoint.Scheme,
 		Host:   c.endpoint.Host,
 		Path:   r.Path,
+		RawQuery: makeRawQuery(r),
 	}
 
 	urlStr := url.String()
