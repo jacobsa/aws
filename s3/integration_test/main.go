@@ -12,6 +12,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// An integration test that uses a real S3 account. Run as follows:
+//
+//     go run integration_test/*.go -TODO
+//
 
 package main
 
@@ -23,7 +28,9 @@ import (
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3"
 	"os"
+	"regexp"
 	"strings"
+	"testing"
 )
 
 ////////////////////////////////////////////////////////////////////////
@@ -71,15 +78,30 @@ func main() {
 	}
 
 	// Read in the access key.
-	accessKey.Id: *keyId
+	accessKey.Id = *keyId
 	accessKey.Secret = readPassword("Access key secret: ")
 
-
-	TODO: Fix the stuff below here!
-
 	// Run the tests.
+	matchString := func (pat, str string) (bool, error) {
+		re, err := regexp.Compile(pat)
+		if err != nil {
+			return false, err
+		}
+
+		return re.MatchString(str), nil
+	}
+
 	testing.Main(
-		func(pat, str string) (bool, error)
+		matchString,
+		[]testing.InternalTest{
+			testing.InternalTest{
+				Name: "IntegrationTest",
+				F: func (t *testing.T) { RunTests(t) },
+			},
+		},
+		[]testing.InternalBenchmark{},
+		[]testing.InternalExample{},
+	)
 
 	// Open a bucket.
 	bucket, err := s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
