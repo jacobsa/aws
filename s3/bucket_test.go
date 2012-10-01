@@ -441,6 +441,179 @@ func (t *StoreObjectTest) ServerSaysOkay() {
 }
 
 ////////////////////////////////////////////////////////////////////////
+// DeleteObject
+////////////////////////////////////////////////////////////////////////
+
+type DeleteObjectTest struct {
+	bucketTest
+}
+
+func init() { RegisterTestSuite(&DeleteObjectTest{}) }
+
+func (t *DeleteObjectTest) KeyNotValidUtf8() {
+	key := "\x80\x81\x82"
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+
+	ExpectThat(err, Error(HasSubstr("valid")))
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+}
+
+func (t *DeleteObjectTest) KeyTooLong() {
+	key := strings.Repeat("a", 1025)
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+}
+
+func (t *DeleteObjectTest) KeyContainsNullByte() {
+	key := "taco\x00burrito"
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+
+	ExpectThat(err, Error(HasSubstr("null")))
+}
+
+func (t *DeleteObjectTest) KeyIsEmpty() {
+	key := ""
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+
+	ExpectThat(err, Error(HasSubstr("empty")))
+}
+
+func (t *DeleteObjectTest) CallsSigner() {
+	key := "taco burrito"
+
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+
+	// Signer
+	var httpReq *http.Request
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		httpReq = r
+		return errors.New("")
+	}))
+
+	// Call
+	t.bucket.DeleteObject(key)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("DELETE", httpReq.Verb)
+	ExpectEq("/some.bucket/taco burrito", httpReq.Path)
+	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
+}
+
+func (t *DeleteObjectTest) SignerReturnsError() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(errors.New("taco")))
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+
+	ExpectThat(err, Error(HasSubstr("Sign")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *DeleteObjectTest) CallsConn() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		r.Verb = "burrito"
+		return nil
+	}))
+
+	// Conn
+	var httpReq *http.Request
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) (*http.Response, error) {
+		httpReq = r
+		return nil, errors.New("")
+	}))
+
+	// Call
+	t.bucket.DeleteObject(key)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("burrito", httpReq.Verb)
+}
+
+func (t *DeleteObjectTest) ConnReturnsError() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+
+	ExpectThat(err, Error(HasSubstr("SendRequest")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *DeleteObjectTest) ServerReturnsError() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 500,
+		Body:       []byte("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+
+	ExpectThat(err, Error(HasSubstr("server")))
+	ExpectThat(err, Error(HasSubstr("500")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *DeleteObjectTest) ServerReturnsOkay() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 200,
+		Body:       []byte("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+	ExpectEq(nil, err)
+}
+
+////////////////////////////////////////////////////////////////////////
 // ListKeys
 ////////////////////////////////////////////////////////////////////////
 
