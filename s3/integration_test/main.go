@@ -82,7 +82,18 @@ func (t *BucketTest) WrongAccessKeySecret() {
 }
 
 func (t *BucketTest) ListEmptyBucket() {
-	ExpectFalse(true, "TODO")
+	var keys []string
+	var err error
+
+	// From start.
+	keys, err = t.bucket.ListKeys("")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre())
+
+	// From middle.
+	keys, err = t.bucket.ListKeys("foo")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre())
 }
 
 func (t *BucketTest) ListWithEmptyMinimum() {
