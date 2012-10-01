@@ -109,16 +109,20 @@ func main() {
 
 	if *keyId == "" {
 		fmt.Println("You must set the -key_id flag.")
+		fmt.Println("Find a key ID here:")
+		fmt.Println("    https://portal.aws.amazon.com/gp/aws/securityCredentials")
 		os.Exit(1)
 	}
 
 	if *bucketName == "" {
 		fmt.Println("You must set the -bucket flag.")
+		fmt.Println("Manage your buckets here:")
+		fmt.Println("    http://aws.amazon.com/console/")
 		os.Exit(1)
 	}
 
 	if *region == "" {
-		fmt.Println("You must set the -region flag.")
+		fmt.Println("You must set the -region flag. See region.go.")
 		os.Exit(1)
 	}
 
