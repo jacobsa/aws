@@ -135,6 +135,29 @@ func (t *ConnTest) PassesOnRequestInfo() {
 	ExpectThat(sysReq.Header["Enchilada"], ElementsAre("queso"))
 }
 
+func (t *ConnTest) RequestContainsNoParameters() {
+	// Connection
+	conn, err := http.NewConn(t.endpoint)
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb:    "GET",
+		Path:    "/foo/bar",
+		Headers: map[string]string{},
+	}
+
+	// Call
+	_, err = conn.SendRequest(req)
+	AssertEq(nil, err)
+
+	AssertNe(nil, t.handler.req)
+	sysReq := t.handler.req
+
+	query := sysReq.URL.Query()
+	ExpectEq(0, len(query), "%v", query)
+}
+
 func (t *ConnTest) RequestContainsOneParameter() {
 	// Connection
 	conn, err := http.NewConn(t.endpoint)
@@ -157,7 +180,9 @@ func (t *ConnTest) RequestContainsOneParameter() {
 	AssertNe(nil, t.handler.req)
 	sysReq := t.handler.req
 
-	ExpectEq("/foo/bar?baz=qux", sysReq.URL.Path)
+	query := sysReq.URL.Query()
+	AssertEq(1, len(query), "%v", query)
+	ExpectEq("qux", query.Get("baz"))
 }
 
 func (t *ConnTest) RequestContainsMultipleParameters() {
@@ -183,7 +208,10 @@ func (t *ConnTest) RequestContainsMultipleParameters() {
 	AssertNe(nil, t.handler.req)
 	sysReq := t.handler.req
 
-	ExpectEq("/foo/bar?baz=qux&taco=burrito", sysReq.URL.Path)
+	query := sysReq.URL.Query()
+	AssertEq(2, len(query), "%v", query)
+	ExpectEq("qux", query.Get("baz"))
+	ExpectEq("burrito", query.Get("taco"))
 }
 
 func (t *ConnTest) PathAndParametersNeedEscaping() {
