@@ -451,7 +451,26 @@ type ListKeysTest struct {
 func init() { RegisterTestSuite(&ListKeysTest{}) }
 
 func (t *ListKeysTest) CallsSignerWithEmptyMin() {
-	ExpectFalse(true, "TODO")
+	min := ""
+
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+
+	// Signer
+	var httpReq *http.Request
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		httpReq = r
+		return errors.New("")
+	}))
+
+	// Call
+	t.bucket.ListKeys(min)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("GET", httpReq.Verb)
+	ExpectEq("/some.bucket", httpReq.Path)
+	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
 }
 
 func (t *ListKeysTest) CallsSignerWithNonEmptyMin() {
