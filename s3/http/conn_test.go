@@ -142,8 +142,8 @@ func (t *ConnTest) PathNeedsEscaping() {
 
 	// Request
 	req := &http.Request{
-		Verb: "GET",
-		Path: "/타코/bar",
+		Verb:    "GET",
+		Path:    "/타코/bar",
 		Headers: map[string]string{},
 	}
 

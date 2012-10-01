@@ -95,7 +95,7 @@ func (t *StringToSignTest) EmptyPath() {
 			"PUT\n"+
 				"\n"+ // Content-MD5
 				"\n"+ // Content-Type
-				"some_date\n" +
+				"some_date\n"+
 				"/"))
 }
 
@@ -119,7 +119,7 @@ func (t *StringToSignTest) PathContainsKorean() {
 			"PUT\n"+
 				"\n"+ // Content-MD5
 				"\n"+ // Content-Type
-				"some_date\n" +
+				"some_date\n"+
 				"/%ED%83%80%EC%BD%94"))
 }
 
@@ -143,7 +143,7 @@ func (t *StringToSignTest) PathContainsQuestionMark() {
 			"PUT\n"+
 				"\n"+ // Content-MD5
 				"\n"+ // Content-Type
-				"some_date\n" +
+				"some_date\n"+
 				"/%3F/blah"))
 }
 
@@ -167,7 +167,7 @@ func (t *StringToSignTest) PathContainsAmpersand() {
 			"PUT\n"+
 				"\n"+ // Content-MD5
 				"\n"+ // Content-Type
-				"some_date\n" +
+				"some_date\n"+
 				"/&/blah"))
 }
 

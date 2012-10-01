@@ -40,7 +40,7 @@ func TestBucket(t *testing.T) { RunTests(t) }
 func computeBase64Md5(d []byte) string {
 	h := md5.New()
 	if _, err := h.Write(d); err != nil {
-		panic(err);
+		panic(err)
 	}
 
 	buf := new(bytes.Buffer)
