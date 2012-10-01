@@ -288,6 +288,45 @@ func (b *bucket) DeleteObject(key string) error {
 // ListKeys
 ////////////////////////////////////////////////////////////////////////
 
+type bucketContents struct {
+	Key string
+}
+
+type listBucketResult struct {
+	Contents []bucketContents
+}
+
 func (b *bucket) ListKeys(min string) (keys []string, err error) {
-	return nil, fmt.Errorf("TODO(jacobsa): Implement ListKeys.")
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketGET.html
+	httpReq := &http.Request{
+		Verb: "GET",
+		Path: fmt.Sprintf("/%s", b.name),
+		Headers: map[string]string{
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
+		Parameters: map[string]string{
+			"marker": min,
+		},
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return nil, fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	return nil, fmt.Errorf("TODO")
 }
