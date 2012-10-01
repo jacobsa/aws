@@ -146,6 +146,8 @@ func (t *BucketTest) ListFewKeys() {
 	toCreate := []string{
 		"foo",
 		"bar",
+		"bar\x01",
+		"bar\x01\x01",
 		"baz",
 	}
 
@@ -158,22 +160,61 @@ func (t *BucketTest) ListFewKeys() {
 	// From start.
 	keys, err = t.bucket.ListKeys("")
 	AssertEq(nil, err)
-	ExpectThat(keys, ElementsAre("bar", "baz", "foo"))
+	ExpectThat(
+		keys,
+		ElementsAre(
+		"bar",
+		"bar\x01",
+		"bar\x01\x01",
+		"baz",
+		"foo",
+	))
 
-	// Just before baz.
-	keys, err = t.bucket.ListKeys("bay\xff\xff\xff\xff")
+	// Just before bar\x01.
+	keys, err = t.bucket.ListKeys("bar")
 	AssertEq(nil, err)
-	ExpectThat(keys, ElementsAre("baz", "foo"))
+	ExpectThat(
+		keys,
+		ElementsAre(
+		"bar",
+		"bar\x01",
+		"bar\x01\x01",
+		"baz",
+		"foo",
+	))
 
-	// Starting at baz.
-	keys, err = t.bucket.ListKeys("baz")
+	// Starting at bar\x01.
+	keys, err = t.bucket.ListKeys("bar\x01")
 	AssertEq(nil, err)
-	ExpectThat(keys, ElementsAre("baz", "foo"))
+	ExpectThat(
+		keys,
+		ElementsAre(
+		"bar\x01",
+		"bar\x01\x01",
+		"baz",
+		"foo",
+	))
 
-	// Just after baz.
-	keys, err = t.bucket.ListKeys("baz\x00")
+	// Just after bar\x01.
+	keys, err = t.bucket.ListKeys("bar\x01\x01")
 	AssertEq(nil, err)
-	ExpectThat(keys, ElementsAre("foo"))
+	ExpectThat(
+		keys,
+		ElementsAre(
+		"bar\x01\x01",
+		"baz",
+		"foo",
+	))
+
+	// Just after last key.
+	keys, err = t.bucket.ListKeys("foo\x01")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre())
+
+	// Well after last key.
+	keys, err = t.bucket.ListKeys("qux")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre())
 }
 
 func (t *BucketTest) ListManyKeys() {
