@@ -501,7 +501,7 @@ func (t *ListKeysTest) CallsSignerWithNonEmptyMin() {
 }
 
 func (t *ListKeysTest) SignerReturnsError() {
-	min := ""
+	min := "a"
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -540,7 +540,21 @@ func (t *ListKeysTest) CallsConn() {
 }
 
 func (t *ListKeysTest) ConnReturnsError() {
-	ExpectFalse(true, "TODO")
+	min := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
+
+	// Call
+	_, err := t.bucket.ListKeys(min)
+
+	ExpectThat(err, Error(HasSubstr("SendRequest")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *ListKeysTest) ServerReturnsError() {
