@@ -29,153 +29,20 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jacobsa/aws"
-	"github.com/jacobsa/aws/s3"
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
+	"github.com/jacobsa/ogletest"
 	"os"
 	"regexp"
 	"testing"
 )
 
 ////////////////////////////////////////////////////////////////////////
-// Helpers
+// Globals
 ////////////////////////////////////////////////////////////////////////
 
 var keyId = flag.String("key_id", "", "Access key ID.")
 var bucketName = flag.String("bucket", "", "Bucket name.")
 var region = flag.String("region", "", "Region endpoint server.")
 var accessKey aws.AccessKey
-
-type integrationTest struct {
-}
-
-////////////////////////////////////////////////////////////////////////
-// Bucket
-////////////////////////////////////////////////////////////////////////
-
-type BucketTest struct {
-	integrationTest
-	bucket s3.Bucket
-}
-
-func init() { RegisterTestSuite(&BucketTest{}) }
-
-func (t *BucketTest) ensureDeleted(key string) {
-	err := t.bucket.DeleteObject(key)
-	AssertEq(nil, err, "Couldn't delete object: %s", key)
-}
-
-func (t *BucketTest) SetUp(i *TestInfo) {
-	var err error
-
-	// Open a bucket.
-	t.bucket, err = s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
-	AssertEq(nil, err)
-}
-
-func (t *BucketTest) WrongAccessKeySecret() {
-	// Open a bucket with the wrong key.
-	wrongKey := accessKey
-	wrongKey.Secret += "taco"
-
-	bucket, err := s3.OpenBucket(*bucketName, s3.Region(*region), wrongKey)
-	AssertEq(nil, err)
-
-	// Attempt to do something.
-	_, err = bucket.ListKeys("")
-	ExpectThat(err, Error(HasSubstr("signature")))
-}
-
-func (t *BucketTest) GetNonExistentObject() {
-	_, err := t.bucket.GetObject("some_key")
-
-	ExpectThat(err, Error(HasSubstr("404")))
-	ExpectThat(err, Error(HasSubstr("some_key")))
-	ExpectThat(err, Error(HasSubstr("exist")))
-}
-
-func (t *BucketTest) StoreThenGetEmptyObject() {
-	key := "some_key"
-	defer t.ensureDeleted(key)
-
-	data := []byte{}
-
-	// Store
-	err := t.bucket.StoreObject(key, data)
-	AssertEq(nil, err)
-
-	// Get
-	returnedData, err := t.bucket.GetObject(key)
-	AssertEq(nil, err)
-	ExpectThat(returnedData, DeepEquals(data))
-}
-
-func (t *BucketTest) StoreThenGetNonEmptyObject() {
-	key := "some_key"
-	defer t.ensureDeleted(key)
-
-	data := []byte{0x17, 0x19, 0x00, 0x02, 0x03}
-
-	// Store
-	err := t.bucket.StoreObject(key, data)
-	AssertEq(nil, err)
-
-	// Get
-	returnedData, err := t.bucket.GetObject(key)
-	AssertEq(nil, err)
-	ExpectThat(returnedData, DeepEquals(data))
-}
-
-func (t *BucketTest) ListEmptyBucket() {
-	var keys []string
-	var err error
-
-	// From start.
-	keys, err = t.bucket.ListKeys("")
-	AssertEq(nil, err)
-	ExpectThat(keys, ElementsAre())
-
-	// From middle.
-	keys, err = t.bucket.ListKeys("foo")
-	AssertEq(nil, err)
-	ExpectThat(keys, ElementsAre())
-}
-
-func (t *BucketTest) ListWithEmptyMinimum() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) ListWithInvalidUtf8Minimum() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) ListWithLongMinimum() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) ListWithNullByteInMinimum() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) ListFewKeys() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) ListManyKeys() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) KeysWithSpecialCharacters() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) DeleteNonExistentObject() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) DeleteThenListAndGetObject() {
-	ExpectFalse(true, "TODO")
-}
 
 ////////////////////////////////////////////////////////////////////////
 // main
@@ -222,7 +89,7 @@ func main() {
 		[]testing.InternalTest{
 			testing.InternalTest{
 				Name: "IntegrationTest",
-				F:    func(t *testing.T) { RunTests(t) },
+				F:    func(t *testing.T) { ogletest.RunTests(t) },
 			},
 		},
 		[]testing.InternalBenchmark{},
