@@ -81,6 +81,18 @@ func (t *BucketTest) WrongAccessKeySecret() {
 	ExpectThat(err, Error(HasSubstr("signature")))
 }
 
+func (t *BucketTest) GetNonExistentObject() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) StoreThenGetObject() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) StoreThenDeleteObject() {
+	ExpectFalse(true, "TODO")
+}
+
 func (t *BucketTest) ListEmptyBucket() {
 	var keys []string
 	var err error
@@ -117,18 +129,6 @@ func (t *BucketTest) ListFewKeys() {
 }
 
 func (t *BucketTest) ListManyKeys() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) GetNonExistentObject() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) StoreThenGetObject() {
-	ExpectFalse(true, "TODO")
-}
-
-func (t *BucketTest) StoreThenDeleteObject() {
 	ExpectFalse(true, "TODO")
 }
 
