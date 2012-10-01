@@ -60,9 +60,9 @@ func makeRawQuery(r *Request) string {
 func (c *conn) SendRequest(r *Request) (*Response, error) {
 	// Create an appropriate URL.
 	url := url.URL{
-		Scheme: c.endpoint.Scheme,
-		Host:   c.endpoint.Host,
-		Path:   r.Path,
+		Scheme:   c.endpoint.Scheme,
+		Host:     c.endpoint.Host,
+		Path:     r.Path,
 		RawQuery: makeRawQuery(r),
 	}
 

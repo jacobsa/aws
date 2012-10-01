@@ -196,7 +196,7 @@ func (t *ConnTest) RequestContainsMultipleParameters() {
 		Path:    "/foo/bar",
 		Headers: map[string]string{},
 		Parameters: map[string]string{
-			"baz": "qux",
+			"baz":  "qux",
 			"taco": "burrito",
 		},
 	}

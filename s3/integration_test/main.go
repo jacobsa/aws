@@ -29,9 +29,9 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	. "github.com/jacobsa/ogletest"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3"
+	. "github.com/jacobsa/ogletest"
 	"os"
 	"regexp"
 	"strings"
@@ -135,7 +135,7 @@ func main() {
 	accessKey.Secret = readPassword("Access key secret: ")
 
 	// Run the tests.
-	matchString := func (pat, str string) (bool, error) {
+	matchString := func(pat, str string) (bool, error) {
 		re, err := regexp.Compile(pat)
 		if err != nil {
 			return false, err
@@ -149,7 +149,7 @@ func main() {
 		[]testing.InternalTest{
 			testing.InternalTest{
 				Name: "IntegrationTest",
-				F: func (t *testing.T) { RunTests(t) },
+				F:    func(t *testing.T) { RunTests(t) },
 			},
 		},
 		[]testing.InternalBenchmark{},
