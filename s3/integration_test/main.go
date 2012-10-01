@@ -60,6 +60,11 @@ type BucketTest struct {
 
 func init() { RegisterTestSuite(&BucketTest{}) }
 
+func (t *BucketTest) ensureDeleted(key string) {
+	err := t.bucket.DeleteObject(key)
+	AssertEq(nil, err, "Couldn't delete object: %s", key)
+}
+
 func (t *BucketTest) SetUp(i *TestInfo) {
 	var err error
 
@@ -89,7 +94,23 @@ func (t *BucketTest) GetNonExistentObject() {
 	ExpectThat(err, Error(HasSubstr("exist")))
 }
 
-func (t *BucketTest) StoreThenGetObject() {
+func (t *BucketTest) StoreThenGetEmptyObject() {
+	key := "some_key"
+	defer t.ensureDeleted(key)
+
+	data := []byte{}
+
+	// Store
+	err := t.bucket.StoreObject(key, data)
+	AssertEq(nil, err)
+
+	// Get
+	returnedData, err := t.bucket.GetObject(key)
+	AssertEq(nil, err)
+	ExpectThat(returnedData, DeepEquals(data))
+}
+
+func (t *BucketTest) StoreThenGetNonEmptyObject() {
 	ExpectFalse(true, "TODO")
 }
 
@@ -133,6 +154,10 @@ func (t *BucketTest) ListFewKeys() {
 }
 
 func (t *BucketTest) ListManyKeys() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) KeysWithSpecialCharacters() {
 	ExpectFalse(true, "TODO")
 }
 
