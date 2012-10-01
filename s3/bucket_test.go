@@ -558,7 +558,27 @@ func (t *ListKeysTest) ConnReturnsError() {
 }
 
 func (t *ListKeysTest) ServerReturnsError() {
-	ExpectFalse(true, "TODO")
+	min := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 500,
+		Body:       []byte("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	_, err := t.bucket.ListKeys(min)
+
+	ExpectThat(err, Error(HasSubstr("server")))
+	ExpectThat(err, Error(HasSubstr("500")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *ListKeysTest) ResponseBodyIsJunk() {
