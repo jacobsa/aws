@@ -309,9 +309,11 @@ func (b *bucket) ListKeys(min string) (keys []string, err error) {
 		Headers: map[string]string{
 			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
 		},
-		Parameters: map[string]string{
-			"marker": min,
-		},
+		Parameters: map[string]string{},
+	}
+
+	if min != "" {
+		httpReq.Parameters["marker"] = min
 	}
 
 	// Sign the request.
