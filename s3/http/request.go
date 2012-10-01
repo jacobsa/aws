@@ -24,9 +24,19 @@ type Request struct {
 	// not be URL-encoded.
 	//
 	// For example:
+	//     /mybucket
 	//     /mybucket/foo/bar/baz.jpg
 	//
 	Path string
+
+	// Request parameters, as defined by the S3 service being called. These
+	// should not be URL-encoded.
+	//
+	// For example:
+	//     max-keys: 50
+	//     marker: 타코
+	//
+	Parameters map[string]string
 
 	// HTTP headers to be included in the request.
 	Headers map[string]string

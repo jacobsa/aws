@@ -471,10 +471,33 @@ func (t *ListKeysTest) CallsSignerWithEmptyMin() {
 	ExpectEq("GET", httpReq.Verb)
 	ExpectEq("/some.bucket", httpReq.Path)
 	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
+
+	marker, containsMarker := httpReq.Parameters["marker"]
+	ExpectFalse(containsMarker, "marker: \"%s\"", marker)
 }
 
 func (t *ListKeysTest) CallsSignerWithNonEmptyMin() {
-	ExpectFalse(true, "TODO")
+	min := "taco burrito"
+
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+
+	// Signer
+	var httpReq *http.Request
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		httpReq = r
+		return errors.New("")
+	}))
+
+	// Call
+	t.bucket.ListKeys(min)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("GET", httpReq.Verb)
+	ExpectEq("/some.bucket", httpReq.Path)
+	ExpectEq("taco burrito", httpReq.Parameters["marker"])
+	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
 }
 
 func (t *ListKeysTest) SignerReturnsError() {
