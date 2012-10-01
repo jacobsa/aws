@@ -157,6 +157,10 @@ func main() {
 	)
 }
 
+func (t *BucketTest) WrongAccessKeySecret() {
+	ExpectFalse(true, "TODO")
+}
+
 func (t *BucketTest) ListEmptyBucket() {
 	ExpectFalse(true, "TODO")
 }
