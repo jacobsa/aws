@@ -501,7 +501,7 @@ func (t *ListKeysTest) CallsSignerWithNonEmptyMin() {
 }
 
 func (t *ListKeysTest) SignerReturnsError() {
-	min := "a"
+	min := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -515,7 +515,7 @@ func (t *ListKeysTest) SignerReturnsError() {
 }
 
 func (t *ListKeysTest) CallsConn() {
-	min := "a"
+	min := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -540,7 +540,7 @@ func (t *ListKeysTest) CallsConn() {
 }
 
 func (t *ListKeysTest) ConnReturnsError() {
-	min := "a"
+	min := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -558,7 +558,7 @@ func (t *ListKeysTest) ConnReturnsError() {
 }
 
 func (t *ListKeysTest) ServerReturnsError() {
-	min := "a"
+	min := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -582,7 +582,7 @@ func (t *ListKeysTest) ServerReturnsError() {
 }
 
 func (t *ListKeysTest) ResponseBodyIsJunk() {
-	min := "a"
+	min := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -605,7 +605,7 @@ func (t *ListKeysTest) ResponseBodyIsJunk() {
 }
 
 func (t *ListKeysTest) WrongRootTag() {
-	min := "a"
+	min := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
