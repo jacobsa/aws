@@ -158,7 +158,7 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	}
 
 	// Add a Content-MD5 header, as advised in the Amazon docs.
-	if err := addMd5Header(httpReq, data); err != nil {
+	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
 		return err
 	}
 
@@ -182,7 +182,45 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 }
 
 func (b *bucket) DeleteObject(key string) error {
-	return fmt.Errorf("TODO(jacobsa): Implement DeleteObject.")
+	// Validate the key.
+	if err := validateKey(key); err != nil {
+		return err
+	}
+
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectDELETE.html
+	httpReq := &http.Request{
+		Verb: "DELETE",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Headers: map[string]string{
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
+	}
+
+	// Add a Content-MD5 header, as advised in the Amazon docs.
+	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
+		return err
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	return nil
 }
 
 func (b *bucket) ListKeys(min string) (keys []string, err error) {
