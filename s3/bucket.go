@@ -47,13 +47,13 @@ type Bucket interface {
 	StoreObject(key string, data []byte) error
 
 	// Return an ordered set of contiguous object keys in the bucket that are
-	// greater than or equal to minKey. It is guaranteed that as some time during
-	// the request there were no keys between minKey and the first key returned.
+	// greater than or equal to min. It is guaranteed that as some time during
+	// the request there were no keys between min and the first key returned.
 	//
 	// There may be more keys beyond the last key returned. If no keys are
 	// returned (and the error is nil), it is guaranteed that at some time during
-	// the request there were the bucket contained no keys in [minKey, inf).
-	ListKeys(minKey string) (keys []string, err error)
+	// the request there were the bucket contained no keys in [min, inf).
+	ListKeys(min string) (keys []string, err error)
 }
 
 // OpenBucket returns a Bucket tied to a given name in whe given region. You
@@ -178,7 +178,7 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	return nil
 }
 
-func (b *bucket) ListKeys(minKey string) (keys []string, err error) {
+func (b *bucket) ListKeys(min string) (keys []string, err error) {
 	return nil, fmt.Errorf("TODO(jacobsa): Implement ListKeys.")
 }
 
