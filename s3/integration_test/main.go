@@ -55,6 +55,48 @@ type BucketTest struct {
 
 func init() { RegisterTestSuite(&BucketTest{}) }
 
+func (t *BucketTest) TodoRefactorMe() {
+	// Open a bucket.
+	bucket, err := s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
+	if err != nil {
+		fmt.Println("Opening bucket:", err)
+		os.Exit(1)
+	}
+
+	// Attempt to create an object.
+	objectName := "타코&burrito?enchilada"
+	data := []byte("taco")
+	data = append(data, 0x00)
+	data = append(data, []byte("burrito")...)
+
+	if err := bucket.StoreObject(objectName, data); err != nil {
+		fmt.Println("StoreObject:", err)
+		os.Exit(1)
+	}
+
+	// TODO(jacobsa): Test ListKeys.
+
+	// Read the object back.
+	dataRead, err := bucket.GetObject(objectName)
+	if err != nil {
+		fmt.Println("GetObject:", err)
+		os.Exit(1)
+	}
+
+	// Make sure the result is identical.
+	if !bytes.Equal(data, dataRead) {
+		fmt.Printf("Mismatch; %x vs. %x\n", data, dataRead)
+		os.Exit(1)
+	}
+
+	// Attempt to load a non-existent object. We should get a 404 back.
+	_, err = bucket.GetObject("other_name")
+	if err == nil || strings.Count(err.Error(), "404") != 1 {
+		fmt.Println("Unexpected 404 error:", err)
+		os.Exit(1)
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////
 // main
 ////////////////////////////////////////////////////////////////////////
@@ -102,69 +144,4 @@ func main() {
 		[]testing.InternalBenchmark{},
 		[]testing.InternalExample{},
 	)
-
-	// Open a bucket.
-	bucket, err := s3.OpenBucket(*bucketName, s3.Region(*region), accessKey)
-	if err != nil {
-		fmt.Println("Opening bucket:", err)
-		os.Exit(1)
-	}
-
-	// Attempt to create an object.
-	objectName := "타코&burrito?enchilada"
-	data := []byte("taco")
-	data = append(data, 0x00)
-	data = append(data, []byte("burrito")...)
-
-	if err := bucket.StoreObject(objectName, data); err != nil {
-		fmt.Println("StoreObject:", err)
-		os.Exit(1)
-	}
-
-	// Make sure the object is said to exist.
-	exists, err := bucket.ObjectExists(objectName)
-
-	if err != nil {
-		fmt.Println("ObjectExists:", err)
-		os.Exit(1)
-	}
-
-	if !exists {
-		fmt.Println("Object unexpectedly doesn't exist.")
-		os.Exit(1)
-	}
-
-	// Make sure another object is said to not exist.
-	exists, err = bucket.ObjectExists("some_unknown_object")
-
-	if err != nil {
-		fmt.Println("ObjectExists:", err)
-		os.Exit(1)
-	}
-
-	if exists {
-		fmt.Println("Object unexpectedly exists.")
-		os.Exit(1)
-	}
-
-	// Read the object back.
-	dataRead, err := bucket.GetObject(objectName)
-	if err != nil {
-		fmt.Println("GetObject:", err)
-		os.Exit(1)
-	}
-
-	// Make sure the result is identical.
-	if !bytes.Equal(data, dataRead) {
-		fmt.Printf("Mismatch; %x vs. %x\n", data, dataRead)
-		os.Exit(1)
-	}
-
-	// Attempt to load a non-existent object. We should get a 404 back.
-	_, err = bucket.GetObject("other_name")
-	if err == nil || strings.Count(err.Error(), "404") != 1 {
-		fmt.Println("Unexpected 404 error:", err)
-		os.Exit(1)
-	}
 }
-
