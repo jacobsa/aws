@@ -439,3 +439,49 @@ func (t *StoreObjectTest) ServerSaysOkay() {
 
 	ExpectEq(nil, err)
 }
+
+////////////////////////////////////////////////////////////////////////
+// ListKeys
+////////////////////////////////////////////////////////////////////////
+
+type ListKeysTest struct {
+	bucketTest
+}
+
+func init() { RegisterTestSuite(&ListKeysTest{}) }
+
+func (t *ListKeysTest) CallsSignerWithEmptyMin() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *ListKeysTest) CallsSignerWithNonEmptyMin() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *ListKeysTest) SignerReturnsError() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *ListKeysTest) CallsConn() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *ListKeysTest) ConnReturnsError() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *ListKeysTest) ServerReturnsError() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *ListKeysTest) ResponseBodyIsJunk() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *ListKeysTest) ResponseContainsNoKeys() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *ListKeysTest) ResponseContainsSomeKeys() {
+	ExpectFalse(true, "TODO")
+}
