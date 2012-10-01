@@ -126,10 +126,6 @@ func (t *BucketTest) ListEmptyBucket() {
 	ExpectThat(keys, ElementsAre())
 }
 
-func (t *BucketTest) ListWithEmptyMinimum() {
-	ExpectFalse(true, "TODO")
-}
-
 func (t *BucketTest) ListWithInvalidUtf8Minimum() {
 	ExpectFalse(true, "TODO")
 }
@@ -143,7 +139,41 @@ func (t *BucketTest) ListWithNullByteInMinimum() {
 }
 
 func (t *BucketTest) ListFewKeys() {
-	ExpectFalse(true, "TODO")
+	var keys []string
+	var err error
+
+	// Create several keys.
+	toCreate := []string{
+		"foo",
+		"bar",
+		"baz",
+	}
+
+	for _, key := range toCreate {
+		defer t.ensureDeleted(key)
+		err := t.bucket.StoreObject(key, []byte{})
+		AssertEq(nil, err, "Creating object: %s", key)
+	}
+
+	// From start.
+	keys, err := t.bucket.ListKeys("")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre("bar", "baz", "foo"))
+
+	// Just before baz.
+	keys, err := t.bucket.ListKeys("bay\xff\xff\xff\xff")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre("baz", "foo"))
+
+	// Starting at baz.
+	keys, err := t.bucket.ListKeys("baz")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre("baz", "foo"))
+
+	// Just after baz.
+	keys, err := t.bucket.ListKeys("baz\x00")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre("foo"))
 }
 
 func (t *BucketTest) ListManyKeys() {
