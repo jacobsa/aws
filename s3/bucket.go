@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/base64"
+	"encoding/xml"
 	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/auth"
@@ -326,6 +327,15 @@ func (b *bucket) ListKeys(min string) (keys []string, err error) {
 	// Check the response.
 	if httpResp.StatusCode != 200 {
 		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	// Attempt to parse the body.
+	result := listBucketResult{}
+	if err := xml.Unmarshal(httpResp.Body, &result); err != nil {
+		return nil, fmt.Errorf(
+			"Invalid data from server (%s): %s",
+			err.Error(),
+			httpResp.Body)
 	}
 
 	return nil, fmt.Errorf("TODO")
