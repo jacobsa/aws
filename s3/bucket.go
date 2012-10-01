@@ -46,9 +46,14 @@ type Bucket interface {
 	// version. The object is created with the default ACL of "private".
 	StoreObject(key string, data []byte) error
 
-	// Test whether an object within the given key currently exists in the
-	// bucket.
-	ObjectExists(key string) (exists bool, err error)
+	// Return an ordered set of contiguous object keys in the bucket that are
+	// greater than or equal to minKey. It is guaranteed that as some time during
+	// the request there were no keys between minKey and the first key returned.
+	//
+	// There may be more keys beyond the last key returned. If no keys are
+	// returned (and the error is nil), it is guaranteed that at some time during
+	// the request there were the bucket contained no keys in [minKey, inf).
+	ListKeys(minKey string) (keys []string, err error)
 }
 
 // OpenBucket returns a Bucket tied to a given name in whe given region. You
@@ -173,8 +178,8 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	return nil
 }
 
-func (b *bucket) ObjectExists(key string) (exists bool, err error) {
-	return false, fmt.Errorf("TODO(jacobsa): Implement ObjectExists.")
+func (b *bucket) ListKeys(minKey string) (keys []string, err error) {
+	return nil, fmt.Errorf("TODO(jacobsa): Implement ListKeys.")
 }
 
 func validateKey(key string) error {
