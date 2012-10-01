@@ -515,7 +515,28 @@ func (t *ListKeysTest) SignerReturnsError() {
 }
 
 func (t *ListKeysTest) CallsConn() {
-	ExpectFalse(true, "TODO")
+	min := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		r.Verb = "burrito"
+		return nil
+	}))
+
+	// Conn
+	var httpReq *http.Request
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) (*http.Response, error) {
+		httpReq = r
+		return nil, errors.New("")
+	}))
+
+	// Call
+	t.bucket.ListKeys(min)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("burrito", httpReq.Verb)
 }
 
 func (t *ListKeysTest) ConnReturnsError() {
