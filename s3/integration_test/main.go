@@ -126,10 +126,6 @@ func (t *BucketTest) StoreThenGetNonEmptyObject() {
 	ExpectThat(returnedData, DeepEquals(data))
 }
 
-func (t *BucketTest) StoreThenDeleteObject() {
-	ExpectFalse(true, "TODO")
-}
-
 func (t *BucketTest) ListEmptyBucket() {
 	var keys []string
 	var err error
@@ -170,6 +166,14 @@ func (t *BucketTest) ListManyKeys() {
 }
 
 func (t *BucketTest) KeysWithSpecialCharacters() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) DeleteNonExistentObject() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *BucketTest) DeleteThenListAndGetObject() {
 	ExpectFalse(true, "TODO")
 }
 
