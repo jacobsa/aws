@@ -69,6 +69,32 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Make sure the object is said to exist.
+	exists, err := bucket.ObjectExists(objectName)
+
+	if err != nil {
+		fmt.Println("ObjectExists:", err)
+		os.Exit(1)
+	}
+
+	if !exists {
+		fmt.Println("Object unexpectedly doesn't exist.")
+		os.Exit(1)
+	}
+
+	// Make sure another object is said to not exist.
+	exists, err = bucket.ObjectExists("some_unknown_object")
+
+	if err != nil {
+		fmt.Println("ObjectExists:", err)
+		os.Exit(1)
+	}
+
+	if exists {
+		fmt.Println("Object unexpectedly exists.")
+		os.Exit(1)
+	}
+
 	// Read the object back.
 	dataRead, err := bucket.GetObject(objectName)
 	if err != nil {

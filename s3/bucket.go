@@ -45,6 +45,10 @@ type Bucket interface {
 	// Store the supplied data with the given key, overwriting any previous
 	// version. The object is created with the default ACL of "private".
 	StoreObject(key string, data []byte) error
+
+	// Test whether an object within the given key currently exists in the
+	// bucket.
+	ObjectExists(key string) (exists bool, err error)
 }
 
 // OpenBucket returns a Bucket tied to a given name in whe given region. You
