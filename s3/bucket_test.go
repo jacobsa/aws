@@ -773,7 +773,7 @@ func (t *ListKeysTest) ResponseBodyIsJunk() {
 	// Call
 	_, err := t.bucket.ListKeys(min)
 
-	ExpectThat(err, Error(HasSubstr("invalid")))
+	ExpectThat(err, Error(HasSubstr("Invalid")))
 	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
@@ -802,7 +802,7 @@ func (t *ListKeysTest) WrongRootTag() {
 	// Call
 	_, err := t.bucket.ListKeys(min)
 
-	ExpectThat(err, Error(HasSubstr("invalid")))
+	ExpectThat(err, Error(HasSubstr("Invalid")))
 	ExpectThat(err, Error(HasSubstr("FooBar")))
 }
 
