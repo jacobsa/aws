@@ -26,15 +26,14 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"os"
 	"regexp"
-	"strings"
 	"testing"
 )
 
@@ -70,7 +69,16 @@ func (t *BucketTest) SetUp(i *TestInfo) {
 }
 
 func (t *BucketTest) WrongAccessKeySecret() {
-	ExpectFalse(true, "TODO")
+	// Open a bucket with the wrong key.
+	wrongKey := accessKey
+	wrongKey.Secret += "taco"
+
+	bucket, err := s3.OpenBucket(*bucketName, s3.Region(*region), wrongKey)
+	AssertEq(nil, err)
+
+	// Attempt to do something.
+	_, err = bucket.ListKeys("")
+	ExpectThat(err, Error(HasSubstr("signature")))
 }
 
 func (t *BucketTest) ListEmptyBucket() {
