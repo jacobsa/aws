@@ -135,6 +135,29 @@ func (t *ConnTest) PassesOnRequestInfo() {
 	ExpectThat(sysReq.Header["Enchilada"], ElementsAre("queso"))
 }
 
+func (t *ConnTest) PathNeedsEscaping() {
+	// Connection
+	conn, err := http.NewConn(t.endpoint)
+	AssertEq(nil, err)
+
+	// Request
+	req := &http.Request{
+		Verb: "GET",
+		Path: "/타코/bar",
+		Headers: map[string]string{},
+	}
+
+	// Call
+	_, err = conn.SendRequest(req)
+	AssertEq(nil, err)
+
+	AssertNe(nil, t.handler.req)
+	sysReq := t.handler.req
+
+	ExpectEq("/타코/bar", sysReq.URL.Path)
+	ExpectEq("/%ED%83%80%EC%BD%94/bar", sysReq.RequestURI)
+}
+
 func (t *ConnTest) ReturnsStatusCode() {
 	// Handler
 	t.handler.statusCode = 123
