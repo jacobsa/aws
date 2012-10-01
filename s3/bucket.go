@@ -173,6 +173,10 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	return nil
 }
 
+func (b *bucket) ObjectExists(key string) (exists bool, err error) {
+	return false, fmt.Errorf("TODO(jacobsa): Implement ObjectExists.")
+}
+
 func validateKey(key string) error {
 	// Keys must be valid UTF-8 no more than 1024 bytes long.
 	if len(key) > 1024 {
