@@ -156,22 +156,22 @@ func (t *BucketTest) ListFewKeys() {
 	}
 
 	// From start.
-	keys, err := t.bucket.ListKeys("")
+	keys, err = t.bucket.ListKeys("")
 	AssertEq(nil, err)
 	ExpectThat(keys, ElementsAre("bar", "baz", "foo"))
 
 	// Just before baz.
-	keys, err := t.bucket.ListKeys("bay\xff\xff\xff\xff")
+	keys, err = t.bucket.ListKeys("bay\xff\xff\xff\xff")
 	AssertEq(nil, err)
 	ExpectThat(keys, ElementsAre("baz", "foo"))
 
 	// Starting at baz.
-	keys, err := t.bucket.ListKeys("baz")
+	keys, err = t.bucket.ListKeys("baz")
 	AssertEq(nil, err)
 	ExpectThat(keys, ElementsAre("baz", "foo"))
 
 	// Just after baz.
-	keys, err := t.bucket.ListKeys("baz\x00")
+	keys, err = t.bucket.ListKeys("baz\x00")
 	AssertEq(nil, err)
 	ExpectThat(keys, ElementsAre("foo"))
 }
