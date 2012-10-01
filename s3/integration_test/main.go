@@ -111,7 +111,19 @@ func (t *BucketTest) StoreThenGetEmptyObject() {
 }
 
 func (t *BucketTest) StoreThenGetNonEmptyObject() {
-	ExpectFalse(true, "TODO")
+	key := "some_key"
+	defer t.ensureDeleted(key)
+
+	data := []byte{0x17, 0x19, 0x00, 0x02, 0x03}
+
+	// Store
+	err := t.bucket.StoreObject(key, data)
+	AssertEq(nil, err)
+
+	// Get
+	returnedData, err := t.bucket.GetObject(key)
+	AssertEq(nil, err)
+	ExpectThat(returnedData, DeepEquals(data))
 }
 
 func (t *BucketTest) StoreThenDeleteObject() {
