@@ -592,7 +592,7 @@ func (t *DeleteObjectTest) ServerReturnsError() {
 	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
-func (t *DeleteObjectTest) ServerReturnsOkay() {
+func (t *DeleteObjectTest) ServerReturnsNoContent() {
 	key := "a"
 
 	// Signer
@@ -601,7 +601,7 @@ func (t *DeleteObjectTest) ServerReturnsOkay() {
 
 	// Conn
 	resp := &http.Response{
-		StatusCode: 200,
+		StatusCode: 204,
 		Body:       []byte("taco"),
 	}
 

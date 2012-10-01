@@ -278,7 +278,7 @@ func (b *bucket) DeleteObject(key string) error {
 	}
 
 	// Check the response.
-	if httpResp.StatusCode != 200 {
+	if httpResp.StatusCode != 204 {
 		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
 	}
 
