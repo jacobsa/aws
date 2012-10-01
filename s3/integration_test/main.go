@@ -20,6 +20,8 @@
 //         -bucket <bucket> \
 //         -region s3-ap-northeast-1.amazonaws.com
 //
+// Before doing this, create an empty bucket (or delete the contents of an
+// existing bucket) using the S3 management console.
 
 package main
 
