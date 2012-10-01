@@ -294,6 +294,7 @@ type bucketContents struct {
 }
 
 type listBucketResult struct {
+	XMLName xml.Name
 	Contents []bucketContents
 }
 
@@ -338,5 +339,16 @@ func (b *bucket) ListKeys(min string) (keys []string, err error) {
 			httpResp.Body)
 	}
 
-	return nil, fmt.Errorf("TODO")
+	// Make sure the server agress with us about the interpretation of the
+	// request.
+	if result.XMLName.Local != "ListBucketResult" {
+		return nil, fmt.Errorf("Invalid data from server: %s", httpResp.Body)
+	}
+
+	keys = make([]string, len(result.Contents))
+	for i, elem := range result.Contents {
+		keys[i] = elem.Key
+	}
+
+	return keys, nil
 }
