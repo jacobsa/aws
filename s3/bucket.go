@@ -46,6 +46,9 @@ type Bucket interface {
 	// version. The object is created with the default ACL of "private".
 	StoreObject(key string, data []byte) error
 
+	// Delete the object with the supplied key.
+	DeleteObject(key string) error
+
 	// Return an ordered set of contiguous object keys in the bucket that are
 	// greater than or equal to min. It is guaranteed that as some time during
 	// the request there were no keys between min and the first key returned.
@@ -176,6 +179,10 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	}
 
 	return nil
+}
+
+func (b *bucket) DeleteObject(key string) error {
+	return fmt.Errorf("TODO(jacobsa): Implement DeleteObject.")
 }
 
 func (b *bucket) ListKeys(min string) (keys []string, err error) {
