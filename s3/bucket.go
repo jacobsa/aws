@@ -51,19 +51,22 @@ type Bucket interface {
 	DeleteObject(key string) error
 
 	// Return an ordered set of contiguous object keys in the bucket that are
-	// strictly greater than lb. It is guaranteed that as some time during the
-	// request there were no keys greater than lb and less than the first key
-	// returned.
+	// strictly greater than prevKey (or at the beginning of the range if prevKey
+	// is empty). It is guaranteed that as some time during the request there
+	// were no keys greater than prevKey and less than the first key returned.
 	//
 	// There may be more keys beyond the last key returned. If no keys are
 	// returned (and the error is nil), it is guaranteed that at some time during
-	// the request there were the bucket contained no keys in (lb, inf).
+	// the request there were the bucket contained no keys in (prevKey, inf).
 	//
 	// Using this interface you may list all keys in a bucket by starting with
-	// the empty string for lb (since the empty string is not itself a legal key)
-	// and then repeatedly calling again with the last key returned by the
+	// the empty string for prevKey (since the empty string is not itself a legal
+	// key) and then repeatedly calling again with the last key returned by the
 	// previous call.
-	ListKeys(lb string) (keys []string, err error)
+	//
+	// prevKey must be a valid key, with the sole exception that it is allowed to
+	// be the empty string.
+	ListKeys(prevKey string) (keys []string, err error)
 }
 
 // OpenBucket returns a Bucket tied to a given name in whe given region. You
@@ -304,7 +307,7 @@ type listBucketResult struct {
 	Contents []bucketContents
 }
 
-func (b *bucket) ListKeys(lb string) (keys []string, err error) {
+func (b *bucket) ListKeys(prevKey string) (keys []string, err error) {
 	// Build an appropriate HTTP request.
 	//
 	// Reference:
@@ -318,8 +321,8 @@ func (b *bucket) ListKeys(lb string) (keys []string, err error) {
 		Parameters: map[string]string{},
 	}
 
-	if lb != "" {
-		httpReq.Parameters["marker"] = lb
+	if prevKey != "" {
+		httpReq.Parameters["marker"] = prevKey
 	}
 
 	// Sign the request.

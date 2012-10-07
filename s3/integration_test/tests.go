@@ -224,17 +224,17 @@ func (t *BucketTest) ListEmptyBucket() {
 	ExpectThat(keys, ElementsAre())
 }
 
-func (t *BucketTest) ListWithInvalidUtf8Minimum() {
+func (t *BucketTest) ListWithInvalidUtf8PrevKey() {
 	_, err := t.bucket.ListKeys("\x80\x81\x82")
 	ExpectThat(err, Error(HasSubstr("UTF-8")))
 }
 
-func (t *BucketTest) ListWithLongMinimum() {
+func (t *BucketTest) ListWithLongPrevKey() {
 	_, err := t.bucket.ListKeys(strings.Repeat("x", 1025))
 	ExpectThat(err, Error(HasSubstr("bytes")))
 }
 
-func (t *BucketTest) ListWithNullByteInMinimum() {
+func (t *BucketTest) ListWithNullByteInPrevKey() {
 	_, err := t.bucket.ListKeys("taco\x00burrito")
 	ExpectThat(err, Error(HasSubstr("null")))
 }
