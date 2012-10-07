@@ -304,7 +304,7 @@ type listBucketResult struct {
 	Contents []bucketContents
 }
 
-func (b *bucket) ListKeys(min string) (keys []string, err error) {
+func (b *bucket) ListKeys(lb string) (keys []string, err error) {
 	// Build an appropriate HTTP request.
 	//
 	// Reference:
@@ -318,8 +318,8 @@ func (b *bucket) ListKeys(min string) (keys []string, err error) {
 		Parameters: map[string]string{},
 	}
 
-	if min != "" {
-		httpReq.Parameters["marker"] = min
+	if lb != "" {
+		httpReq.Parameters["marker"] = lb
 	}
 
 	// Sign the request.

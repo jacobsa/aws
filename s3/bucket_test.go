@@ -624,7 +624,7 @@ type ListKeysTest struct {
 func init() { RegisterTestSuite(&ListKeysTest{}) }
 
 func (t *ListKeysTest) CallsSignerWithEmptyMin() {
-	min := ""
+	lb := ""
 
 	// Clock
 	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
@@ -638,7 +638,7 @@ func (t *ListKeysTest) CallsSignerWithEmptyMin() {
 	}))
 
 	// Call
-	t.bucket.ListKeys(min)
+	t.bucket.ListKeys(lb)
 
 	AssertNe(nil, httpReq)
 	ExpectEq("GET", httpReq.Verb)
@@ -650,7 +650,7 @@ func (t *ListKeysTest) CallsSignerWithEmptyMin() {
 }
 
 func (t *ListKeysTest) CallsSignerWithNonEmptyMin() {
-	min := "taco burrito"
+	lb := "taco burrito"
 
 	// Clock
 	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
@@ -664,7 +664,7 @@ func (t *ListKeysTest) CallsSignerWithNonEmptyMin() {
 	}))
 
 	// Call
-	t.bucket.ListKeys(min)
+	t.bucket.ListKeys(lb)
 
 	AssertNe(nil, httpReq)
 	ExpectEq("GET", httpReq.Verb)
@@ -674,21 +674,21 @@ func (t *ListKeysTest) CallsSignerWithNonEmptyMin() {
 }
 
 func (t *ListKeysTest) SignerReturnsError() {
-	min := ""
+	lb := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
 		WillOnce(oglemock.Return(errors.New("taco")))
 
 	// Call
-	_, err := t.bucket.ListKeys(min)
+	_, err := t.bucket.ListKeys(lb)
 
 	ExpectThat(err, Error(HasSubstr("Sign")))
 	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *ListKeysTest) CallsConn() {
-	min := ""
+	lb := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -706,14 +706,14 @@ func (t *ListKeysTest) CallsConn() {
 	}))
 
 	// Call
-	t.bucket.ListKeys(min)
+	t.bucket.ListKeys(lb)
 
 	AssertNe(nil, httpReq)
 	ExpectEq("burrito", httpReq.Verb)
 }
 
 func (t *ListKeysTest) ConnReturnsError() {
-	min := ""
+	lb := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -724,14 +724,14 @@ func (t *ListKeysTest) ConnReturnsError() {
 		WillOnce(oglemock.Return(nil, errors.New("taco")))
 
 	// Call
-	_, err := t.bucket.ListKeys(min)
+	_, err := t.bucket.ListKeys(lb)
 
 	ExpectThat(err, Error(HasSubstr("SendRequest")))
 	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *ListKeysTest) ServerReturnsError() {
-	min := ""
+	lb := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -747,7 +747,7 @@ func (t *ListKeysTest) ServerReturnsError() {
 		WillOnce(oglemock.Return(resp, nil))
 
 	// Call
-	_, err := t.bucket.ListKeys(min)
+	_, err := t.bucket.ListKeys(lb)
 
 	ExpectThat(err, Error(HasSubstr("server")))
 	ExpectThat(err, Error(HasSubstr("500")))
@@ -755,7 +755,7 @@ func (t *ListKeysTest) ServerReturnsError() {
 }
 
 func (t *ListKeysTest) ResponseBodyIsJunk() {
-	min := ""
+	lb := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -771,14 +771,14 @@ func (t *ListKeysTest) ResponseBodyIsJunk() {
 		WillOnce(oglemock.Return(resp, nil))
 
 	// Call
-	_, err := t.bucket.ListKeys(min)
+	_, err := t.bucket.ListKeys(lb)
 
 	ExpectThat(err, Error(HasSubstr("Invalid")))
 	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *ListKeysTest) WrongRootTag() {
-	min := ""
+	lb := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -800,14 +800,14 @@ func (t *ListKeysTest) WrongRootTag() {
 		WillOnce(oglemock.Return(resp, nil))
 
 	// Call
-	_, err := t.bucket.ListKeys(min)
+	_, err := t.bucket.ListKeys(lb)
 
 	ExpectThat(err, Error(HasSubstr("Invalid")))
 	ExpectThat(err, Error(HasSubstr("FooBar")))
 }
 
 func (t *ListKeysTest) ResponseContainsNoKeys() {
-	min := ""
+	lb := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -826,14 +826,14 @@ func (t *ListKeysTest) ResponseContainsNoKeys() {
 		WillOnce(oglemock.Return(resp, nil))
 
 	// Call
-	keys, err := t.bucket.ListKeys(min)
+	keys, err := t.bucket.ListKeys(lb)
 	AssertEq(nil, err)
 
 	ExpectThat(keys, ElementsAre())
 }
 
 func (t *ListKeysTest) ResponseContainsSomeKeys() {
-	min := ""
+	lb := ""
 
 	// Signer
 	ExpectCall(t.signer, "Sign")(Any()).
@@ -861,7 +861,7 @@ func (t *ListKeysTest) ResponseContainsSomeKeys() {
 		WillOnce(oglemock.Return(resp, nil))
 
 	// Call
-	keys, err := t.bucket.ListKeys(min)
+	keys, err := t.bucket.ListKeys(lb)
 	AssertEq(nil, err)
 
 	ExpectThat(keys, ElementsAre("bar", "baz", "foo"))
