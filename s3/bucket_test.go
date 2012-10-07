@@ -115,7 +115,16 @@ func (t *GetObjectTest) KeyContainsNullByte() {
 	// Call
 	_, err := t.bucket.GetObject(key)
 
-	ExpectThat(err, Error(HasSubstr("null")))
+	ExpectThat(err, Error(HasSubstr("U+0000")))
+}
+
+func (t *GetObjectTest) KeyContainsOutOfRangeCodepoint() {
+	key := "taco\uFFFEburrito"
+
+	// Call
+	_, err := t.bucket.GetObject(key)
+
+	ExpectThat(err, Error(HasSubstr("U+FFFE")))
 }
 
 func (t *GetObjectTest) KeyIsEmpty() {
@@ -293,7 +302,17 @@ func (t *StoreObjectTest) KeyContainsNullByte() {
 	// Call
 	err := t.bucket.StoreObject(key, data)
 
-	ExpectThat(err, Error(HasSubstr("null")))
+	ExpectThat(err, Error(HasSubstr("U+0000")))
+}
+
+func (t *StoreObjectTest) KeyContainsOutOfRangeCodepoint() {
+	key := "taco\uFFFEburrito"
+	data := []byte{}
+
+	// Call
+	err := t.bucket.StoreObject(key, data)
+
+	ExpectThat(err, Error(HasSubstr("U+FFFE")))
 }
 
 func (t *StoreObjectTest) KeyIsEmpty() {
@@ -476,7 +495,16 @@ func (t *DeleteObjectTest) KeyContainsNullByte() {
 	// Call
 	err := t.bucket.DeleteObject(key)
 
-	ExpectThat(err, Error(HasSubstr("null")))
+	ExpectThat(err, Error(HasSubstr("U+0000")))
+}
+
+func (t *DeleteObjectTest) KeyContainsOutOfRangeCodepoint() {
+	key := "taco\uFFFEburrito"
+
+	// Call
+	err := t.bucket.DeleteObject(key)
+
+	ExpectThat(err, Error(HasSubstr("U+FFFE")))
 }
 
 func (t *DeleteObjectTest) KeyIsEmpty() {

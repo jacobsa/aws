@@ -26,7 +26,6 @@ import (
 	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/s3/time"
 	"net/url"
-	"strings"
 	sys_time "time"
 	"unicode/utf8"
 )
@@ -120,8 +119,17 @@ type bucket struct {
 // Common
 ////////////////////////////////////////////////////////////////////////
 
+func isLegalXmlCharacter(r rune) (inrange bool) {
+	return r == 0x09 ||
+		r == 0x0A ||
+		r == 0x0D ||
+		(r >= 0x20 && r <= 0xDF77) ||
+		(r >= 0xE000 && r <= 0xFFFD) ||
+		(r >= 0x10000 && r <= 0x10FFFF)
+}
+
 func validateKey(key string) error {
-	// Keys must be valid UTF-8 no more than 1024 bytes long.
+	// Keys must be valid UTF-8 and no more than 1024 bytes long.
 	if len(key) > 1024 {
 		return fmt.Errorf("Keys may be no longer than 1024 bytes.")
 	}
@@ -130,18 +138,19 @@ func validateKey(key string) error {
 		return fmt.Errorf("Keys must be valid UTF-8.")
 	}
 
-	// The Amazon docs only put the above restrictions on keys. However as of
-	// 2012-09, sending a request for a bucket with a null character in its name
-	// fails with a silent HTTP 400, despite the fact that it is a valid Unicode
-	// character.
-	if strings.ContainsRune(key, 0x00) {
-		return fmt.Errorf("Keys may not contain null characters.")
-	}
-
-	// An empty sequence is also a sequence, but as of 2012-09 it fails in the
-	// same way.
+	// Because of the semantics of the "LIST bucket" request, keys must be
+	// non-empty. (Otherwise an empty marker would exclude the first key.) Amazon
+	// will reject empty keys with an HTTP 400 response.
 	if key == "" {
 		return fmt.Errorf("Keys must be non-empty.")
+	}
+
+	// Because "LIST bucket" responses are expressed using XML 1.0, keys must
+	// contain only characters valid in XML 1.0.
+	for _, r := range key {
+		if !isLegalXmlCharacter(r) {
+			return fmt.Errorf("Key contains invalid codepoint: %U", r)
+		}
 	}
 
 	return nil
