@@ -324,7 +324,45 @@ func (t *BucketTest) ListFewKeys() {
 }
 
 func (t *BucketTest) ListManyKeys() {
-	ExpectFalse(true, "TODO")
+	var err error
+
+	// Decide on many keys.
+	const numKeys = 3072
+	allKeys := make([]string, numKeys)
+
+	for i, _ := range allKeys {
+		allKeys[i] = fmt.Sprintf("%08x", i)
+	}
+
+	// Create them.
+	err = runForRange(numKeys, func(i int) error {
+		key := allKeys[i]
+		t.ensureDeleted(key)
+		return t.bucket.StoreObject(key, []byte{})
+	})
+
+	AssertEq(nil, err)
+
+	// List them progressively.
+	lb := ""
+	keysListed := []string{}
+
+	for {
+		keys, err := t.bucket.ListKeys(lb)
+
+		AssertEq(nil, err)
+		AssertLt(len(keys), numKeys)
+
+		if len(keys) == 0 {
+			break
+		}
+
+		keysListed = append(keysListed, keys...)
+		lb = keys[len(keys) - 1]
+	}
+
+	// We should have gotten them all back.
+	ExpectThat(keysListed, DeepEquals(allKeys))
 }
 
 func (t *BucketTest) KeysWithSpecialCharacters() {
