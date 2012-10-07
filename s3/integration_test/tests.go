@@ -201,19 +201,19 @@ func (t *BucketTest) NullByteInKey() {
 
 	// Store
 	err = t.bucket.StoreObject(key, []byte{})
-	ExpectThat(err, Error(HasSubstr("null")))
+	ExpectThat(err, Error(HasSubstr("U+0000")))
 
 	// Get
 	_, err = t.bucket.GetObject(key)
-	ExpectThat(err, Error(HasSubstr("null")))
+	ExpectThat(err, Error(HasSubstr("U+0000")))
 
 	// Delete
 	err = t.bucket.DeleteObject(key)
-	ExpectThat(err, Error(HasSubstr("null")))
+	ExpectThat(err, Error(HasSubstr("U+0000")))
 
 	// List keys
 	_, err = t.bucket.ListKeys(key)
-	ExpectThat(err, Error(HasSubstr("null")))
+	ExpectThat(err, Error(HasSubstr("U+0000")))
 }
 
 func (t *BucketTest) NonGraphicalCharacterInKey() {
@@ -222,23 +222,23 @@ func (t *BucketTest) NonGraphicalCharacterInKey() {
 
 	// Store
 	err = t.bucket.StoreObject(key, []byte{})
-	ExpectThat(err, Error(HasSubstr("character")))
-	ExpectThat(err, Error(HasSubstr("08")))
+	ExpectThat(err, Error(HasSubstr("codepoint")))
+	ExpectThat(err, Error(HasSubstr("U+0008")))
 
 	// Get
 	_, err = t.bucket.GetObject(key)
-	ExpectThat(err, Error(HasSubstr("character")))
-	ExpectThat(err, Error(HasSubstr("08")))
+	ExpectThat(err, Error(HasSubstr("codepoint")))
+	ExpectThat(err, Error(HasSubstr("U+0008")))
 
 	// Delete
 	err = t.bucket.DeleteObject(key)
-	ExpectThat(err, Error(HasSubstr("character")))
-	ExpectThat(err, Error(HasSubstr("08")))
+	ExpectThat(err, Error(HasSubstr("codepoint")))
+	ExpectThat(err, Error(HasSubstr("U+0008")))
 
 	// List keys
 	_, err = t.bucket.ListKeys(key)
-	ExpectThat(err, Error(HasSubstr("character")))
-	ExpectThat(err, Error(HasSubstr("08")))
+	ExpectThat(err, Error(HasSubstr("codepoint")))
+	ExpectThat(err, Error(HasSubstr("U+0008")))
 }
 
 func (t *BucketTest) EmptyKey() {
