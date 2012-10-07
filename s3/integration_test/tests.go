@@ -327,7 +327,7 @@ func (t *BucketTest) ListManyKeys() {
 	var err error
 
 	// Decide on many keys.
-	const numKeys = 1001
+	const numKeys = 1200
 	allKeys := make([]string, numKeys)
 
 	for i, _ := range allKeys {
@@ -365,8 +365,69 @@ func (t *BucketTest) ListManyKeys() {
 	ExpectThat(keysListed, DeepEquals(allKeys))
 }
 
-func (t *BucketTest) KeysWithSpecialCharacters() {
-	ExpectFalse(true, "TODO")
+func (t *BucketTest) KeyContainingKorean() {
+	var keys []string
+	var err error
+
+	// Set up a string containing Korean, as well as a string just before it
+	// lexicographically.
+	decLast := func(s string) string {
+		bytes := []byte(s)
+		numBytes := len(bytes)
+		if numBytes == 0 || bytes[numBytes-1] == 0 {
+			panic(fmt.Sprintf("Invalid bytes: %v", bytes))
+		}
+
+		bytes[numBytes-1]--
+		return string(bytes)
+	}
+
+	koreanStr := "타코"
+	predecessor := decLast(koreanStr)
+
+	// Create the keys.
+	toCreate := []string{koreanStr, predecessor}
+
+	err = runForRange(len(toCreate), func(i int) error {
+		key := toCreate[i]
+		t.ensureDeleted(key)
+		return t.bucket.StoreObject(key, []byte{})
+	})
+
+	AssertEq(nil, err)
+
+	// From start.
+	keys, err = t.bucket.ListKeys("")
+	AssertEq(nil, err)
+	ExpectThat(
+		keys,
+		ElementsAre(
+			predecessor,
+			koreanStr))
+
+	// From just before predecessor.
+	keys, err = t.bucket.ListKeys(decLast(predecessor))
+	AssertEq(nil, err)
+	ExpectThat(
+		keys,
+		ElementsAre(
+			predecessor,
+			koreanStr))
+
+	// From predecessor.
+	keys, err = t.bucket.ListKeys(predecessor)
+	AssertEq(nil, err)
+	ExpectThat(
+		keys,
+		ElementsAre(
+			koreanStr))
+
+	// From Korean string.
+	keys, err = t.bucket.ListKeys(koreanStr)
+	AssertEq(nil, err)
+	ExpectThat(
+		keys,
+		ElementsAre())
 }
 
 func (t *BucketTest) DeleteNonExistentObject() {
