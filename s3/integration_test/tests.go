@@ -436,5 +436,24 @@ func (t *BucketTest) DeleteNonExistentObject() {
 }
 
 func (t *BucketTest) DeleteThenListAndGetObject() {
-	ExpectFalse(true, "TODO")
+	key := "some_key"
+	t.ensureDeleted(key)
+
+	// Store
+	err := t.bucket.StoreObject(key, []byte{})
+	AssertEq(nil, err)
+
+	// Delete
+	err = t.bucket.DeleteObject(key)
+	AssertEq(nil, err)
+
+	// Get
+	_, err = t.bucket.GetObject(key)
+	AssertThat(err, Error(HasSubstr("404")))
+	AssertThat(err, Error(HasSubstr(key)))
+
+	// List keys
+	keys, err := t.bucket.ListKeys("")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre())
 }
