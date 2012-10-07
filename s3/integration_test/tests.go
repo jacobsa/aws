@@ -162,12 +162,17 @@ func (t *BucketTest) ListFewKeys() {
 	var keys []string
 	var err error
 
-	// Create several keys.
+	// Create several keys. S3 returns keys in an XML 1.0 document, and according
+	// to Section 2.2 of the spec the smallest legal character is #x9, so a
+	// string's successor in that space of strings is computed by appending \x09.
+	//
+	// S3 will actually allow you to create a smaller key, e.g. "bar\x01", but
+	// Go's xml package will then refuse to parse its LIST responses.
 	toCreate := []string{
 		"foo",
 		"bar",
-		"bar\x01",
-		"bar\x01\x01",
+		"bar\x09",
+		"bar\x09\x09",
 		"baz",
 	}
 
@@ -184,50 +189,50 @@ func (t *BucketTest) ListFewKeys() {
 		keys,
 		ElementsAre(
 		"bar",
-		"bar\x01",
-		"bar\x01\x01",
+		"bar\x09",
+		"bar\x09\x09",
 		"baz",
 		"foo",
 	))
 
-	// Just before bar\x01.
+	// Just before bar\x09.
 	keys, err = t.bucket.ListKeys("bar")
 	AssertEq(nil, err)
 	ExpectThat(
 		keys,
 		ElementsAre(
 		"bar",
-		"bar\x01",
-		"bar\x01\x01",
+		"bar\x09",
+		"bar\x09\x09",
 		"baz",
 		"foo",
 	))
 
-	// Starting at bar\x01.
-	keys, err = t.bucket.ListKeys("bar\x01")
+	// Starting at bar\x09.
+	keys, err = t.bucket.ListKeys("bar\x09")
 	AssertEq(nil, err)
 	ExpectThat(
 		keys,
 		ElementsAre(
-		"bar\x01",
-		"bar\x01\x01",
+		"bar\x09",
+		"bar\x09\x09",
 		"baz",
 		"foo",
 	))
 
-	// Just after bar\x01.
-	keys, err = t.bucket.ListKeys("bar\x01\x01")
+	// Just after bar\x09.
+	keys, err = t.bucket.ListKeys("bar\x09\x09")
 	AssertEq(nil, err)
 	ExpectThat(
 		keys,
 		ElementsAre(
-		"bar\x01\x01",
+		"bar\x09\x09",
 		"baz",
 		"foo",
 	))
 
 	// Just after last key.
-	keys, err = t.bucket.ListKeys("foo\x01")
+	keys, err = t.bucket.ListKeys("foo\x09")
 	AssertEq(nil, err)
 	ExpectThat(keys, ElementsAre())
 
