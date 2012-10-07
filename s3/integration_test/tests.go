@@ -30,6 +30,7 @@ import (
 	"github.com/jacobsa/aws/s3"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"strings"
 	"sync"
 )
 
@@ -224,15 +225,18 @@ func (t *BucketTest) ListEmptyBucket() {
 }
 
 func (t *BucketTest) ListWithInvalidUtf8Minimum() {
-	ExpectFalse(true, "TODO")
+	_, err := t.bucket.ListKeys("\x80\x81\x82")
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *BucketTest) ListWithLongMinimum() {
-	ExpectFalse(true, "TODO")
+	_, err := t.bucket.ListKeys(strings.Repeat("x", 1025))
+	ExpectThat(err, Error(HasSubstr("bytes")))
 }
 
 func (t *BucketTest) ListWithNullByteInMinimum() {
-	ExpectFalse(true, "TODO")
+	_, err := t.bucket.ListKeys("taco\x00burrito")
+	ExpectThat(err, Error(HasSubstr("null")))
 }
 
 func (t *BucketTest) ListFewKeys() {
