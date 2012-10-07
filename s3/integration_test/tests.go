@@ -63,7 +63,7 @@ func runForRange(n int, f func (int) error) (err error) {
 			}
 		}
 
-		const numWorkers = 17
+		const numWorkers = 128
 		for i := 0; i < numWorkers; i++ {
 			go processWork()
 		}
@@ -327,7 +327,7 @@ func (t *BucketTest) ListManyKeys() {
 	var err error
 
 	// Decide on many keys.
-	const numKeys = 3072
+	const numKeys = 1001
 	allKeys := make([]string, numKeys)
 
 	for i, _ := range allKeys {
