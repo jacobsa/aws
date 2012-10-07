@@ -317,7 +317,7 @@ type bucketContents struct {
 }
 
 type listBucketResult struct {
-	XMLName xml.Name
+	XMLName  xml.Name
 	Contents []bucketContents
 }
 
