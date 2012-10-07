@@ -322,6 +322,11 @@ type listBucketResult struct {
 }
 
 func (b *bucket) ListKeys(prevKey string) (keys []string, err error) {
+	// Make sure the previous key is empty or valid.
+	if err := validateKey(prevKey); err != nil && prevKey != "" {
+		return nil, err
+	}
+
 	// Build an appropriate HTTP request.
 	//
 	// Reference:
