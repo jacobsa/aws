@@ -30,7 +30,6 @@ import (
 	"github.com/jacobsa/aws/s3"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
-	"strings"
 	"sync"
 )
 
@@ -149,23 +148,40 @@ func (t *BucketTest) WrongAccessKeySecret() {
 	ExpectThat(err, Error(HasSubstr("signature")))
 }
 
-func (t *BucketTest) InvalidUtf8Keys() {
+func (t *BucketTest) InvalidUtf8Key() {
+	key := "taco\x80\x81\x82burrito"
+	var err error
+
+	// Store
+	err = t.bucket.StoreObject(key, []byte{})
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+
+	// Get
+	_, err = t.bucket.GetObject(key)
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+
+	// Delete
+	err = t.bucket.DeleteObject(key)
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+
+	// List keys
+	_, err = t.bucket.ListKeys(key)
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+}
+
+func (t *BucketTest) LongKey() {
 	ExpectEq("TODO", "")
 }
 
-func (t *BucketTest) LongKeys() {
+func (t *BucketTest) NullByteInKey() {
 	ExpectEq("TODO", "")
 }
 
-func (t *BucketTest) NullBytesInKeys() {
+func (t *BucketTest) NonGraphicalCharacterInKey() {
 	ExpectEq("TODO", "")
 }
 
-func (t *BucketTest) NonGraphicalCharacterInKeys() {
-	ExpectEq("TODO", "")
-}
-
-func (t *BucketTest) EmptyKeys() {
+func (t *BucketTest) EmptyKey() {
 	ExpectEq("TODO", "")
 }
 
@@ -222,21 +238,6 @@ func (t *BucketTest) ListEmptyBucket() {
 	keys, err = t.bucket.ListKeys("foo")
 	AssertEq(nil, err)
 	ExpectThat(keys, ElementsAre())
-}
-
-func (t *BucketTest) ListWithInvalidUtf8PrevKey() {
-	_, err := t.bucket.ListKeys("\x80\x81\x82")
-	ExpectThat(err, Error(HasSubstr("UTF-8")))
-}
-
-func (t *BucketTest) ListWithLongPrevKey() {
-	_, err := t.bucket.ListKeys(strings.Repeat("x", 1025))
-	ExpectThat(err, Error(HasSubstr("bytes")))
-}
-
-func (t *BucketTest) ListWithNullByteInPrevKey() {
-	_, err := t.bucket.ListKeys("taco\x00burrito")
-	ExpectThat(err, Error(HasSubstr("null")))
 }
 
 func (t *BucketTest) ListFewKeys() {
