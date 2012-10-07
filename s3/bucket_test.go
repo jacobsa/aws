@@ -651,6 +651,44 @@ type ListKeysTest struct {
 
 func init() { RegisterTestSuite(&ListKeysTest{}) }
 
+func (t *ListKeysTest) PrevKeyNotValidUtf8() {
+	prevKey := "\x80\x81\x82"
+
+	// Call
+	_, err := t.bucket.ListKeys(prevKey)
+
+	ExpectThat(err, Error(HasSubstr("valid")))
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+}
+
+func (t *ListKeysTest) PrevKeyTooLong() {
+	prevKey := strings.Repeat("a", 1025)
+
+	// Call
+	_, err := t.bucket.ListKeys(prevKey)
+
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+}
+
+func (t *ListKeysTest) PrevKeyContainsNullByte() {
+	prevKey := "taco\x00burrito"
+
+	// Call
+	_, err := t.bucket.ListKeys(prevKey)
+
+	ExpectThat(err, Error(HasSubstr("U+0000")))
+}
+
+func (t *ListKeysTest) PrevKeyContainsOutOfRangeCodepoint() {
+	prevKey := "taco\uFFFEburrito"
+
+	// Call
+	_, err := t.bucket.ListKeys(prevKey)
+
+	ExpectThat(err, Error(HasSubstr("U+FFFE")))
+}
+
 func (t *ListKeysTest) CallsSignerWithEmptyMin() {
 	prevKey := ""
 
