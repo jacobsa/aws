@@ -32,12 +32,17 @@ import (
 )
 
 // Bucket represents an S3 bucket, which is a collection of objects keyed on
-// Unicode strings. The UTF-8 encoding of a key must be no more than 1024 bytes
-// long.
+// Unicode strings.
+//
+// Keys must be non-empty sequences of Unicode characters whose UTF-8 encoding
+// is no more than 1024 bytes long. Because S3 returns "list bucket" responses
+// as XML 1.0 documents, keys must contain no character that is not a legal
+// character as defined by Section 2.2 of the XML 1.0 spec.
 //
 // See here for more info:
 //
 //     http://goo.gl/Nd63t
+//     http://goo.gl/csem8
 //
 type Bucket interface {
 	// Retrieve data for the object with the given key.
