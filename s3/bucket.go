@@ -51,13 +51,19 @@ type Bucket interface {
 	DeleteObject(key string) error
 
 	// Return an ordered set of contiguous object keys in the bucket that are
-	// greater than or equal to min. It is guaranteed that as some time during
-	// the request there were no keys between min and the first key returned.
+	// strictly greater than lb. It is guaranteed that as some time during the
+	// request there were no keys greater than lb and less than the first key
+	// returned.
 	//
 	// There may be more keys beyond the last key returned. If no keys are
 	// returned (and the error is nil), it is guaranteed that at some time during
-	// the request there were the bucket contained no keys in [min, inf).
-	ListKeys(min string) (keys []string, err error)
+	// the request there were the bucket contained no keys in (lb, inf).
+	//
+	// Using this interface you may list all keys in a bucket by starting with
+	// the empty string for lb (since the empty string is not itself a legal key)
+	// and then repeatedly calling again with the last key returned by the
+	// previous call.
+	ListKeys(lb string) (keys []string, err error)
 }
 
 // OpenBucket returns a Bucket tied to a given name in whe given region. You

@@ -201,20 +201,18 @@ func (t *BucketTest) ListFewKeys() {
 	ExpectThat(
 		keys,
 		ElementsAre(
-		"bar",
 		"bar\x09",
 		"bar\x09\x09",
 		"baz",
 		"foo",
 	))
 
-	// Starting at bar\x09.
+	// At bar\x09.
 	keys, err = t.bucket.ListKeys("bar\x09")
 	AssertEq(nil, err)
 	ExpectThat(
 		keys,
 		ElementsAre(
-		"bar\x09",
 		"bar\x09\x09",
 		"baz",
 		"foo",
@@ -226,10 +224,14 @@ func (t *BucketTest) ListFewKeys() {
 	ExpectThat(
 		keys,
 		ElementsAre(
-		"bar\x09\x09",
 		"baz",
 		"foo",
 	))
+
+	// At last key.
+	keys, err = t.bucket.ListKeys("foo")
+	AssertEq(nil, err)
+	ExpectThat(keys, ElementsAre())
 
 	// Just after last key.
 	keys, err = t.bucket.ListKeys("foo\x09")
