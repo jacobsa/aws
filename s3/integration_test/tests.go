@@ -26,9 +26,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/jacobsa/aws/s3"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"sync"
 )
 
 ////////////////////////////////////////////////////////////////////////
@@ -90,13 +92,19 @@ func runForRange(n int, f func (int) error) (err error) {
 
 type BucketTest struct {
 	bucket s3.Bucket
+
+	mutex sync.Mutex
+	keysToDelete []string
 }
 
 func init() { RegisterTestSuite(&BucketTest{}) }
 
+// Ensure that the given key is deleted before the test finishes.
 func (t *BucketTest) ensureDeleted(key string) {
-	err := t.bucket.DeleteObject(key)
-	AssertEq(nil, err, "Couldn't delete object: %s", key)
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
+	t.keysToDelete = append(t.keysToDelete, key)
 }
 
 func (t *BucketTest) SetUp(i *TestInfo) {
@@ -104,6 +112,22 @@ func (t *BucketTest) SetUp(i *TestInfo) {
 
 	// Open a bucket.
 	t.bucket, err = s3.OpenBucket(*g_bucketName, s3.Region(*g_region), g_accessKey)
+	AssertEq(nil, err)
+}
+
+func (t *BucketTest) TearDown() {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
+	err := runForRange(len(t.keysToDelete), func (i int) error {
+		key := t.keysToDelete[i]
+		if err := t.bucket.DeleteObject(key); err != nil {
+			return fmt.Errorf("Couldn't delete key %s: %v", key, err)
+		}
+
+		return nil
+	})
+
 	AssertEq(nil, err)
 }
 
@@ -154,7 +178,7 @@ func (t *BucketTest) GetNonExistentObject() {
 
 func (t *BucketTest) StoreThenGetEmptyObject() {
 	key := "some_key"
-	defer t.ensureDeleted(key)
+	t.ensureDeleted(key)
 
 	data := []byte{}
 
@@ -170,7 +194,7 @@ func (t *BucketTest) StoreThenGetEmptyObject() {
 
 func (t *BucketTest) StoreThenGetNonEmptyObject() {
 	key := "some_key"
-	defer t.ensureDeleted(key)
+	t.ensureDeleted(key)
 
 	data := []byte{0x17, 0x19, 0x00, 0x02, 0x03}
 
@@ -229,14 +253,9 @@ func (t *BucketTest) ListFewKeys() {
 		"baz",
 	}
 
-	defer runForRange(len(toCreate), func(i int) error {
-		key := toCreate[i]
-		t.ensureDeleted(key)
-		return nil
-	})
-
 	err = runForRange(len(toCreate), func(i int) error {
 		key := toCreate[i]
+		t.ensureDeleted(key)
 		return t.bucket.StoreObject(key, []byte{})
 	})
 
