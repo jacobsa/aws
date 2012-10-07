@@ -71,6 +71,26 @@ func (t *BucketTest) WrongAccessKeySecret() {
 	ExpectThat(err, Error(HasSubstr("signature")))
 }
 
+func (t *BucketTest) InvalidUtf8Keys() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BucketTest) LongKeys() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BucketTest) NullBytesInKeys() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BucketTest) NonGraphicalCharacterInKeys() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BucketTest) EmptyKeys() {
+	ExpectEq("TODO", "")
+}
+
 func (t *BucketTest) GetNonExistentObject() {
 	_, err := t.bucket.GetObject("some_key")
 
