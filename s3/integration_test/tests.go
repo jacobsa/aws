@@ -30,6 +30,7 @@ import (
 	"github.com/jacobsa/aws/s3"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"strings"
 	"sync"
 )
 
@@ -170,7 +171,28 @@ func (t *BucketTest) InvalidUtf8Key() {
 }
 
 func (t *BucketTest) LongKey() {
-	ExpectEq("TODO", "")
+	key := strings.Repeat("x", 1025)
+	var err error
+
+	// Store
+	err = t.bucket.StoreObject(key, []byte{})
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+
+	// Get
+	_, err = t.bucket.GetObject(key)
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+
+	// Delete
+	err = t.bucket.DeleteObject(key)
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+
+	// List keys
+	_, err = t.bucket.ListKeys(key)
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
 }
 
 func (t *BucketTest) NullByteInKey() {
