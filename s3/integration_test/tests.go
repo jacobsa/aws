@@ -196,7 +196,24 @@ func (t *BucketTest) LongKey() {
 }
 
 func (t *BucketTest) NullByteInKey() {
-	ExpectEq("TODO", "")
+	key := "taco\x00burrito"
+	var err error
+
+	// Store
+	err = t.bucket.StoreObject(key, []byte{})
+	ExpectThat(err, Error(HasSubstr("null")))
+
+	// Get
+	_, err = t.bucket.GetObject(key)
+	ExpectThat(err, Error(HasSubstr("null")))
+
+	// Delete
+	err = t.bucket.DeleteObject(key)
+	ExpectThat(err, Error(HasSubstr("null")))
+
+	// List keys
+	_, err = t.bucket.ListKeys(key)
+	ExpectThat(err, Error(HasSubstr("null")))
 }
 
 func (t *BucketTest) NonGraphicalCharacterInKey() {
