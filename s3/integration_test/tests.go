@@ -35,6 +35,59 @@ import (
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
+// Run the supplied function for every integer in [0, n) with some degree of
+// parallelism, returning an error if any invocation returns an error.
+func runForRange(n int, f func (int) error) (err error) {
+		// Set up channels. The work channel should be buffered so that we don't
+		// have to block writing to it before checking for errors below. The error
+		// channel must be buffered so that no worker goroutine gets stuck writing
+		// a result to it and never returns. The stop channel must not be buffered
+		// so that we can be sure that no more work will be processed when we
+		// return below.
+		work := make(chan int, n)
+		errs := make(chan error, n)
+		stop := make(chan bool)
+
+		// Launch worker functions that attempt to do work, returning if a read
+		// from the stop channel succeeds.
+		processWork := func() {
+			for {
+				select {
+				case i := <-work:
+					errs<- f(i)
+				case <-stop:
+					return
+				}
+			}
+		}
+
+		const numWorkers = 17
+		for i := 0; i < numWorkers; i++ {
+			go processWork()
+		}
+
+		// Feed the workers work.
+		for i := 0; i < n; i++ {
+			work<- i
+		}
+
+		// Read results, stopping immediately if there is an error.
+		for i := 0; i < n; i++ {
+			err = <-errs
+			if err != nil {
+				break
+			}
+		}
+
+		// Stop all of the workers, and wait for them to stop. This ensures that
+		// no piece of work is in progress when we return.
+		for i := 0; i < numWorkers; i++ {
+			stop<- true
+		}
+
+		return
+	}
+
 type BucketTest struct {
 	bucket s3.Bucket
 }
@@ -176,11 +229,18 @@ func (t *BucketTest) ListFewKeys() {
 		"baz",
 	}
 
-	for _, key := range toCreate {
-		defer t.ensureDeleted(key)
-		err := t.bucket.StoreObject(key, []byte{})
-		AssertEq(nil, err, "Creating object: %s", key)
-	}
+	defer runForRange(len(toCreate), func(i int) error {
+		key := toCreate[i]
+		t.ensureDeleted(key)
+		return nil
+	})
+
+	err = runForRange(len(toCreate), func(i int) error {
+		key := toCreate[i]
+		return t.bucket.StoreObject(key, []byte{})
+	})
+
+	AssertEq(nil, err)
 
 	// From start.
 	keys, err = t.bucket.ListKeys("")
