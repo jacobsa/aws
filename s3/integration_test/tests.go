@@ -431,7 +431,8 @@ func (t *BucketTest) KeyContainingKorean() {
 }
 
 func (t *BucketTest) DeleteNonExistentObject() {
-	ExpectFalse(true, "TODO")
+	err := t.bucket.DeleteObject("some_object_that_doesnt_exist")
+	ExpectEq(nil, err)
 }
 
 func (t *BucketTest) DeleteThenListAndGetObject() {
