@@ -242,7 +242,20 @@ func (t *BucketTest) NonGraphicalCharacterInKey() {
 }
 
 func (t *BucketTest) EmptyKey() {
-	ExpectEq("TODO", "")
+	key := ""
+	var err error
+
+	// Store
+	err = t.bucket.StoreObject(key, []byte{})
+	ExpectThat(err, Error(HasSubstr("empty")))
+
+	// Get
+	_, err = t.bucket.GetObject(key)
+	ExpectThat(err, Error(HasSubstr("empty")))
+
+	// Delete
+	err = t.bucket.DeleteObject(key)
+	ExpectThat(err, Error(HasSubstr("empty")))
 }
 
 func (t *BucketTest) GetNonExistentObject() {
