@@ -298,6 +298,27 @@ func (t *BucketTest) StoreThenGetNonEmptyObject() {
 	ExpectThat(returnedData, DeepEquals(data))
 }
 
+func (t *BucketTest) OverwriteObject() {
+	key := "some_key"
+	t.ensureDeleted(key)
+
+	data0 := []byte{0x17, 0x19, 0x00, 0x02, 0x03}
+	data1 := []byte{0x23, 0x29, 0x31}
+
+	// Store (first time)
+	err := t.bucket.StoreObject(key, data0)
+	AssertEq(nil, err)
+
+	// Store (second time)
+	err = t.bucket.StoreObject(key, data1)
+	AssertEq(nil, err)
+
+	// Get
+	returnedData, err := t.bucket.GetObject(key)
+	AssertEq(nil, err)
+	ExpectThat(returnedData, DeepEquals(data1))
+}
+
 func (t *BucketTest) ListEmptyBucket() {
 	var keys []string
 	var err error
