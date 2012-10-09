@@ -19,12 +19,11 @@ import (
 	"github.com/jacobsa/aws"
 )
 
-// A connection to the SimpleDB service.
-type Conn interface {
-	// Send the supplied request to the service, taking care of adding
-	// appropriate authentication info.
-	SendRequest(req Request) (resp []byte, err error)
+type Signer interface {
+	// Add appropriate parameters to the supplied request in order to sign it.
+	SignRequest(req Request) error
 }
 
-// Create a connection pointing at the supplied host.
-func NewConn(host string, key aws.AccessKey, signer Signer) (Conn, error)
+// Create a signer that uses the supplied key.
+func NewSigner(key aws.AccessKey) (Signer, error)
+
