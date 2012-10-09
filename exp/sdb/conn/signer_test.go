@@ -16,7 +16,9 @@
 package conn
 
 import (
+	"errors"
 	"github.com/jacobsa/aws"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -59,7 +61,20 @@ func (t *SignerTest) CallsFunction() {
 }
 
 func (t *SignerTest) FunctionReturnsError() {
-	ExpectEq("TODO", "")
+	// Function
+	sts := func(r Request, h string) (string, error) {
+		return "", errors.New("taco")
+	}
+
+	// Signer
+	signer := newSigner(aws.AccessKey{}, "", sts)
+
+	// Call
+	req := Request{}
+	err := signer.SignRequest(req)
+
+	ExpectThat(err, Error(HasSubstr("computeStringToSign")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *SignerTest) FunctionReturnsString() {
