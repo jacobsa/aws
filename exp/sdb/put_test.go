@@ -356,6 +356,50 @@ type BatchPutTest struct {
 
 func init() { RegisterTestSuite(&BatchPutTest{}) }
 
-func (t *BatchPutTest) DoesFoo() {
+func (t *BatchPutTest) NoItems() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) TooManyItems() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) OneItemNameEmpty() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) OneItemNameInvalid() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) ZeroUpdatesForOneItem() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) TooManyUpdatesForOneItem() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) OneAttributeNameEmpty() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) OneAttributeNameInvalid() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) OneAttributeValueInvalid() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) CallsConn() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) ConnReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *BatchPutTest) ConnSaysOkay() {
 	ExpectEq("TODO", "")
 }
