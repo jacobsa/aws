@@ -22,6 +22,17 @@ import (
 func (d *domain) GetAttributes(
 	item ItemName,
 	constistentRead bool,
-	attributes []string) ([]Attribute, error) {
+	attrNames []string) (attrs []Attribute, err error) {
+	// Make sure the item name is legal.
+	if item == "" {
+		err = fmt.Errorf("Invalid item name; names must be non-empty.")
+		return
+	}
+
+	if err = validateValue(string(item)); err != nil {
+		err = fmt.Errorf("Invalid item name: %v", err)
+		return
+	}
+
 	return nil, fmt.Errorf("TODO")
 }

@@ -122,7 +122,7 @@ type Domain interface {
 	BatchDeleteAttributes(deleteMap map[ItemName][]DeleteUpdate) error
 
 	// Retrieve a set of attributes for the named item, or all attributes if the
-	// attributes slice is empty.
+	// attribute name slice is empty.
 	//
 	// If the named item doesn't exist, the empty set is returned.
 	//
@@ -130,7 +130,7 @@ type Domain interface {
 	GetAttributes(
 		item ItemName,
 		constistentRead bool,
-		attributes []string) ([]Attribute, error)
+		attrNames []string) (attrs []Attribute, err error)
 
 	// Retrieve a set of items and their attributes based on a query string.
 	//
