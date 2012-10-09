@@ -112,7 +112,19 @@ func (t *PutTest) OneAttributeNameEmpty() {
 }
 
 func (t *PutTest) OneAttributeNameInvalid() {
-	ExpectEq("TODO", "")
+	t.updates = []PutUpdate{
+		PutUpdate{Name: "foo"},
+		PutUpdate{Name: "taco\x80\x81\x82"},
+		PutUpdate{Name: "bar"},
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("update")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr(t.updates[1].Name)))
 }
 
 func (t *PutTest) OneAttributeValueInvalid() {
