@@ -87,7 +87,7 @@ func (t *PutTest) InvalidItemName() {
 
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
 	ExpectThat(t.err, Error(HasSubstr("item name")))
-	ExpectThat(t.err, Error(HasSubstr(string(t.item))))
+	ExpectThat(t.err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *PutTest) ZeroUpdates() {

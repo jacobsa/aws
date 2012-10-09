@@ -22,8 +22,17 @@ import (
 func (d *domain) PutAttributes(
 	item ItemName,
 	updates []PutUpdate,
-	preconditions []Precondition) error {
-	return fmt.Errorf("TODO")
+	preconditions []Precondition) (err error) {
+	// Make sure the item name is legal.
+	if item == "" {
+		return fmt.Errorf("Invalid item name; names must be non-empty.")
+	}
+
+	if err = validateValue(string(item)); err != nil {
+		return fmt.Errorf("Invalid item name: %v", err)
+	}
+
+	return nil
 }
 
 func (d *domain) BatchPutAttributes(updates map[ItemName][]PutUpdate) error {
