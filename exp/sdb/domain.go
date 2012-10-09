@@ -99,10 +99,10 @@ type Domain interface {
 
 	// Atomically apply updates to multiple items simultaneously.
 	//
-	// The length of updates must be in [1, 25]. The length of each of its values
+	// The length of the map must be in [1, 25]. The length of each of its values
 	// must be in [1, 256]. An error may be returned if the underlying request to
 	// SimpleDB is too large.
-	BatchPutAttributes(updates map[ItemName][]PutUpdate) error
+	BatchPutAttributes(updateMap map[ItemName][]PutUpdate) error
 
 	// Atomically delete attributes from the named item, but only if the supplied
 	// preconditions hold.
@@ -119,7 +119,7 @@ type Domain interface {
 	//
 	// If no updates are supplied for a particular item, delete all of its
 	// attributes.
-	BatchDeleteAttributes(deletes map[ItemName][]DeleteUpdate) error
+	BatchDeleteAttributes(deleteMap map[ItemName][]DeleteUpdate) error
 
 	// Retrieve a set of attributes for the named item, or all attributes if the
 	// attributes slice is empty.

@@ -139,6 +139,19 @@ func (d *domain) PutAttributes(
 	return nil
 }
 
-func (d *domain) BatchPutAttributes(updates map[ItemName][]PutUpdate) error {
-	return fmt.Errorf("TODO")
+func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err error) {
+	// Make sure the size of the request is legal.
+	numItems := len(updateMap)
+	if numItems == 0 || numItems > 256 {
+		return fmt.Errorf("Illegal number of items: %d", numItems)
+	}
+
+	// Make sure each set of updates is legal.
+	for item, updates := range updateMap {
+		if err = validateUpdates(updates); err != nil {
+			return fmt.Errorf("Updates for item %s: %v", item, err)
+		}
+	}
+
+	return nil
 }
