@@ -18,43 +18,85 @@ package sdb
 import (
 )
 
+// The name of an item within a SimpleDB domain. Item names must be UTF-8
+// strings no longer than 1024 bytes. They must contain only characters that
+// are valid in XML 1.0 documents, as defined by Section 2.2 of the XML 1.0
+// spec. (Note that this is a more restrictive condition than imposed by
+// SimpleDB itself, and is done for the sake of Go's XML 1.0 parser.)
+//
+// For more info:
+//
+//     http://goo.gl/Fkjnz
+//     http://goo.gl/csem8
+//
 type ItemName string
 
-// TODO(jacobsa): Comments.
+// An attribute is a (name, value) pair possessed by an item. Items contain
+// sets of attributes; they may contain multiple attributes with the same name,
+// but not with the same (name, value) pair.
+//
+// Attribute names and values share the same restrictions as those on item
+// names.
 type Attribute struct {
 	Name string
 	Value string
 }
 
-// TODO(jacobsa): Comments.
-type Expectation struct {
+// A precondition for a conditional Put or Delete operation. Preconditions may
+// specify a value that an attribute must have or whether the attribute must
+// exist or not.
+type Precondition struct {
+	// The name of the attribute to be inspected. Attributes with multiple values
+	// are not supported.
 	Name string
+
+	// If present, the value that the attribute must possess at the time of the
+	// update. Must be present iff Exists is not present.
 	Value *string
+
+	// If present, whether the attribute must exist at the time of the update.
+	// Must be present iff Value is not present.
 	Exists *bool
 }
 
-// TODO(jacobsa): Comments.
-type AttributeUpdate struct {
+// An update to make to a particular attribute as part of a Put request.
+type PutUpdate struct {
+	// The name of the attribute.
 	Name string
-	Value *string
+
+	// The value to set for the attribute.
+	Value string
+
+	// Whether to replace existing values for the attribute or to simply add a
+	// new one.
 	Replace bool
+}
+
+// An update to make to a particular attribute as part of a Delete request.
+type DeleteUpdate struct {
+	// The name of the attribute.
+	Name string
+
+	// Te requests, the particular value of the attribute to delete if present.
+	// Otherwise, all values will be deleted.
+	Value *string
 }
 
 // TODO(jacobsa): Comments.
 type Domain interface {
 	PutAttributes(
 		item ItemName,
-		updates []AttributeUpdate,
-		expectations []Expectation) error
+		updates []PutUpdate,
+		preconditions []Precondition) error
 
-	BatchPutAttributes(updates map[ItemName][]AttributeUpdate) error
+	BatchPutAttributes(updates map[ItemName][]PutUpdate) error
 
 	DeleteAttributes(
 		item ItemName,
-		deletes []AttributeUpdate,
-		expectations []Expectation) error
+		deletes []DeleteUpdate,
+		preconditions []Precondition) error
 
-	BatchDeleteAttributes(deletes map[ItemName][]AttributeUpdate) error
+	BatchDeleteAttributes(deletes map[ItemName][]DeleteUpdate) error
 
 	GetAttributes(
 		item ItemName,
