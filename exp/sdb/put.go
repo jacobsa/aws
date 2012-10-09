@@ -17,6 +17,7 @@ package sdb
 
 import (
 	"fmt"
+	"github.com/jacobsa/aws/exp/sdb/conn"
 )
 
 func validateUpdate(u PutUpdate) (err error) {
@@ -92,6 +93,39 @@ func (d *domain) PutAttributes(
 		if err = validatePrecondition(p); err != nil {
 			return fmt.Errorf("Invalid precondition (%v): %v", err, p)
 		}
+	}
+
+	// Assemble an appropriate request.
+	req := conn.Request{}
+	req["DomainName"] = d.name
+	req["ItemName"] = string(item)
+
+	for i, u := range updates {
+		keyPrefix := fmt.Sprintf("Attribute.%d.", i+1)
+		req[keyPrefix + "Name"] = u.Name
+		req[keyPrefix + "Value"] = u.Value
+
+		if u.Replace {
+			req[keyPrefix + "Replace"] = "true"
+		}
+	}
+
+	for i, p := range preconditions {
+		keyPrefix := fmt.Sprintf("Expected.%d.", i+1)
+		req[keyPrefix + "Name"] = p.Name
+
+		if p.Value != nil {
+			req[keyPrefix + "Value"] = *p.Value
+		} else if *p.Exists {
+			req[keyPrefix + "Exists"] = "true"
+		} else {
+			req[keyPrefix + "Exists"] = "false"
+		}
+	}
+
+	// Call the connection.
+	if _, err = d.c.SendRequest(req); err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
 	}
 
 	return nil
