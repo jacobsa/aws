@@ -338,7 +338,13 @@ func (t *PutTest) ConnReturnsError() {
 }
 
 func (t *PutTest) ConnSaysOkay() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.resp = []byte{}
+
+	// Call
+	t.callDomain()
+
+	ExpectEq(nil, t.err)
 }
 
 ////////////////////////////////////////////////////////////////////////
