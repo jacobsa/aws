@@ -101,7 +101,13 @@ func (t *PostBodyTest) UnreservedCharacters() {
 }
 
 func (t *PostBodyTest) StructuralCharacters() {
-	ExpectEq("TODO", "")
+	req := Request{
+		":/?#[]@": "!$&'()*+,;=",
+	}
+
+	body := assemblePostBody(req)
+
+	ExpectThat(body, HasSubstr("TODO"))
 }
 
 func (t *PostBodyTest) SpaceAndPlus() {
