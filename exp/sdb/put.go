@@ -38,6 +38,21 @@ func validateUpdate(u PutUpdate) (err error) {
 	return nil
 }
 
+func validateUpdates(updates []PutUpdate) (err error) {
+	numUpdates := len(updates)
+	if numUpdates == 0 || numUpdates > 256 {
+		return fmt.Errorf("Illegal number of updates: %d", numUpdates)
+	}
+
+	for _, u := range updates {
+		if err = validateUpdate(u); err != nil {
+			return fmt.Errorf("Invalid update (%v): %v", err, u)
+		}
+	}
+
+	return nil
+}
+
 func validatePrecondition(p Precondition) (err error) {
 	// Make sure the attribute name is legal.
 	if p.Name == "" {
@@ -77,15 +92,8 @@ func (d *domain) PutAttributes(
 	}
 
 	// Validate updates.
-	numUpdates := len(updates)
-	if numUpdates == 0 || numUpdates > 256 {
-		return fmt.Errorf("Illegal number of updates: %d", numUpdates)
-	}
-
-	for _, u := range updates {
-		if err = validateUpdate(u); err != nil {
-			return fmt.Errorf("Invalid update (%v): %v", err, u)
-		}
+	if err = validateUpdates(updates); err != nil {
+		return err
 	}
 
 	// Validate preconditions.
