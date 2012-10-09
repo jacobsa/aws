@@ -92,11 +92,26 @@ func (t *SelectTest) TokenPresent() {
 }
 
 func (t *SelectTest) ConnReturnsError() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.err = errors.New("taco")
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("SendRequest")))
+	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
 
 func (t *SelectTest) ConnReturnsJunk() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.resp = []byte("asdf")
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("server")))
+	ExpectThat(t.err, Error(HasSubstr("asdf")))
 }
 
 func (t *SelectTest) NoItemsInResponse() {
