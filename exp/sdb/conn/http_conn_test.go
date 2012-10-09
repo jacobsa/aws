@@ -128,14 +128,11 @@ func (t *HttpConnTest) BasicHttpInfo() {
 
 	ExpectEq("POST", sysReq.Method)
 	ExpectEq("/", sysReq.URL.Path)
+	ExpectEq(t.endpoint.Host, sysReq.Host)
 
 	ExpectThat(
 		sysReq.Header["Content-Type"],
 		ElementsAre("application/x-www-form-urlencoded; charset=utf-8"))
-
-	ExpectThat(
-		sysReq.Header["Host"],
-		ElementsAre(t.endpoint.Host))
 }
 
 func (t *HttpConnTest) RequestContainsNoParameters() {
