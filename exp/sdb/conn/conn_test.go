@@ -16,9 +16,12 @@
 package conn_test
 
 import (
+	"errors"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/exp/sdb/conn"
 	"github.com/jacobsa/aws/exp/sdb/conn/mock"
+	. "github.com/jacobsa/oglematchers"
+	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -44,7 +47,20 @@ func init() { RegisterTestSuite(&ConnTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *ConnTest) CallsSigner() {
-	ExpectEq("TODO", "")
+	req := conn.Request{
+		"foo": "bar",
+	}
+
+	// Signer
+	var signArg conn.Request
+	ExpectCall(t.signer, "SignRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r conn.Request) error {
+		signArg = r
+		return errors.New("")
+	}))
+
+	// Call
+	t.c.SendRequest(req)
 }
 
 func (t *ConnTest) SignerReturnsError() {
