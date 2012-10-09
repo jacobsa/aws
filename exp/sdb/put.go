@@ -20,6 +20,13 @@ import (
 	"github.com/jacobsa/aws/exp/sdb/conn"
 )
 
+type batchPutPair struct {
+	Item ItemName
+	Updates []PutUpdate
+}
+
+func getSortedPairs(updateMap map[ItemName][]PutUpdate) []batchPutPair
+
 func validateUpdate(u PutUpdate) (err error) {
 	// Make sure the attribute name is legal.
 	if u.Name == "" {
@@ -165,13 +172,13 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 	req := conn.Request{}
 	req["DomainName"] = d.name
 
-	var itemCount int
-	for item, updates := range updateMap {
-		itemPrefix := fmt.Sprintf("Item.%d.", itemCount+1)
-		req[itemPrefix + "ItemName"] = string(item)
+	pairs := getSortedPairs(updateMap)
+	for i, pair := range pairs {
+		itemPrefix := fmt.Sprintf("Item.%d.", i+1)
+		req[itemPrefix + "ItemName"] = string(pair.Item)
 
-		for i, u := range updates {
-			updatePrefix := fmt.Sprintf("%sAttribute.%d.", itemPrefix, i+1)
+		for j, u := range pair.Updates {
+			updatePrefix := fmt.Sprintf("%sAttribute.%d.", itemPrefix, j+1)
 			req[updatePrefix + "Name"] = u.Name
 			req[updatePrefix + "Value"] = u.Value
 
@@ -179,8 +186,6 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 				req[updatePrefix + "Replace"] = "true"
 			}
 		}
-
-		itemCount++
 	}
 
 	// Call the connection.
