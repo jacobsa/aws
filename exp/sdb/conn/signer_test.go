@@ -16,6 +16,7 @@
 package conn
 
 import (
+	"github.com/jacobsa/aws"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -36,7 +37,25 @@ func init() { RegisterTestSuite(&SignerTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *SignerTest) CallsFunction() {
-	ExpectEq("TODO", "")
+	// Function
+	var reqArg Request
+	var hostArg string
+
+	sts := func(r Request, host string) (string, error) {
+		reqArg = r
+		hostArg = host
+		return "", nil
+	}
+
+	// Signer
+	signer := newSigner(aws.AccessKey{}, "some_host", sts)
+
+	// Call
+	req := Request{"foo": "bar"}
+	signer.SignRequest(req)
+
+	ExpectEq(req, reqArg)
+	ExpectEq("some_host", hostArg)
 }
 
 func (t *SignerTest) FunctionReturnsError() {

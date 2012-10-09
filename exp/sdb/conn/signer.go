@@ -34,4 +34,13 @@ func NewSigner(key aws.AccessKey, host string) (Signer, error) {
 func newSigner(
 	key aws.AccessKey,
 	host string,
-	sts func (Request, string) (string, error)) Signer
+	sts func (Request, string) (string, error)) Signer {
+	return &signer{}
+}
+
+type signer struct {
+}
+
+func (s *signer) SignRequest(req Request) error {
+	return nil
+}
