@@ -129,6 +129,18 @@ type Domain interface {
 		constistentRead bool,
 		attributes []string) ([]Attribute, error)
 
+	// Retrieve a set of items and their attributes based on a query string.
+	//
+	// constistentRead specifies whether completely fresh data is needed or not.
+	//
+	// If the selected result set is too large, a "next token" will be returned.
+	// It can be passed to the Select method to resume where the previous result
+	// set left off. For the initial query, use nil.
+	//
+	// For more info:
+	//
+	//     http://goo.gl/GTsSZ
+	//
 	Select(
 		query string,
 		constistentRead bool,
