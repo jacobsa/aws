@@ -583,9 +583,22 @@ func (t *BatchPutTest) CallsConn() {
 }
 
 func (t *BatchPutTest) ConnReturnsError() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.err = errors.New("taco")
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("SendRequest")))
+	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
 
 func (t *BatchPutTest) ConnSaysOkay() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.resp = []byte{}
+
+	// Call
+	t.callDomain()
+
+	ExpectEq(nil, t.err)
 }
