@@ -22,6 +22,6 @@ import (
 func (d *domain) Select(
 	query string,
 	constistentRead bool,
-	nextToken []byte) (res map[ItemName][]Attribute, tok []byte, err error) {
+	nextToken []byte) (attrMap map[ItemName][]Attribute, tok []byte, err error) {
 	return nil, nil, fmt.Errorf("TODO")
 }

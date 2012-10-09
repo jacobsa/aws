@@ -53,6 +53,38 @@ func init() { RegisterTestSuite(&SelectTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *SelectTest) DoesFoo() {
+func (t *SelectTest) NoExtraOptions() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SelectTest) ConistentRead() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SelectTest) TokenPresent() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SelectTest) ConnReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SelectTest) ConnReturnsJunk() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SelectTest) NoItemsInResponse() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SelectTest) SomeItemsInResponse() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SelectTest) NoNextTokenInResponse() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SelectTest) NextTokenInResponse() {
 	ExpectEq("TODO", "")
 }
