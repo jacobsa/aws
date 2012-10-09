@@ -66,14 +66,24 @@ func (t *PostBodyTest) MultipleParameters() {
 	body := assemblePostBody(req)
 	components := strings.Split(string(body), "&")
 
-	AssertThat(components, ElementsAre(Any(), Any(), Any()))
+	AssertEq(3, len(components), "Components: %v", components)
 	ExpectThat(components, Contains("taco=burrito"))
 	ExpectThat(components, Contains("enchilada=queso"))
 	ExpectThat(components, Contains("nachos=carnitas"))
 }
 
 func (t *PostBodyTest) EmptyParameterName() {
-	ExpectEq("TODO", "")
+	req := Request{
+		"": "burrito",
+		"enchilada": "queso",
+	}
+
+	body := assemblePostBody(req)
+	components := strings.Split(string(body), "&")
+
+	AssertEq(2, len(components), "Components: %v", components)
+	ExpectThat(components, Contains("=burrito"))
+	ExpectThat(components, Contains("enchilada=queso"))
 }
 
 func (t *PostBodyTest) UnreservedCharacters() {
