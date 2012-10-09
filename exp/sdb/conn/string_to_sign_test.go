@@ -101,6 +101,7 @@ func (t *StringToSignTest) MixedCaseHost() {
 func (t *StringToSignTest) GoldenTest() {
 	// An actual request from the documentation.
 	req := Request{
+		"Action": "PutAttributes",
 		"DomainName": "MyDomain",
 		"ItemName": "Item123",
 		"Attribute.1.Name": "Color",
