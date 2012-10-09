@@ -90,10 +90,10 @@ func (t *ValidateTest) ControlCharacter() {
 }
 
 func (t *ValidateTest) NonCharacterCodepoint() {
-	s := "abc\ufdd2def"
+	s := "abc\ufffedef"
 	err := validateValue(s)
 
 	ExpectThat(err, Error(HasSubstr("codepoint")))
 	ExpectThat(err, Error(HasSubstr("XML 1.0")))
-	ExpectThat(err, Error(HasSubstr("U+FDD2")))
+	ExpectThat(err, Error(HasSubstr("U+FFFE")))
 }
