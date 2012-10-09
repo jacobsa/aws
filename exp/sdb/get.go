@@ -17,6 +17,7 @@ package sdb
 
 import (
 	"fmt"
+	"github.com/jacobsa/aws/exp/sdb/conn"
 )
 
 func (d *domain) GetAttributes(
@@ -47,6 +48,28 @@ func (d *domain) GetAttributes(
 		}
 	}
 
+	// Create an appropriate request.
+	//
+	// Reference:
+	//     http://goo.gl/MmaJA
+	req := conn.Request{
+		"DomainName": d.name,
+		"ItemName": string(item),
+	}
+
+	if constistentRead {
+		req["ConsistentRead"] = "true"
+	}
+
+	for i, name := range attrNames {
+		req[fmt.Sprintf("AttributeName.%d", i)] = name
+	}
+
+	// Call the connection.
+	if _, err = d.c.SendRequest(req); err != nil {
+		err = fmt.Errorf("SendRequest: %v", err)
+		return
+	}
 
 	return nil, fmt.Errorf("TODO")
 }
