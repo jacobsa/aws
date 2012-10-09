@@ -72,6 +72,15 @@ func (t *ConnTest) CallsSigner() {
 
 	// Call
 	t.c.SendRequest(req)
+
+	AssertNe(nil, signArg)
+	AssertNe(req, signArg)
+
+	ExpectEq("bar", signArg["foo"])
+	ExpectEq("TODO", signArg["Timestamp"])
+	ExpectEq("2", signArg["SignatureVersion"])
+	ExpectEq("HmacSHA1", signArg["SignatureMethod"])
+	ExpectEq(t.key.Id, signArg["AWSAccessKeyId"])
 }
 
 func (t *ConnTest) SignerReturnsError() {
