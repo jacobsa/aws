@@ -219,7 +219,7 @@ func (t *DeleteTest) BasicParameters() {
 
 	// Call
 	t.callDomain()
-	AssertNe(nil, t.c.req)
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
 
 	AssertThat(
 		getSortedKeys(t.c.req),
@@ -251,7 +251,7 @@ func (t *DeleteTest) NoUpdates() {
 
 	// Call
 	t.callDomain()
-	AssertNe(nil, t.c.req)
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
 
 	AssertThat(
 		getSortedKeys(t.c.req),
@@ -268,7 +268,7 @@ func (t *DeleteTest) NoUpdates() {
 func (t *DeleteTest) NoPreconditions() {
 	// Call
 	t.callDomain()
-	AssertNe(nil, t.c.req)
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
 
 	ExpectThat(getSortedKeys(t.c.req), Not(Contains(HasSubstr("Expected"))))
 }
@@ -286,7 +286,7 @@ func (t *DeleteTest) SomePreconditions() {
 
 	// Call
 	t.callDomain()
-	AssertNe(nil, t.c.req)
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
 
 	AssertThat(
 		getSortedKeys(t.c.req),
@@ -533,7 +533,7 @@ func (t *BatchDeleteTest) CallsConn() {
 
 	// Call
 	t.callDomain()
-	AssertNe(nil, t.c.req)
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
 
 	AssertThat(
 		getSortedKeys(t.c.req),
