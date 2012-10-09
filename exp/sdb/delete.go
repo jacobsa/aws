@@ -19,6 +19,36 @@ import (
 	"fmt"
 )
 
+func validateDeleteUpdate(u DeleteUpdate) (err error) {
+	// Make sure the attribute name is legal.
+	if u.Name == "" {
+		return fmt.Errorf("Invalid attribute name; names must be non-empty.")
+	}
+
+	if err = validateValue(string(u.Name)); err != nil {
+		return fmt.Errorf("Invalid attribute name: %v", err)
+	}
+
+	// Make sure the attribute value is legal, if it is specified.
+	if u.Value != nil {
+		if err = validateValue(string(*u.Value)); err != nil {
+			return fmt.Errorf("Invalid attribute value: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func validateDeleteUpdates(updates []DeleteUpdate) (err error) {
+	for _, u := range updates {
+		if err = validateDeleteUpdate(u); err != nil {
+			return fmt.Errorf("Invalid update (%v): %v", err, u)
+		}
+	}
+
+	return nil
+}
+
 func (d *domain) DeleteAttributes(
 	item ItemName,
 	deletes []DeleteUpdate,
