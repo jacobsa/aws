@@ -111,7 +111,12 @@ func (t *PostBodyTest) StructuralCharacters() {
 }
 
 func (t *PostBodyTest) SpaceAndPlus() {
-	ExpectEq("TODO", "")
+	req := Request{
+		"b+a z": "q+u x",
+	}
+
+	body := assemblePostBody(req)
+	ExpectEq("b%25%20z=q%25u%20x", body)
 }
 
 func (t *PostBodyTest) KoreanCharacters() {
