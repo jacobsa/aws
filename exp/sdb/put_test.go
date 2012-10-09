@@ -377,7 +377,14 @@ func (t *BatchPutTest) callDomain() {
 }
 
 func (t *BatchPutTest) NoItems() {
-	ExpectEq("TODO", "")
+	t.updates = map[ItemName][]PutUpdate{
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("number")))
+	ExpectThat(t.err, Error(HasSubstr("items")))
 }
 
 func (t *BatchPutTest) TooManyItems() {
