@@ -208,7 +208,6 @@ func (t *PutTest) OnePreconditionValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
 	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("value")))
-	ExpectThat(t.err, Error(HasSubstr(*t.preconditions[1].Value)))
 }
 
 func (t *PutTest) OnePreconditionMissingOperand() {
