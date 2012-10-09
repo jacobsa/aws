@@ -332,8 +332,8 @@ func (t *PutTest) ConnReturnsError() {
 	// Call
 	t.callDomain()
 
-	ExpectThat(t.err, HasSubstr("SendRequest"))
-	ExpectThat(t.err, HasSubstr("taco"))
+	ExpectThat(t.err, Error(HasSubstr("SendRequest")))
+	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
 
 func (t *PutTest) ConnSaysOkay() {
