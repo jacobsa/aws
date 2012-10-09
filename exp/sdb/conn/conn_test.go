@@ -74,7 +74,7 @@ func (t *ConnTest) CallsSigner() {
 	}
 
 	// Clock
-	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.Local)
 
 	// Signer
 	var signArg conn.Request
@@ -117,7 +117,7 @@ func (t *ConnTest) CallsHttpConn() {
 	}
 
 	// Clock
-	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.Local)
 
 	// Signer
 	ExpectCall(t.signer, "SignRequest")(Any()).
