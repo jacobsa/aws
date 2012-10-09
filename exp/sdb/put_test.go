@@ -17,6 +17,7 @@ package sdb
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jacobsa/aws/exp/sdb/conn"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
@@ -385,10 +386,24 @@ func (t *BatchPutTest) NoItems() {
 
 	ExpectThat(t.err, Error(HasSubstr("number")))
 	ExpectThat(t.err, Error(HasSubstr("items")))
+	ExpectThat(t.err, Error(HasSubstr("0")))
 }
 
 func (t *BatchPutTest) TooManyItems() {
-	ExpectEq("TODO", "")
+	t.updates = map[ItemName][]PutUpdate{}
+
+	for i := 0; i < 26; i++ {
+		t.updates[ItemName(fmt.Sprintf("%d", i))] = []PutUpdate{
+			PutUpdate{Name: "foo"},
+		}
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("number")))
+	ExpectThat(t.err, Error(HasSubstr("items")))
+	ExpectThat(t.err, Error(HasSubstr("26")))
 }
 
 func (t *BatchPutTest) OneItemNameEmpty() {
