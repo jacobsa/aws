@@ -24,7 +24,7 @@ import (
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/s3/auth"
 	"github.com/jacobsa/aws/s3/http"
-	"github.com/jacobsa/aws/s3/time"
+	"github.com/jacobsa/aws/time"
 	"net/url"
 	sys_time "time"
 	"unicode/utf8"
