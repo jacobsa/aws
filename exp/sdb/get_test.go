@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -29,7 +30,7 @@ func TestGet(t *testing.T) { RunTests(t) }
 type GetTest struct {
 	domainTest
 
-	item          ItemName
+	item          string
 	constistentRead bool
 	names       []string
 
@@ -46,7 +47,10 @@ func (t *GetTest) SetUp(i *TestInfo) {
 }
 
 func (t *GetTest) callDomain() {
-	t.attributes, t.err = t.domain.GetAttributes(t.item, t.constistentRead, t.names)
+	t.attributes, t.err = t.domain.GetAttributes(
+		ItemName(t.item),
+		t.constistentRead,
+		t.names)
 }
 
 func init() { RegisterTestSuite(&GetTest{}) }
@@ -56,7 +60,14 @@ func init() { RegisterTestSuite(&GetTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *GetTest) ItemNameEmpty() {
-	ExpectEq("TODO", "")
+	t.item = ""
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("item")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("empty")))
 }
 
 func (t *GetTest) ItemNameInvalid() {
