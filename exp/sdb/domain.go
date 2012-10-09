@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/exp/sdb/conn"
 )
@@ -160,4 +161,47 @@ type Domain interface {
 func OpenDomain(name string, region Region, key aws.AccessKey) (Domain, error)
 
 // As above, but allows injecting a Conn directly.
-func newDomain(name string, c conn.Conn) (Domain, error)
+func newDomain(name string, c conn.Conn) (Domain, error) {
+	return &domain{name, c}, nil
+}
+
+type domain struct {
+	name string
+	c conn.Conn
+}
+
+func (d *domain) PutAttributes(
+	item ItemName,
+	updates []PutUpdate,
+	preconditions []Precondition) error {
+	return fmt.Errorf("TODO")
+}
+
+func (d *domain) BatchPutAttributes(updates map[ItemName][]PutUpdate) error {
+	return fmt.Errorf("TODO")
+}
+
+func (d *domain) DeleteAttributes(
+	item ItemName,
+	deletes []DeleteUpdate,
+	preconditions []Precondition) error {
+	return fmt.Errorf("TODO")
+}
+
+func (d *domain) BatchDeleteAttributes(deletes map[ItemName][]DeleteUpdate) error {
+	return fmt.Errorf("TODO")
+}
+
+func (d *domain) GetAttributes(
+	item ItemName,
+	constistentRead bool,
+	attributes []string) ([]Attribute, error) {
+	return nil, fmt.Errorf("TODO")
+}
+
+func (d *domain) Select(
+		query string,
+		constistentRead bool,
+		nextToken []byte) (res map[ItemName][]Attribute, tok []byte, err error) {
+	return nil, nil, fmt.Errorf("TODO")
+}
