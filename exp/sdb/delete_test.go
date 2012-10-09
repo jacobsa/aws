@@ -127,7 +127,6 @@ func (t *DeleteTest) OneAttributeValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
 	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("value")))
-	ExpectThat(t.err, Error(HasSubstr(*t.updates[1].Value)))
 }
 
 func (t *DeleteTest) OnePreconditionNameEmpty() {
