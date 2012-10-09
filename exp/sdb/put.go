@@ -146,8 +146,16 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 		return fmt.Errorf("Illegal number of items: %d", numItems)
 	}
 
-	// Make sure each set of updates is legal.
+	// Make sure each item name and set of updates is legal.
 	for item, updates := range updateMap {
+		if item == "" {
+			return fmt.Errorf("Invalid item name; names must be non-empty.")
+		}
+
+		if err = validateValue(string(item)); err != nil {
+			return fmt.Errorf("Invalid item name: %v", err)
+		}
+
 		if err = validateUpdates(updates); err != nil {
 			return fmt.Errorf("Updates for item %s: %v", item, err)
 		}
