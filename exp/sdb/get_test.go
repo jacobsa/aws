@@ -71,7 +71,14 @@ func (t *GetTest) ItemNameEmpty() {
 }
 
 func (t *GetTest) ItemNameInvalid() {
-	ExpectEq("TODO", "")
+	t.item = "taco\x80\x81\x82"
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("item")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *GetTest) OneAttributeNameEmpty() {
