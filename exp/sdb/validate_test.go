@@ -81,5 +81,19 @@ func (t *ValidateTest) NullByte() {
 }
 
 func (t *ValidateTest) ControlCharacter() {
-	ExpectEq("TODO", "")
+	s := "abc\x10def"
+	err := validateValue(s)
+
+	ExpectThat(err, Error(HasSubstr("codepoint")))
+	ExpectThat(err, Error(HasSubstr("XML 1.0")))
+	ExpectThat(err, Error(HasSubstr("U+0010")))
+}
+
+func (t *ValidateTest) NonCharacterCodepoint() {
+	s := "abc\ufdd2def"
+	err := validateValue(s)
+
+	ExpectThat(err, Error(HasSubstr("codepoint")))
+	ExpectThat(err, Error(HasSubstr("XML 1.0")))
+	ExpectThat(err, Error(HasSubstr("U+FDD2")))
 }
