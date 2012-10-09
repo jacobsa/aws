@@ -24,6 +24,7 @@ import (
 	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
 	"testing"
+	"time"
 )
 
 func TestConn(t *testing.T) { RunTests(t) }
@@ -32,10 +33,19 @@ func TestConn(t *testing.T) { RunTests(t) }
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
+type fakeClock struct {
+	now time.Time
+}
+
+func (c *fakeClock) Now() time.Time {
+	return c.now
+}
+
 type ConnTest struct {
 	key      aws.AccessKey
 	httpConn mock_conn.MockHttpConn
 	signer   mock_conn.MockSigner
+	clock    *fakeClock
 
 	c conn.Conn
 }
@@ -48,8 +58,9 @@ func (t *ConnTest) SetUp(i *TestInfo) {
 	t.key = aws.AccessKey{Id: "some_id", Secret: "some_secret"}
 	t.httpConn = mock_conn.NewMockHttpConn(i.MockController, "httpConn")
 	t.signer = mock_conn.NewMockSigner(i.MockController, "signer")
+	t.clock = &fakeClock{}
 
-	t.c, err = conn.NewConn(t.key, t.httpConn, t.signer)
+	t.c, err = conn.NewConn(t.key, t.httpConn, t.signer, t.clock)
 	AssertEq(nil, err)
 }
 
