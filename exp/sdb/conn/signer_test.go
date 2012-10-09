@@ -35,6 +35,14 @@ func init() { RegisterTestSuite(&SignerTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *SignerTest) DoesFoo() {
+func (t *SignerTest) CallsFunction() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SignerTest) FunctionReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *SignerTest) FunctionReturnsString() {
 	ExpectEq("TODO", "")
 }
