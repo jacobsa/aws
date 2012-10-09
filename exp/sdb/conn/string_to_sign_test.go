@@ -35,6 +35,18 @@ func init() { RegisterTestSuite(&StringToSignTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *StringToSignTest) DoesFoo() {
+func (t *StringToSignTest) NoParameters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) OneParameter() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) MultipleParameters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) GoldenTest() {
 	ExpectEq("TODO", "")
 }
