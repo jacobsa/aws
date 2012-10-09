@@ -22,4 +22,6 @@ import (
 //
 // Reference:
 //     http://goo.gl/sRr8w
-func computeStringToSign(req Request) (string, error)
+func computeStringToSign(req Request, host string) (string, error) {
+	return "TODO", nil
+}

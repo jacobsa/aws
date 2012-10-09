@@ -36,7 +36,18 @@ func init() { RegisterTestSuite(&StringToSignTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *StringToSignTest) NoParameters() {
-	ExpectEq("TODO", "")
+	req := Request{
+	}
+
+	str, err := computeStringToSign(req, "some_host.com")
+	AssertEq(nil, err)
+
+	ExpectEq(
+		"POST\n" +
+		"some_host.com\n" +
+		"/\n" +
+		"",
+		str)
 }
 
 func (t *StringToSignTest) OneParameter() {
@@ -44,6 +55,10 @@ func (t *StringToSignTest) OneParameter() {
 }
 
 func (t *StringToSignTest) MultipleParameters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *StringToSignTest) MixedCaseHost() {
 	ExpectEq("TODO", "")
 }
 
