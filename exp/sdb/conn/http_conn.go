@@ -16,6 +16,7 @@
 package conn
 
 import (
+	"net/url"
 )
 
 type HttpResponse struct {
@@ -32,5 +33,6 @@ type HttpConn interface {
 	SendRequest(req Request) (resp *HttpResponse, err error)
 }
 
-// Create a connection pointing at the supplied host.
-func NewHttpConn(host string) (Conn, error)
+// Return a connection to the supplied endpoint, based on its scheme and host
+// fields.
+func NewHttpConn(endpoint *url.URL) (Conn, error)
