@@ -42,6 +42,17 @@ type ConnTest struct {
 
 func init() { RegisterTestSuite(&ConnTest{}) }
 
+func (t *ConnTest) SetUp(i *TestInfo) {
+	var err error
+
+	t.key = aws.AccessKey{Id: "some_id", Secret: "some_secret"}
+	t.httpConn = mock_conn.NewMockHttpConn(i.MockController, "httpConn")
+	t.signer = mock_conn.NewMockSigner(i.MockController, "signer")
+
+	t.c, err = conn.NewConn(t.key, t.httpConn, t.signer)
+	AssertEq(nil, err)
+}
+
 ////////////////////////////////////////////////////////////////////////
 // Tests
 ////////////////////////////////////////////////////////////////////////
