@@ -16,7 +16,6 @@
 package sdb
 
 import (
-	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/exp/sdb/conn"
 )
@@ -168,11 +167,4 @@ func newDomain(name string, c conn.Conn) (Domain, error) {
 type domain struct {
 	name string
 	c    conn.Conn
-}
-
-func (d *domain) Select(
-	query string,
-	constistentRead bool,
-	nextToken []byte) (res map[ItemName][]Attribute, tok []byte, err error) {
-	return nil, nil, fmt.Errorf("TODO")
 }
