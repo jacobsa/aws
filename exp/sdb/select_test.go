@@ -190,9 +190,42 @@ func (t *SelectTest) SomeItemsInResponse() {
 }
 
 func (t *SelectTest) NoNextTokenInResponse() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.resp = []byte(`
+		<SelectResponse>
+		  <SelectResult>
+				<Item><Name>item_0</Name></Item>
+		  </SelectResult>
+		  <ResponseMetadata>
+		    <RequestId>b1e8f1f7-42e9-494c-ad09-2674e557526d</RequestId>
+		    <BoxUsage>0.0000219907</BoxUsage>
+		  </ResponseMetadata>
+		</SelectResponse>`)
+
+	// Call
+	t.callDomain()
+
+	AssertEq(nil, t.err)
+	ExpectEq(nil, t.tok)
 }
 
 func (t *SelectTest) NextTokenInResponse() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.resp = []byte(`
+		<SelectResponse>
+		  <SelectResult>
+				<Item><Name>item_0</Name></Item>
+				<NextToken>taco</NextToken>
+		  </SelectResult>
+		  <ResponseMetadata>
+		    <RequestId>b1e8f1f7-42e9-494c-ad09-2674e557526d</RequestId>
+		    <BoxUsage>0.0000219907</BoxUsage>
+		  </ResponseMetadata>
+		</SelectResponse>`)
+
+	// Call
+	t.callDomain()
+
+	AssertEq(nil, t.err)
+	ExpectThat(t.tok, DeepEquals([]byte("taco")))
 }
