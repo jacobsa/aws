@@ -82,13 +82,23 @@ type DeleteUpdate struct {
 	Value *string
 }
 
-// TODO(jacobsa): Comments.
+// A domain represents a named domain within the SimpleDB service. It is a
+// collection of named items, each of which possesses a set of attributes.
 type Domain interface {
+	// Atomically apply the supplied updates to the attributes of the named item,
+	// but only if the supplied preconditions hold.
+	//
+	// The length of updates must be in [1, 256].
 	PutAttributes(
 		item ItemName,
 		updates []PutUpdate,
 		preconditions []Precondition) error
 
+	// Atomically apply updates to multiple items simultaneously.
+	//
+	// The length of updates must be in [1, 25]. The length of each of its values
+	// must be in [1, 256]. An error may be returned if the underlying request to
+	// SimpleDB is too large.
 	BatchPutAttributes(updates map[ItemName][]PutUpdate) error
 
 	DeleteAttributes(
