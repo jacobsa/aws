@@ -77,7 +77,7 @@ func (c *httpConn) SendRequest(req Request) (resp *HttpResponse, err error) {
 	// that actual plus characters were already percent-encoded.
 	//
 	// Reference:
-	//     http://goo.gl/0aD5S
+	//     http://goo.gl/sRr8w
 	body = strings.Replace(body, "+", "%20", -1)
 
 	// Create a request to the system HTTP library.
