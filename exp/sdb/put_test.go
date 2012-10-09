@@ -16,12 +16,28 @@
 package sdb
 
 import (
+	"github.com/jacobsa/aws/exp/sdb/conn"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"sort"
 	"testing"
 )
 
 func TestPut(t *testing.T) { RunTests(t) }
+
+////////////////////////////////////////////////////////////////////////
+// Helpers
+////////////////////////////////////////////////////////////////////////
+
+func getSortedKeys(r conn.Request) []string {
+	result := sort.StringSlice{}
+	for key, _ := range r {
+		result = append(result, key)
+	}
+
+	sort.Sort(result)
+	return result
+}
 
 ////////////////////////////////////////////////////////////////////////
 // PutAttributes
@@ -225,7 +241,44 @@ func (t *PutTest) OnePreconditionHasTwoOperands() {
 }
 
 func (t *PutTest) NoPreconditions() {
-	ExpectEq("TODO", "")
+	t.item = "some_item"
+	t.updates = []PutUpdate{
+		PutUpdate{Name: "foo"},
+		PutUpdate{Name: "bar", Value: "taco", Replace: true},
+		PutUpdate{Name: "baz", Value: "burrito"},
+	}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		ElementsAre(
+			"Attribute.1.Name",
+			"Attribute.1.Value",
+			"Attribute.2.Name",
+			"Attribute.2.Replace",
+			"Attribute.2.Value",
+			"Attribute.3.Name",
+			"Attribute.3.Value",
+			"DomainName",
+			"ItemName",
+		),
+	)
+
+	ExpectEq("foo", t.c.req["Attribute.1.Name"])
+	ExpectEq("bar", t.c.req["Attribute.2.Name"])
+	ExpectEq("baz", t.c.req["Attribute.3.Name"])
+
+	ExpectEq("", t.c.req["Attribute.1.Value"])
+	ExpectEq("taco", t.c.req["Attribute.2.Value"])
+	ExpectEq("burrito", t.c.req["Attribute.3.Value"])
+
+	ExpectEq("true", t.c.req["Attribute.2.Replace"])
+
+	ExpectEq("some_item", t.c.req["ItemName"])
+	ExpectEq(t.name, t.c.req["DomainName"])
 }
 
 func (t *PutTest) SomePreconditions() {
