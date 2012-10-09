@@ -16,15 +16,21 @@
 package conn
 
 import (
-	"github.com/jacobsa/aws"
 )
 
-// A connection to the SimpleDB service.
-type Conn interface {
-	// Send the supplied request to the service, taking care of adding
-	// appropriate authentication info.
-	SendRequest(req Request) (resp []byte, err error)
+type HttpResponse struct {
+	// The HTTP status code, e.g. 200 or 404.
+	StatusCode int
+
+	// The response body. This is the empty slice if the body was empty.
+	Body []byte
 }
 
-// Create a connection using the supplied dependencies.
-func NewConn(key aws.AccessKey, httpConn HttpConn, signer Signer) (Conn, error)
+// A connection to a host over HTTP.
+type HttpConn interface {
+	// Send the supplied request to the service.
+	SendRequest(req Request) (resp *HttpResponse, err error)
+}
+
+// Create a connection pointing at the supplied host.
+func NewHttpConn(host string) (Conn, error)
