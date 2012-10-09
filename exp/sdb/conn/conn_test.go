@@ -43,6 +43,26 @@ func init() { RegisterTestSuite(&ConnTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *ConnTest) DoesFoo() {
+func (t *ConnTest) CallsSigner() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) SignerReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) CallsHttpConn() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) HttpConnReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) ServerReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ConnTest) ServerSaysOkay() {
 	ExpectEq("TODO", "")
 }
