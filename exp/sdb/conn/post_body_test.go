@@ -112,6 +112,16 @@ func (t *PostBodyTest) StructuralCharacters() {
 	ExpectThat(body, HasSubstr("TODO"))
 }
 
+func (t *PostBodyTest) PercentCharacter() {
+	req := Request{
+		"a%b": "c%d",
+	}
+
+	body := assemblePostBody(req)
+
+	ExpectThat(body, HasSubstr("TODO"))
+}
+
 func (t *PostBodyTest) SpaceAndPlus() {
 	req := Request{
 		"b+a z": "q+u x",
