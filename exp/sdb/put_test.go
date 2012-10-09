@@ -240,7 +240,7 @@ func (t *PutTest) OnePreconditionHasTwoOperands() {
 	ExpectThat(t.err, Error(HasSubstr("bar")))
 }
 
-func (t *PutTest) NoPreconditions() {
+func (t *PutTest) BasicParameters() {
 	t.item = "some_item"
 	t.updates = []PutUpdate{
 		PutUpdate{Name: "foo"},
@@ -279,6 +279,14 @@ func (t *PutTest) NoPreconditions() {
 
 	ExpectEq("some_item", t.c.req["ItemName"])
 	ExpectEq(t.name, t.c.req["DomainName"])
+}
+
+func (t *PutTest) NoPreconditions() {
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req)
+
+	ExpectThat(getSortedKeys(t.c.req), Not(Contains(HasSubstr("Expected"))))
 }
 
 func (t *PutTest) SomePreconditions() {
