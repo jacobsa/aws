@@ -73,6 +73,9 @@ func (t *ConnTest) CallsSigner() {
 		"foo": "bar",
 	}
 
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+
 	// Signer
 	var signArg conn.Request
 	ExpectCall(t.signer, "SignRequest")(Any()).
@@ -88,7 +91,7 @@ func (t *ConnTest) CallsSigner() {
 	AssertNe(req, signArg)
 
 	ExpectEq("bar", signArg["foo"])
-	ExpectEq("TODO", signArg["Timestamp"])
+	ExpectEq("1985-03-18T15:33:17Z", signArg["Timestamp"])
 	ExpectEq("2", signArg["SignatureVersion"])
 	ExpectEq("HmacSHA1", signArg["SignatureMethod"])
 	ExpectEq(t.key.Id, signArg["AWSAccessKeyId"])
@@ -112,6 +115,9 @@ func (t *ConnTest) CallsHttpConn() {
 	req := conn.Request{
 		"foo": "bar",
 	}
+
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
 
 	// Signer
 	ExpectCall(t.signer, "SignRequest")(Any()).
@@ -138,7 +144,7 @@ func (t *ConnTest) CallsHttpConn() {
 
 	ExpectEq("bar", sendArg["foo"])
 	ExpectEq("qux", sendArg["baz"])
-	ExpectEq("TODO", sendArg["Timestamp"])
+	ExpectEq("1985-03-18T15:33:17Z", sendArg["Timestamp"])
 	ExpectEq("2", sendArg["SignatureVersion"])
 	ExpectEq("HmacSHA1", sendArg["SignatureMethod"])
 	ExpectEq(t.key.Id, sendArg["AWSAccessKeyId"])
