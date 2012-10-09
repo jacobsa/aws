@@ -473,11 +473,45 @@ func (t *BatchPutTest) TooManyUpdatesForOneItem() {
 }
 
 func (t *BatchPutTest) OneAttributeNameEmpty() {
-	ExpectEq("TODO", "")
+	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
+	t.updates = map[ItemName][]PutUpdate{
+		"foo": legalUpdates,
+		"bar": []PutUpdate{
+			PutUpdate{Name: "qux"},
+			PutUpdate{Name: ""},
+			PutUpdate{Name: "wot"},
+		},
+		"baz": legalUpdates,
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("bar")))
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("empty")))
 }
 
 func (t *BatchPutTest) OneAttributeNameInvalid() {
-	ExpectEq("TODO", "")
+	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
+	t.updates = map[ItemName][]PutUpdate{
+		"foo": legalUpdates,
+		"bar": []PutUpdate{
+			PutUpdate{Name: "qux"},
+			PutUpdate{Name: "taco\x80\x81\x82"},
+			PutUpdate{Name: "wot"},
+		},
+		"baz": legalUpdates,
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("bar")))
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *BatchPutTest) OneAttributeValueInvalid() {
