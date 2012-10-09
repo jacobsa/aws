@@ -17,6 +17,7 @@ package sdb
 
 import (
 	"fmt"
+	"github.com/jacobsa/aws/exp/sdb/conn"
 )
 
 func validateDeleteUpdate(u DeleteUpdate) (err error) {
@@ -52,8 +53,61 @@ func validateDeleteUpdates(updates []DeleteUpdate) (err error) {
 func (d *domain) DeleteAttributes(
 	item ItemName,
 	deletes []DeleteUpdate,
-	preconditions []Precondition) error {
-	return fmt.Errorf("TODO")
+	preconditions []Precondition) (err error) {
+	// Make sure the item name is legal.
+	if item == "" {
+		return fmt.Errorf("Invalid item name; names must be non-empty.")
+	}
+
+	if err = validateValue(string(item)); err != nil {
+		return fmt.Errorf("Invalid item name: %v", err)
+	}
+
+	// Validate deletes.
+	if err = validateDeleteUpdates(deletes); err != nil {
+		return err
+	}
+
+	// Validate preconditions.
+	for _, p := range preconditions {
+		if err = validatePrecondition(p); err != nil {
+			return fmt.Errorf("Invalid precondition (%v): %v", err, p)
+		}
+	}
+
+	// Assemble an appropriate request.
+	req := conn.Request{}
+	req["DomainName"] = d.name
+	req["ItemName"] = string(item)
+
+	for i, u := range deletes {
+		keyPrefix := fmt.Sprintf("Attribute.%d.", i+1)
+		req[keyPrefix + "Name"] = u.Name
+
+		if u.Value != nil {
+			req[keyPrefix + "Value"] = *u.Value
+		}
+	}
+
+	for i, p := range preconditions {
+		keyPrefix := fmt.Sprintf("Expected.%d.", i+1)
+		req[keyPrefix + "Name"] = p.Name
+
+		if p.Value != nil {
+			req[keyPrefix + "Value"] = *p.Value
+		} else if *p.Exists {
+			req[keyPrefix + "Exists"] = "true"
+		} else {
+			req[keyPrefix + "Exists"] = "false"
+		}
+	}
+
+	// Call the connection.
+	if _, err = d.c.SendRequest(req); err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
+	}
+
+	return nil
 }
 
 func (d *domain) BatchDeleteAttributes(deletes map[ItemName][]DeleteUpdate) error {
