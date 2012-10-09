@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/time"
+	sys_time "time"
 )
 
 // A connection to the SimpleDB service.
@@ -34,12 +35,35 @@ func NewConn(
 	httpConn HttpConn,
 	signer Signer,
 	clock time.Clock) (Conn, error) {
-	return &conn{}, nil
+	return &conn{key, httpConn, signer, clock}, nil
 }
 
 type conn struct {
+	key aws.AccessKey
+	httpConn HttpConn
+	signer Signer
+	clock time.Clock
 }
 
 func (c *conn) SendRequest(req Request) (resp []byte, err error) {
+	// Make a copy of the request that we can modify below.
+	originalReq := req
+	req = Request{}
+	for key, val := range originalReq {
+		req[key] = val
+	}
+
+	// Set authentication info.
+	req["AWSAccessKeyId"] = c.key.Id
+	req["Timestamp"] = c.clock.Now().UTC().Format(sys_time.RFC3339)
+	req["SignatureVersion"] = "2"
+	req["SignatureMethod"] = "HmacSHA1"
+
+	// Sign the request.
+	if err = c.signer.SignRequest(req); err != nil {
+		err = fmt.Errorf("SignRequest: %v", err)
+		return
+	}
+
 	return nil, fmt.Errorf("TODO")
 }
