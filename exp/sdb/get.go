@@ -29,7 +29,7 @@ type getAttributesResponse struct {
 	GetAttributesResult getAttributesResult
 }
 
-func parseResponse(resp []byte) (attrs []Attribute, err error) {
+func parseGetResponse(resp []byte) (attrs []Attribute, err error) {
 	responseStruct := &getAttributesResponse{}
 	if err = xml.Unmarshal(resp, responseStruct); err != nil {
 		err = fmt.Errorf("Invalid response from server (%v): %s", err, resp)
@@ -92,5 +92,5 @@ func (d *domain) GetAttributes(
 		return
 	}
 
-	return parseResponse(resp)
+	return parseGetResponse(resp)
 }

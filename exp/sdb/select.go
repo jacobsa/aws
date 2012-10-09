@@ -16,12 +16,70 @@
 package sdb
 
 import (
+	"encoding/xml"
 	"fmt"
+	"github.com/jacobsa/aws/exp/sdb/conn"
 )
+
+type selectedItem struct {
+	Name ItemName
+	Attributes []Attribute `xml:"Attribute"`
+}
+
+type selectResult struct {
+	Items []selectedItem `xml:"Item"`
+	NextToken []byte
+}
+
+type selectResponse struct {
+	SelectResult selectResult
+}
+
+func parseSelectResponse(resp []byte) (
+	attrMap map[ItemName][]Attribute,
+	tok []byte,
+	err error) {
+	responseStruct := &selectResponse{}
+	if err = xml.Unmarshal(resp, responseStruct); err != nil {
+		err = fmt.Errorf("Invalid response from server (%v): %s", err, resp)
+		return
+	}
+
+	attrMap = map[ItemName][]Attribute{}
+	for _, item := range responseStruct.SelectResult.Items {
+		attrMap[item.Name] = item.Attributes
+	}
+
+	tok = responseStruct.SelectResult.NextToken
+	return
+}
 
 func (d *domain) Select(
 	query string,
 	constistentRead bool,
 	nextToken []byte) (attrMap map[ItemName][]Attribute, tok []byte, err error) {
-	return nil, nil, fmt.Errorf("TODO")
+	// Create an appropriate request.
+	//
+	// Reference:
+	//     http://goo.gl/GTsSZ
+	req := conn.Request{
+		"SelectExpression": query,
+	}
+
+	if constistentRead {
+		req["ConsistentRead"] = "true"
+	}
+
+	if nextToken != nil {
+		req["NextToken"] = string(nextToken)
+	}
+
+	// Call the connection.
+	resp, err := d.c.SendRequest(req)
+	if err != nil {
+		err = fmt.Errorf("SendRequest: %v", err)
+		return
+	}
+
+	return parseSelectResponse(resp)
 }
