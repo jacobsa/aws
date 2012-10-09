@@ -120,7 +120,12 @@ func (t *PostBodyTest) SpaceAndPlus() {
 }
 
 func (t *PostBodyTest) KoreanCharacters() {
-	ExpectEq("TODO", "")
+	req := Request{
+		"음식": "타코",
+	}
+
+	body := assemblePostBody(req)
+	ExpectEq("TODO", body)
 }
 
 func (t *PostBodyTest) ParameterOrdering() {
