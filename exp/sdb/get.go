@@ -22,7 +22,7 @@ import (
 )
 
 type getAttributesResult struct {
-	Attribute []Attribute
+	Attributes []Attribute `xml:"Attribute"`
 }
 
 type getAttributesResponse struct {
@@ -36,7 +36,7 @@ func parseResponse(resp []byte) (attrs []Attribute, err error) {
 		return
 	}
 
-	attrs = responseStruct.GetAttributesResult.Attribute
+	attrs = responseStruct.GetAttributesResult.Attributes
 	return
 }
 
