@@ -161,5 +161,32 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 		}
 	}
 
+	// Build a request.
+	req := conn.Request{}
+	req["DomainName"] = d.name
+
+	var itemCount int
+	for item, updates := range updateMap {
+		itemPrefix := fmt.Sprintf("Item.%d.", itemCount+1)
+		req[itemPrefix + "ItemName"] = string(item)
+
+		for i, u := range updates {
+			updatePrefix := fmt.Sprintf("%sAttribute.%d.", itemPrefix, i+1)
+			req[updatePrefix + "Name"] = u.Name
+			req[updatePrefix + "Value"] = u.Value
+
+			if u.Replace {
+				req[updatePrefix + "Replace"] = "true"
+			}
+		}
+
+		itemCount++
+	}
+
+	// Call the connection.
+	if _, err = d.c.SendRequest(req); err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
+	}
+
 	return nil
 }
