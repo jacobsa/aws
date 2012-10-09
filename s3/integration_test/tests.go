@@ -12,16 +12,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// An integration test that uses a real S3 account. Run as follows:
-//
-//     go run integration_test/*.go \
-//         -key_id <key ID> \
-//         -bucket <bucket> \
-//         -region s3-ap-northeast-1.amazonaws.com
-//
-// Before doing this, create an empty bucket (or delete the contents of an
-// existing bucket) using the S3 management console.
 
 package main
 
