@@ -98,7 +98,39 @@ func (t *ConnTest) SignerReturnsError() {
 }
 
 func (t *ConnTest) CallsHttpConn() {
-	ExpectEq("TODO", "")
+	req := conn.Request{
+		"foo": "bar",
+	}
+
+	// Signer
+	ExpectCall(t.signer, "SignRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r conn.Request) error {
+		// Add a parameter.
+		r["baz"] = "qux"
+
+		return nil
+	}))
+
+	// HTTP conn
+	var sendArg conn.Request
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r conn.Request) (*conn.HttpResponse, error) {
+		sendArg = r
+		return nil, errors.New("")
+	}))
+
+	// Call
+	t.c.SendRequest(req)
+
+	AssertNe(nil, sendArg)
+	AssertNe(req, sendArg)
+
+	ExpectEq("bar", sendArg["foo"])
+	ExpectEq("qux", sendArg["baz"])
+	ExpectEq("TODO", sendArg["Timestamp"])
+	ExpectEq("2", sendArg["SignatureVersion"])
+	ExpectEq("HmacSHA1", sendArg["SignatureMethod"])
+	ExpectEq(t.key.Id, sendArg["AWSAccessKeyId"])
 }
 
 func (t *ConnTest) HttpConnReturnsError() {
