@@ -38,6 +38,10 @@ type PutTest struct {
 
 func init() { RegisterTestSuite(&PutTest{}) }
 
+func (t *PutTest) EmptyItemName() {
+	ExpectEq("TODO", "")
+}
+
 func (t *PutTest) InvalidItemName() {
 	ExpectEq("TODO", "")
 }
@@ -47,6 +51,10 @@ func (t *PutTest) ZeroUpdates() {
 }
 
 func (t *PutTest) TooManyUpdates() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PutTest) OneAttributeNameEmpty() {
 	ExpectEq("TODO", "")
 }
 
