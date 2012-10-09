@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	"errors"
 	"github.com/jacobsa/aws/exp/sdb/conn"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
@@ -326,7 +327,14 @@ func (t *PutTest) SomePreconditions() {
 }
 
 func (t *PutTest) ConnReturnsError() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.err = errors.New("taco")
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, HasSubstr("SendRequest"))
+	ExpectThat(t.err, HasSubstr("taco"))
 }
 
 func (t *PutTest) ConnSaysOkay() {
