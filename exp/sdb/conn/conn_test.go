@@ -172,5 +172,20 @@ func (t *ConnTest) ServerReturnsError() {
 }
 
 func (t *ConnTest) ServerSaysOkay() {
-	ExpectEq("TODO", "")
+	req := conn.Request{}
+
+	// Signer
+	ExpectCall(t.signer, "SignRequest")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// HTTP conn
+	httpResp := &conn.HttpResponse{StatusCode: 200, Body: []byte("taco")}
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(httpResp, nil))
+
+	// Call
+	body, err := t.c.SendRequest(req)
+	AssertEq(nil, err)
+
+	ExpectEq("taco", string(body))
 }
