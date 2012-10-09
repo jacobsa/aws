@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	"errors"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
@@ -104,14 +105,22 @@ func (t *SelectTest) ConnReturnsError() {
 
 func (t *SelectTest) ConnReturnsJunk() {
 	// Conn
-	t.c.resp = []byte("asdf")
+	t.c.resp = []byte(`
+		<SelectResponse>
+		  <SelectResult>
+		  </SelectResult>
+		  <ResponseMetadata>
+		    <RequestId>b1e8f1f7-42e9-494c-ad09-2674e557526d</RequestId>
+		    <BoxUsage>0.0000219907</BoxUsage>
+		  </ResponseMetadata>
+		</SelectResponse>`)
 
 	// Call
 	t.callDomain()
 
-	ExpectThat(t.err, Error(HasSubstr("Invalid")))
-	ExpectThat(t.err, Error(HasSubstr("server")))
-	ExpectThat(t.err, Error(HasSubstr("asdf")))
+	AssertEq(nil, t.err)
+	ExpectEq(0, len(t.attrMap))
+	ExpectEq(nil, t.tok)
 }
 
 func (t *SelectTest) NoItemsInResponse() {
