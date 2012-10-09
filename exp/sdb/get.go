@@ -16,9 +16,29 @@
 package sdb
 
 import (
+	"encoding/xml"
 	"fmt"
 	"github.com/jacobsa/aws/exp/sdb/conn"
 )
+
+type getAttributesResult struct {
+	Attribute []Attribute
+}
+
+type getAttributesResponse struct {
+	GetAttributesResult getAttributesResult
+}
+
+func parseResponse(resp []byte) (attrs []Attribute, err error) {
+	responseStruct := &getAttributesResponse{}
+	if err = xml.Unmarshal(resp, responseStruct); err != nil {
+		err = fmt.Errorf("Invalid response from server (%v): %s", err, resp)
+		return
+	}
+
+	attrs = responseStruct.GetAttributesResult.Attribute
+	return
+}
 
 func (d *domain) GetAttributes(
 	item ItemName,
@@ -66,10 +86,11 @@ func (d *domain) GetAttributes(
 	}
 
 	// Call the connection.
-	if _, err = d.c.SendRequest(req); err != nil {
+	resp, err := d.c.SendRequest(req)
+	if err != nil {
 		err = fmt.Errorf("SendRequest: %v", err)
 		return
 	}
 
-	return nil, fmt.Errorf("TODO")
+	return parseResponse(resp)
 }
