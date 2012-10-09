@@ -19,6 +19,24 @@ import (
 	"fmt"
 )
 
+func validateUpdate(u PutUpdate) (err error) {
+	// Make sure the attribute name is legal.
+	if u.Name == "" {
+		return fmt.Errorf("Invalid attribute name; names must be non-empty.")
+	}
+
+	if err = validateValue(string(u.Name)); err != nil {
+		return fmt.Errorf("Invalid attribute name: %v", err)
+	}
+
+	// Make sure the attribute value is legal.
+	if err = validateValue(string(u.Value)); err != nil {
+		return fmt.Errorf("Invalid attribute value: %v", err)
+	}
+
+	return nil
+}
+
 func (d *domain) PutAttributes(
 	item ItemName,
 	updates []PutUpdate,
@@ -30,6 +48,18 @@ func (d *domain) PutAttributes(
 
 	if err = validateValue(string(item)); err != nil {
 		return fmt.Errorf("Invalid item name: %v", err)
+	}
+
+	// Validate updates.
+	numUpdates := len(updates)
+	if numUpdates == 0 || numUpdates > 256 {
+		return fmt.Errorf("Illegal number of updates: %d", numUpdates)
+	}
+
+	for _, u := range updates {
+		if err = validateUpdate(u); err != nil {
+			return fmt.Errorf("Invalid update (%v): %v", err, u)
+		}
 	}
 
 	return nil

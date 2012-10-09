@@ -109,7 +109,7 @@ func (t *PutTest) TooManyUpdates() {
 
 	ExpectThat(t.err, Error(HasSubstr("number")))
 	ExpectThat(t.err, Error(HasSubstr("updates")))
-	ExpectThat(t.err, Error(HasSubstr("256")))
+	ExpectThat(t.err, Error(HasSubstr("257")))
 }
 
 func (t *PutTest) OneAttributeNameEmpty() {
