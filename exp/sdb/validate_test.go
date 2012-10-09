@@ -58,7 +58,10 @@ func (t *ValidateTest) LongStrings() {
 }
 
 func (t *ValidateTest) InvalidUtf8() {
-	ExpectEq("TODO", "")
+	err := validateValue("taco\x80\x81\x82burrito")
+
+	ExpectThat(err, Error(HasSubstr("valid")))
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *ValidateTest) LegalCharacters() {
