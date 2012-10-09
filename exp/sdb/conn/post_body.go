@@ -24,4 +24,6 @@ import (
 //
 // Reference:
 //     http://goo.gl/sRr8w
-func assemblePostBody(req Request) string
+func assemblePostBody(req Request) string {
+	return "TODO"
+}

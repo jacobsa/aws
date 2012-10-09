@@ -16,7 +16,9 @@
 package conn
 
 import (
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"strings"
 	"testing"
 )
 
@@ -36,14 +38,41 @@ func init() { RegisterTestSuite(&PostBodyTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *PostBodyTest) NoParameters() {
-	ExpectEq("TODO", "")
+	req := Request{
+	}
+
+	body := assemblePostBody(req)
+
+	ExpectEq("", body)
 }
 
 func (t *PostBodyTest) OneParameter() {
-	ExpectEq("TODO", "")
+	req := Request{
+		"taco": "burrito",
+	}
+
+	body := assemblePostBody(req)
+
+	ExpectEq("taco=burrito", body)
 }
 
 func (t *PostBodyTest) MultipleParameters() {
+	req := Request{
+		"taco": "burrito",
+		"enchilada": "queso",
+		"nachos": "carnitas",
+	}
+
+	body := assemblePostBody(req)
+	components := strings.Split(string(body), "&")
+
+	AssertThat(components, ElementsAre(Any(), Any(), Any()))
+	ExpectThat(components, Contains("taco=burrito"))
+	ExpectThat(components, Contains("enchilada=queso"))
+	ExpectThat(components, Contains("nachos=carnitas"))
+}
+
+func (t *PostBodyTest) EmptyParameterName() {
 	ExpectEq("TODO", "")
 }
 
@@ -60,5 +89,9 @@ func (t *PostBodyTest) SpaceAndPlus() {
 }
 
 func (t *PostBodyTest) KoreanCharacters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PostBodyTest) ParameterOrdering() {
 	ExpectEq("TODO", "")
 }
