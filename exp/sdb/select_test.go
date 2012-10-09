@@ -72,11 +72,23 @@ func (t *SelectTest) NoExtraOptions() {
 }
 
 func (t *SelectTest) ConistentRead() {
-	ExpectEq("TODO", "")
+	t.constistentRead = true
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req)
+
+	ExpectEq("true", t.c.req["ConsistentRead"])
 }
 
 func (t *SelectTest) TokenPresent() {
-	ExpectEq("TODO", "")
+	t.nextToken = []byte("taco")
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req)
+
+	ExpectEq("taco", t.c.req["NextToken"])
 }
 
 func (t *SelectTest) ConnReturnsError() {
