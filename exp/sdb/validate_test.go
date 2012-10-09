@@ -16,7 +16,9 @@
 package sdb
 
 import (
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"strings"
 	"testing"
 )
 
@@ -36,11 +38,23 @@ func init() { RegisterTestSuite(&ValidateTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *ValidateTest) EmptyString() {
-	ExpectEq("TODO", "")
+	err := validateValue("")
+
+	ExpectEq(nil, err)
 }
 
-func (t *ValidateTest) LongString() {
-	ExpectEq("TODO", "")
+func (t *ValidateTest) LongStrings() {
+	var err error
+
+	// Just short enough
+	err = validateValue(strings.Repeat("x", 1024))
+	ExpectEq(nil, err)
+
+	// Too long
+	err = validateValue(strings.Repeat("x", 1025))
+
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
 }
 
 func (t *ValidateTest) InvalidUtf8() {
