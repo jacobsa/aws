@@ -19,7 +19,10 @@ import (
 	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/time"
-	sys_time "time"
+)
+
+const (
+	iso8601Format = "2006-01-02T15:04:05Z"
 )
 
 // A connection to the SimpleDB service.
@@ -55,7 +58,7 @@ func (c *conn) SendRequest(req Request) (resp []byte, err error) {
 
 	// Set authentication info.
 	req["AWSAccessKeyId"] = c.key.Id
-	req["Timestamp"] = c.clock.Now().Format(sys_time.RFC3339)
+	req["Timestamp"] = c.clock.Now().Format(iso8601Format)
 	req["SignatureVersion"] = "2"
 	req["SignatureMethod"] = "HmacSHA1"
 
