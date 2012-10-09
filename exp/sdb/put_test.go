@@ -96,7 +96,19 @@ func (t *PutTest) TooManyUpdates() {
 }
 
 func (t *PutTest) OneAttributeNameEmpty() {
-	ExpectEq("TODO", "")
+	t.updates = []PutUpdate{
+		PutUpdate{Name: "foo"},
+		PutUpdate{Name: "", Value: "taco"},
+		PutUpdate{Name: "bar"},
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("update")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
 
 func (t *PutTest) OneAttributeNameInvalid() {
