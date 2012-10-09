@@ -106,7 +106,7 @@ func (t *PutTest) OneAttributeNameEmpty() {
 	t.callDomain()
 
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
-	ExpectThat(t.err, Error(HasSubstr("update")))
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("name")))
 	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
@@ -122,13 +122,25 @@ func (t *PutTest) OneAttributeNameInvalid() {
 	t.callDomain()
 
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
-	ExpectThat(t.err, Error(HasSubstr("update")))
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("name")))
 	ExpectThat(t.err, Error(HasSubstr(t.updates[1].Name)))
 }
 
 func (t *PutTest) OneAttributeValueInvalid() {
-	ExpectEq("TODO", "")
+	t.updates = []PutUpdate{
+		PutUpdate{Name: "foo"},
+		PutUpdate{Name: "bar", Value: "taco\x80\x81\x82"},
+		PutUpdate{Name: "baz"},
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
+	ExpectThat(t.err, Error(HasSubstr("value")))
+	ExpectThat(t.err, Error(HasSubstr(t.updates[1].Value)))
 }
 
 func (t *PutTest) OnePreconditionNameInvalid() {
