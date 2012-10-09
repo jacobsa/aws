@@ -26,4 +26,3 @@ type Signer interface {
 
 // Create a signer that uses the supplied key.
 func NewSigner(key aws.AccessKey) (Signer, error)
-

@@ -35,7 +35,7 @@ func TestHttpConn(t *testing.T) { RunTests(t) }
 
 type localHandler struct {
 	// Input seen.
-	req *http.Request
+	req     *http.Request
 	reqBody []byte
 
 	// To be returned.
@@ -179,9 +179,9 @@ func (t *HttpConnTest) RequestContainsMultipleParameters() {
 
 	// Request
 	req := conn.Request{
-		"taco": "burrito",
+		"taco":      "burrito",
 		"enchilada": "queso",
-		"nachos": "carnitas",
+		"nachos":    "carnitas",
 	}
 
 	// Call
@@ -203,9 +203,9 @@ func (t *HttpConnTest) ParametersNeedEscaping() {
 
 	// Request
 	req := conn.Request{
-		"타코": "burrito",
+		"타코":    "burrito",
 		"b&az=": "qu?%x",
-		"a+b": "c d",
+		"a+b":   "c d",
 	}
 
 	// Call

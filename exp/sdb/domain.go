@@ -39,7 +39,7 @@ type ItemName string
 // Attribute names and values share the same restrictions as those on item
 // names.
 type Attribute struct {
-	Name string
+	Name  string
 	Value string
 }
 

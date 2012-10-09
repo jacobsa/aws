@@ -54,12 +54,12 @@ type httpConn struct {
 	endpoint *url.URL
 }
 
-func (c* httpConn) SendRequest(req Request) (resp *HttpResponse, err error) {
+func (c *httpConn) SendRequest(req Request) (resp *HttpResponse, err error) {
 	// Create an appropriate URL.
 	u := url.URL{
-		Scheme:   c.endpoint.Scheme,
-		Host:     c.endpoint.Host,
-		Path:     "/",
+		Scheme: c.endpoint.Scheme,
+		Host:   c.endpoint.Host,
+		Path:   "/",
 	}
 
 	urlStr := u.String()

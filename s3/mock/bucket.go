@@ -8,9 +8,9 @@ package mock_s3
 
 import (
 	fmt "fmt"
+	s3 "github.com/jacobsa/aws/s3"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
-	s3 "github.com/jacobsa/aws/s3"
 	unsafe "unsafe"
 )
 
@@ -20,16 +20,16 @@ type MockBucket interface {
 }
 
 type mockBucket struct {
-	controller	oglemock.Controller
-	description	string
+	controller  oglemock.Controller
+	description string
 }
 
 func NewMockBucket(
 	c oglemock.Controller,
 	desc string) MockBucket {
 	return &mockBucket{
-		controller:	c,
-		description:	desc,
+		controller:  c,
+		description: desc,
 	}
 }
 
