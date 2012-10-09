@@ -142,7 +142,7 @@ func (d *domain) PutAttributes(
 func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err error) {
 	// Make sure the size of the request is legal.
 	numItems := len(updateMap)
-	if numItems == 0 || numItems > 256 {
+	if numItems == 0 || numItems > 25 {
 		return fmt.Errorf("Illegal number of items: %d", numItems)
 	}
 
