@@ -16,7 +16,10 @@
 package conn
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"net/url"
 )
 
@@ -51,5 +54,50 @@ type httpConn struct {
 }
 
 func (c* httpConn) SendRequest(req Request) (resp *HttpResponse, err error) {
-	return nil, fmt.Errorf("TODO")
+	// Create an appropriate URL.
+	url := url.URL{
+		Scheme:   c.endpoint.Scheme,
+		Host:     c.endpoint.Host,
+		Path:     "/",
+	}
+
+	urlStr := url.String()
+
+	// Create a request to the system HTTP library.
+	body := []byte("TODO")
+	sysReq, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, fmt.Errorf("http.NewRequest: %v", err)
+	}
+
+	// Set required headers.
+	//
+	// More info:
+	//     http://goo.gl/0aD5S
+	sysReq.Header.Set(
+		"Content-Type",
+		"application/x-www-form-urlencoded; charset=utf-8")
+
+	sysReq.Header.Set(
+		"Host",
+		url.Host)
+
+	// Call the system HTTP library.
+	sysResp, err := http.DefaultClient.Do(sysReq)
+	if err != nil {
+		return nil, fmt.Errorf("http.DefaultClient.Do: %v", err)
+	}
+
+	// Convert the response.
+	resp = &HttpResponse{
+		StatusCode: sysResp.StatusCode,
+	}
+
+	if resp.Body, err = ioutil.ReadAll(sysResp.Body); err != nil {
+		return nil, fmt.Errorf("Reading body: %v", err)
+	}
+
+	sysResp.Body.Close()
+
+	return resp, nil
 }
