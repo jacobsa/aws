@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 type HttpResponse struct {
@@ -65,20 +64,7 @@ func (c *httpConn) SendRequest(req Request) (resp *HttpResponse, err error) {
 	urlStr := u.String()
 
 	// Create an appropriate body.
-	bodyVals := url.Values{}
-	for key, val := range req {
-		bodyVals.Set(key, val)
-	}
-
-	body := bodyVals.Encode()
-
-	// Exception: Amazon's escaping rules disagree with Go about how to
-	// URL-encode a space; they require %20 rather than '+'. Fix this up, noting
-	// that actual plus characters were already percent-encoded.
-	//
-	// Reference:
-	//     http://goo.gl/sRr8w
-	body = strings.Replace(body, "+", "%20", -1)
+	body := assemblePostBody(req)
 
 	// Create a request to the system HTTP library.
 	sysReq, err := http.NewRequest("POST", urlStr, bytes.NewBufferString(body))
