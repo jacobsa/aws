@@ -134,7 +134,23 @@ func (t *ConnTest) CallsHttpConn() {
 }
 
 func (t *ConnTest) HttpConnReturnsError() {
-	ExpectEq("TODO", "")
+	req := conn.Request{
+		"foo": "bar",
+	}
+
+	// Signer
+	ExpectCall(t.signer, "SignRequest")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// HTTP conn
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
+
+	// Call
+	_, err := t.c.SendRequest(req)
+
+	ExpectThat(err, Error(HasSubstr("SendRequest")))
+	ExpectThat(err, Error(HasSubstr("taco")))
 }
 
 func (t *ConnTest) ServerReturnsError() {
