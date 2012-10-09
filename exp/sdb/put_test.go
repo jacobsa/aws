@@ -569,7 +569,7 @@ func (t *BatchPutTest) CallsConn() {
 	ExpectEq(t.name, t.c.req["DomainName"])
 
 	ExpectEq("bar", t.c.req["Item.1.ItemName"])
-	ExpectEq("foo", t.c.req["Item.1.ItemName"])
+	ExpectEq("foo", t.c.req["Item.2.ItemName"])
 
 	ExpectEq("a", t.c.req["Item.1.Attribute.1.Name"])
 	ExpectEq("b", t.c.req["Item.1.Attribute.2.Name"])
