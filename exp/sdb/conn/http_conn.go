@@ -55,16 +55,23 @@ type httpConn struct {
 
 func (c* httpConn) SendRequest(req Request) (resp *HttpResponse, err error) {
 	// Create an appropriate URL.
-	url := url.URL{
+	u := url.URL{
 		Scheme:   c.endpoint.Scheme,
 		Host:     c.endpoint.Host,
 		Path:     "/",
 	}
 
-	urlStr := url.String()
+	urlStr := u.String()
+
+	// Create an appropriate body.
+	bodyVals := url.Values{}
+	for key, val := range req {
+		bodyVals.Set(key, val)
+	}
+
+	body := []byte(bodyVals.Encode())
 
 	// Create a request to the system HTTP library.
-	body := []byte("TODO")
 	sysReq, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("http.NewRequest: %v", err)
@@ -80,7 +87,7 @@ func (c* httpConn) SendRequest(req Request) (resp *HttpResponse, err error) {
 
 	sysReq.Header.Set(
 		"Host",
-		url.Host)
+		u.Host)
 
 	// Call the system HTTP library.
 	sysResp, err := http.DefaultClient.Do(sysReq)
