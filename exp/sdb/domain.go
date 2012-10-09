@@ -170,17 +170,6 @@ type domain struct {
 	c    conn.Conn
 }
 
-func (d *domain) DeleteAttributes(
-	item ItemName,
-	deletes []DeleteUpdate,
-	preconditions []Precondition) error {
-	return fmt.Errorf("TODO")
-}
-
-func (d *domain) BatchDeleteAttributes(deletes map[ItemName][]DeleteUpdate) error {
-	return fmt.Errorf("TODO")
-}
-
 func (d *domain) GetAttributes(
 	item ItemName,
 	constistentRead bool,
