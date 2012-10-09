@@ -128,7 +128,7 @@ func (t *PostBodyTest) SpaceAndPlus() {
 	}
 
 	body := assemblePostBody(req)
-	ExpectEq("b%2B%20z=q%2Bu%20x", body)
+	ExpectEq("b%2Ba%20z=q%2Bu%20x", body)
 }
 
 func (t *PostBodyTest) KoreanCharacters() {
