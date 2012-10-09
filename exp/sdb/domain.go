@@ -118,6 +118,12 @@ type Domain interface {
 	// attributes.
 	BatchDeleteAttributes(deletes map[ItemName][]DeleteUpdate) error
 
+	// Retrieve a set of attributes for the named item, or all attributes if the
+	// attributes slice is empty.
+	//
+	// If the named item doesn't exist, the empty set is returned.
+	//
+	// constistentRead specifies whether completely fresh data is needed or not.
 	GetAttributes(
 		item ItemName,
 		constistentRead bool,
