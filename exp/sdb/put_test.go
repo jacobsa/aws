@@ -63,7 +63,14 @@ func (t *PutTest) EmptyItemName() {
 }
 
 func (t *PutTest) InvalidItemName() {
-	ExpectEq("TODO", "")
+	t.item = "taco\x80\x81\x82"
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("item name")))
+	ExpectThat(t.err, Error(HasSubstr(string(t.item))))
 }
 
 func (t *PutTest) ZeroUpdates() {
