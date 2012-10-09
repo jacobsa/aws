@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -54,7 +55,20 @@ func init() { RegisterTestSuite(&SelectTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *SelectTest) NoExtraOptions() {
-	ExpectEq("TODO", "")
+	t.query = "taco"
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		ElementsAre(
+			"SelectExpression",
+		),
+	)
+
+	ExpectEq("taco", t.c.req["SelectExpression"])
 }
 
 func (t *SelectTest) ConistentRead() {
