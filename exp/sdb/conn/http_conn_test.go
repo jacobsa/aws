@@ -204,7 +204,8 @@ func (t *HttpConnTest) ParametersNeedEscaping() {
 	// Request
 	req := conn.Request{
 		"타코": "burrito",
-		"b&az=": "qu ?x",
+		"b&az=": "qu?%x",
+		"a+b": "c d",
 	}
 
 	// Call
@@ -213,9 +214,10 @@ func (t *HttpConnTest) ParametersNeedEscaping() {
 	AssertNe(nil, t.handler.reqBody)
 
 	components := strings.Split(string(t.handler.reqBody), "&")
-	AssertThat(components, ElementsAre(Any(), Any()))
+	AssertThat(components, ElementsAre(Any(), Any(), Any()))
 	ExpectThat(components, Contains("%ED%83%80%EC%BD%94=burrito"))
-	ExpectThat(components, Contains("b%26az%3D=qu%20%3Fx"))
+	ExpectThat(components, Contains("b%26az%3D=qu%3F%25x"))
+	ExpectThat(components, Contains("a%2Bb=c%20d"))
 }
 
 func (t *HttpConnTest) ReturnsStatusCode() {
