@@ -34,5 +34,19 @@ func (d *domain) GetAttributes(
 		return
 	}
 
+	// Make sure attribute names are legal.
+	for _, name := range attrNames {
+		if name == "" {
+			err = fmt.Errorf("Invalid attribute name; names must be non-empty.")
+			return
+		}
+
+		if err = validateValue(name); err != nil {
+			err = fmt.Errorf("Invalid attribute name: %v", err)
+			return
+		}
+	}
+
+
 	return nil, fmt.Errorf("TODO")
 }
