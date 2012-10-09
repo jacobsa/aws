@@ -16,25 +16,16 @@
 package sdb
 
 import (
-	"github.com/jacobsa/aws/exp/sdb/conn/mock"
-	. "github.com/jacobsa/ogletest"
+	"fmt"
 )
 
-// A common helper class.
-type domainTest struct {
-	name string
-	c mock_conn.MockConn
-	domain Domain
+func (d *domain) PutAttributes(
+	item ItemName,
+	updates []PutUpdate,
+	preconditions []Precondition) error {
+	return fmt.Errorf("TODO")
 }
 
-func init() { RegisterTestSuite(&domainTest{}) }
-
-func (t *domainTest) SetUp(i *TestInfo) {
-	var err error
-
-	t.name = "some_domain"
-	t.c = mock_conn.NewMockConn(i.MockController, "conn")
-
-	t.domain, err = newDomain(t.name, t.c)
-	AssertEq(nil, err)
+func (d *domain) BatchPutAttributes(updates map[ItemName][]PutUpdate) error {
+	return fmt.Errorf("TODO")
 }

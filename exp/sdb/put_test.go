@@ -16,25 +16,36 @@
 package sdb
 
 import (
-	"github.com/jacobsa/aws/exp/sdb/conn/mock"
 	. "github.com/jacobsa/ogletest"
+	"testing"
 )
 
-// A common helper class.
-type domainTest struct {
-	name string
-	c mock_conn.MockConn
-	domain Domain
+func TestPut(t *testing.T) { RunTests(t) }
+
+////////////////////////////////////////////////////////////////////////
+// PutAttributes
+////////////////////////////////////////////////////////////////////////
+
+type PutTest struct {
+	domainTest
 }
 
-func init() { RegisterTestSuite(&domainTest{}) }
+func init() { RegisterTestSuite(&PutTest{}) }
 
-func (t *domainTest) SetUp(i *TestInfo) {
-	var err error
+func (t *PutTest) DoesFoo() {
+	ExpectEq("TODO", "")
+}
 
-	t.name = "some_domain"
-	t.c = mock_conn.NewMockConn(i.MockController, "conn")
+////////////////////////////////////////////////////////////////////////
+// BatchPutAttributes
+////////////////////////////////////////////////////////////////////////
 
-	t.domain, err = newDomain(t.name, t.c)
-	AssertEq(nil, err)
+type BatchPutTest struct {
+	domainTest
+}
+
+func init() { RegisterTestSuite(&BatchPutTest{}) }
+
+func (t *BatchPutTest) DoesFoo() {
+	ExpectEq("TODO", "")
 }

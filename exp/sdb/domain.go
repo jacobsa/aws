@@ -170,17 +170,6 @@ type domain struct {
 	c conn.Conn
 }
 
-func (d *domain) PutAttributes(
-	item ItemName,
-	updates []PutUpdate,
-	preconditions []Precondition) error {
-	return fmt.Errorf("TODO")
-}
-
-func (d *domain) BatchPutAttributes(updates map[ItemName][]PutUpdate) error {
-	return fmt.Errorf("TODO")
-}
-
 func (d *domain) DeleteAttributes(
 	item ItemName,
 	deletes []DeleteUpdate,
