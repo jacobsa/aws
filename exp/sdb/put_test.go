@@ -423,15 +423,53 @@ func (t *BatchPutTest) OneItemNameEmpty() {
 }
 
 func (t *BatchPutTest) OneItemNameInvalid() {
-	ExpectEq("TODO", "")
+	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
+	t.updates = map[ItemName][]PutUpdate{
+		"foo": legalUpdates,
+		"bar\x80\x81\x82": legalUpdates,
+		"baz": legalUpdates,
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("item")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *BatchPutTest) ZeroUpdatesForOneItem() {
-	ExpectEq("TODO", "")
+	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
+	t.updates = map[ItemName][]PutUpdate{
+		"foo": legalUpdates,
+		"bar": []PutUpdate{},
+		"baz": legalUpdates,
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("number")))
+	ExpectThat(t.err, Error(HasSubstr("updates")))
+	ExpectThat(t.err, Error(HasSubstr("bar")))
+	ExpectThat(t.err, Error(HasSubstr("0")))
 }
 
 func (t *BatchPutTest) TooManyUpdatesForOneItem() {
-	ExpectEq("TODO", "")
+	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
+	t.updates = map[ItemName][]PutUpdate{
+		"foo": legalUpdates,
+		"bar": make([]PutUpdate, 257),
+		"baz": legalUpdates,
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("number")))
+	ExpectThat(t.err, Error(HasSubstr("updates")))
+	ExpectThat(t.err, Error(HasSubstr("bar")))
+	ExpectThat(t.err, Error(HasSubstr("257")))
 }
 
 func (t *BatchPutTest) OneAttributeNameEmpty() {
