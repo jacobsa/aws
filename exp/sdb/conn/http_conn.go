@@ -35,4 +35,4 @@ type HttpConn interface {
 
 // Return a connection to the supplied endpoint, based on its scheme and host
 // fields.
-func NewHttpConn(endpoint *url.URL) (Conn, error)
+func NewHttpConn(endpoint *url.URL) (HttpConn, error)

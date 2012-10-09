@@ -150,9 +150,7 @@ func (t *HttpConnTest) RequestContainsNoParameters() {
 	_, err = c.SendRequest(req)
 	AssertEq(nil, err)
 
-	AssertNe(nil, t.handler.req)
-	sysReq := t.handler.req
-
+	AssertNe(nil, t.handler.reqBody)
 	ExpectEq(0, len(t.handler.reqBody))
 }
 
