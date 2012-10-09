@@ -125,7 +125,13 @@ func (t *GetTest) InconsistentReadWithNoAttributeNames() {
 }
 
 func (t *GetTest) ConsistentRead() {
-	ExpectEq("TODO", "")
+	t.constistentRead = true
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
+
+	ExpectEq("true", t.c.req["ConsistentRead"])
 }
 
 func (t *GetTest) SomeAttributeNames() {
