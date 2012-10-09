@@ -170,13 +170,6 @@ type domain struct {
 	c    conn.Conn
 }
 
-func (d *domain) GetAttributes(
-	item ItemName,
-	constistentRead bool,
-	attributes []string) ([]Attribute, error) {
-	return nil, fmt.Errorf("TODO")
-}
-
 func (d *domain) Select(
 	query string,
 	constistentRead bool,
