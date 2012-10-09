@@ -421,23 +421,6 @@ func (t *BatchDeleteTest) OneItemNameInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("UTF-8")))
 }
 
-func (t *BatchDeleteTest) ZeroUpdatesForOneItem() {
-	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]DeleteUpdate{
-		"foo": legalUpdates,
-		"bar": []DeleteUpdate{},
-		"baz": legalUpdates,
-	}
-
-	// Call
-	t.callDomain()
-
-	ExpectThat(t.err, Error(HasSubstr("number")))
-	ExpectThat(t.err, Error(HasSubstr("updates")))
-	ExpectThat(t.err, Error(HasSubstr("bar")))
-	ExpectThat(t.err, Error(HasSubstr("0")))
-}
-
 func (t *BatchDeleteTest) TooManyUpdatesForOneItem() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
 	t.updates = map[ItemName][]DeleteUpdate{

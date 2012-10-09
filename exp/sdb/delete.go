@@ -65,7 +65,7 @@ func validateDeleteUpdate(u DeleteUpdate) (err error) {
 
 func validateDeleteUpdates(updates []DeleteUpdate) (err error) {
 	numUpdates := len(updates)
-	if numUpdates == 0 || numUpdates > 256 {
+	if numUpdates > 256 {
 		return fmt.Errorf("Illegal number of updates: %d", numUpdates)
 	}
 
