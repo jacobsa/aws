@@ -354,7 +354,7 @@ func (t *PutTest) ConnSaysOkay() {
 type BatchPutTest struct {
 	domainTest
 
-	updates       map[ItemName][]PutUpdate
+	updates map[ItemName][]PutUpdate
 
 	err error
 }
@@ -378,8 +378,7 @@ func (t *BatchPutTest) callDomain() {
 }
 
 func (t *BatchPutTest) NoItems() {
-	t.updates = map[ItemName][]PutUpdate{
-	}
+	t.updates = map[ItemName][]PutUpdate{}
 
 	// Call
 	t.callDomain()
@@ -410,7 +409,7 @@ func (t *BatchPutTest) OneItemNameEmpty() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
 	t.updates = map[ItemName][]PutUpdate{
 		"foo": legalUpdates,
-		"": legalUpdates,
+		"":    legalUpdates,
 		"baz": legalUpdates,
 	}
 
@@ -425,9 +424,9 @@ func (t *BatchPutTest) OneItemNameEmpty() {
 func (t *BatchPutTest) OneItemNameInvalid() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
 	t.updates = map[ItemName][]PutUpdate{
-		"foo": legalUpdates,
+		"foo":             legalUpdates,
 		"bar\x80\x81\x82": legalUpdates,
-		"baz": legalUpdates,
+		"baz":             legalUpdates,
 	}
 
 	// Call

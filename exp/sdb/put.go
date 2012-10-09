@@ -22,7 +22,7 @@ import (
 )
 
 type batchPutPair struct {
-	Item ItemName
+	Item    ItemName
 	Updates []PutUpdate
 }
 
@@ -108,24 +108,24 @@ func (d *domain) PutAttributes(
 
 	for i, u := range updates {
 		keyPrefix := fmt.Sprintf("Attribute.%d.", i+1)
-		req[keyPrefix + "Name"] = u.Name
-		req[keyPrefix + "Value"] = u.Value
+		req[keyPrefix+"Name"] = u.Name
+		req[keyPrefix+"Value"] = u.Value
 
 		if u.Replace {
-			req[keyPrefix + "Replace"] = "true"
+			req[keyPrefix+"Replace"] = "true"
 		}
 	}
 
 	for i, p := range preconditions {
 		keyPrefix := fmt.Sprintf("Expected.%d.", i+1)
-		req[keyPrefix + "Name"] = p.Name
+		req[keyPrefix+"Name"] = p.Name
 
 		if p.Value != nil {
-			req[keyPrefix + "Value"] = *p.Value
+			req[keyPrefix+"Value"] = *p.Value
 		} else if *p.Exists {
-			req[keyPrefix + "Exists"] = "true"
+			req[keyPrefix+"Exists"] = "true"
 		} else {
-			req[keyPrefix + "Exists"] = "false"
+			req[keyPrefix+"Exists"] = "false"
 		}
 	}
 
@@ -166,15 +166,15 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 	pairs := getSortedPutPairs(updateMap)
 	for i, pair := range pairs {
 		itemPrefix := fmt.Sprintf("Item.%d.", i+1)
-		req[itemPrefix + "ItemName"] = string(pair.Item)
+		req[itemPrefix+"ItemName"] = string(pair.Item)
 
 		for j, u := range pair.Updates {
 			updatePrefix := fmt.Sprintf("%sAttribute.%d.", itemPrefix, j+1)
-			req[updatePrefix + "Name"] = u.Name
-			req[updatePrefix + "Value"] = u.Value
+			req[updatePrefix+"Name"] = u.Name
+			req[updatePrefix+"Value"] = u.Value
 
 			if u.Replace {
-				req[updatePrefix + "Replace"] = "true"
+				req[updatePrefix+"Replace"] = "true"
 			}
 		}
 	}

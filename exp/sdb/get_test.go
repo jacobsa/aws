@@ -30,12 +30,12 @@ func TestGet(t *testing.T) { RunTests(t) }
 type GetTest struct {
 	domainTest
 
-	item          string
+	item            string
 	constistentRead bool
-	names       []string
+	names           []string
 
 	attributes []Attribute
-	err error
+	err        error
 }
 
 func (t *GetTest) SetUp(i *TestInfo) {

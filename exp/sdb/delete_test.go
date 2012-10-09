@@ -337,7 +337,7 @@ func (t *DeleteTest) ConnSaysOkay() {
 type BatchDeleteTest struct {
 	domainTest
 
-	updates       map[ItemName][]DeleteUpdate
+	updates map[ItemName][]DeleteUpdate
 
 	err error
 }
@@ -361,8 +361,7 @@ func (t *BatchDeleteTest) callDomain() {
 }
 
 func (t *BatchDeleteTest) NoItems() {
-	t.updates = map[ItemName][]DeleteUpdate{
-	}
+	t.updates = map[ItemName][]DeleteUpdate{}
 
 	// Call
 	t.callDomain()
@@ -393,7 +392,7 @@ func (t *BatchDeleteTest) OneItemNameEmpty() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
 	t.updates = map[ItemName][]DeleteUpdate{
 		"foo": legalUpdates,
-		"": legalUpdates,
+		"":    legalUpdates,
 		"baz": legalUpdates,
 	}
 
@@ -408,9 +407,9 @@ func (t *BatchDeleteTest) OneItemNameEmpty() {
 func (t *BatchDeleteTest) OneItemNameInvalid() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
 	t.updates = map[ItemName][]DeleteUpdate{
-		"foo": legalUpdates,
+		"foo":             legalUpdates,
 		"bar\x80\x81\x82": legalUpdates,
-		"baz": legalUpdates,
+		"baz":             legalUpdates,
 	}
 
 	// Call

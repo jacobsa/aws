@@ -22,7 +22,7 @@ import (
 )
 
 type batchDeletePair struct {
-	Item ItemName
+	Item    ItemName
 	Updates []DeleteUpdate
 }
 
@@ -110,23 +110,23 @@ func (d *domain) DeleteAttributes(
 
 	for i, u := range deletes {
 		keyPrefix := fmt.Sprintf("Attribute.%d.", i+1)
-		req[keyPrefix + "Name"] = u.Name
+		req[keyPrefix+"Name"] = u.Name
 
 		if u.Value != nil {
-			req[keyPrefix + "Value"] = *u.Value
+			req[keyPrefix+"Value"] = *u.Value
 		}
 	}
 
 	for i, p := range preconditions {
 		keyPrefix := fmt.Sprintf("Expected.%d.", i+1)
-		req[keyPrefix + "Name"] = p.Name
+		req[keyPrefix+"Name"] = p.Name
 
 		if p.Value != nil {
-			req[keyPrefix + "Value"] = *p.Value
+			req[keyPrefix+"Value"] = *p.Value
 		} else if *p.Exists {
-			req[keyPrefix + "Exists"] = "true"
+			req[keyPrefix+"Exists"] = "true"
 		} else {
-			req[keyPrefix + "Exists"] = "false"
+			req[keyPrefix+"Exists"] = "false"
 		}
 	}
 
@@ -168,14 +168,14 @@ func (d *domain) BatchDeleteAttributes(
 	pairs := getSortedDeletePairs(deleteMap)
 	for i, pair := range pairs {
 		itemPrefix := fmt.Sprintf("Item.%d.", i+1)
-		req[itemPrefix + "ItemName"] = string(pair.Item)
+		req[itemPrefix+"ItemName"] = string(pair.Item)
 
 		for j, u := range pair.Updates {
 			updatePrefix := fmt.Sprintf("%sAttribute.%d.", itemPrefix, j+1)
-			req[updatePrefix + "Name"] = u.Name
+			req[updatePrefix+"Name"] = u.Name
 
 			if u.Value != nil {
-				req[updatePrefix + "Value"] = *u.Value
+				req[updatePrefix+"Value"] = *u.Value
 			}
 		}
 	}
