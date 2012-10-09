@@ -33,7 +33,7 @@ func (l batchPutPairList) Less(i, j int) bool { return l[i].Item < l[j].Item }
 func (l batchPutPairList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
 
 // Return the elements of the map sorted by item name.
-func getSortedPairs(updateMap map[ItemName][]PutUpdate) batchPutPairList {
+func getSortedPutPairs(updateMap map[ItemName][]PutUpdate) batchPutPairList {
 	res := batchPutPairList{}
 	for item, updates := range updateMap {
 		res = append(res, batchPutPair{item, updates})
@@ -43,7 +43,7 @@ func getSortedPairs(updateMap map[ItemName][]PutUpdate) batchPutPairList {
 	return res
 }
 
-func validateUpdate(u PutUpdate) (err error) {
+func validatePutUpdate(u PutUpdate) (err error) {
 	// Make sure the attribute name is legal.
 	if u.Name == "" {
 		return fmt.Errorf("Invalid attribute name; names must be non-empty.")
@@ -61,40 +61,15 @@ func validateUpdate(u PutUpdate) (err error) {
 	return nil
 }
 
-func validateUpdates(updates []PutUpdate) (err error) {
+func validatePutUpdates(updates []PutUpdate) (err error) {
 	numUpdates := len(updates)
 	if numUpdates == 0 || numUpdates > 256 {
 		return fmt.Errorf("Illegal number of updates: %d", numUpdates)
 	}
 
 	for _, u := range updates {
-		if err = validateUpdate(u); err != nil {
+		if err = validatePutUpdate(u); err != nil {
 			return fmt.Errorf("Invalid update (%v): %v", err, u)
-		}
-	}
-
-	return nil
-}
-
-func validatePrecondition(p Precondition) (err error) {
-	// Make sure the attribute name is legal.
-	if p.Name == "" {
-		return fmt.Errorf("Invalid attribute name; names must be non-empty.")
-	}
-
-	if err = validateValue(string(p.Name)); err != nil {
-		return fmt.Errorf("Invalid attribute name: %v", err)
-	}
-
-	// We require exactly one operand.
-	if (p.Value == nil) == (p.Exists == nil) {
-		return fmt.Errorf("Preconditions must contain exactly one of Value and Exists.")
-	}
-
-	// Make sure the attribute value is legal, if present.
-	if p.Value != nil {
-		if err = validateValue(string(*p.Value)); err != nil {
-			return fmt.Errorf("Invalid attribute value: %v", err)
 		}
 	}
 
@@ -115,7 +90,7 @@ func (d *domain) PutAttributes(
 	}
 
 	// Validate updates.
-	if err = validateUpdates(updates); err != nil {
+	if err = validatePutUpdates(updates); err != nil {
 		return err
 	}
 
@@ -179,7 +154,7 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 			return fmt.Errorf("Invalid item name: %v", err)
 		}
 
-		if err = validateUpdates(updates); err != nil {
+		if err = validatePutUpdates(updates); err != nil {
 			return fmt.Errorf("Updates for item %s: %v", item, err)
 		}
 	}
@@ -188,7 +163,7 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 	req := conn.Request{}
 	req["DomainName"] = d.name
 
-	pairs := getSortedPairs(updateMap)
+	pairs := getSortedPutPairs(updateMap)
 	for i, pair := range pairs {
 		itemPrefix := fmt.Sprintf("Item.%d.", i+1)
 		req[itemPrefix + "ItemName"] = string(pair.Item)
