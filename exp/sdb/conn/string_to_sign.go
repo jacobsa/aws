@@ -16,6 +16,7 @@
 package conn
 
 import (
+	"strings"
 )
 
 // Given a request, return the canonicalized string that should be signed.
@@ -23,5 +24,18 @@ import (
 // Reference:
 //     http://goo.gl/sRr8w
 func computeStringToSign(req Request, host string) (string, error) {
-	return "TODO", nil
+	// We always use HTTP POST.
+	verb := "POST"
+
+	// The host header must be made lower-case.
+	host = strings.ToLower(host)
+
+	// The request URI is always /.
+	requestUri := "/"
+
+	// Canonicalize the query string, in this case the POST body.
+	queryString := assemblePostBody(req)
+
+	parts := []string{verb, host, requestUri, queryString}
+	return strings.Join(parts, "\n"), nil
 }
