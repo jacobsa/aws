@@ -16,8 +16,11 @@
 package sdb
 
 import (
+	"fmt"
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/exp/sdb/conn"
+	"github.com/jacobsa/aws/time"
+	"net/url"
 )
 
 // The name of an item within a SimpleDB domain. Item names must be UTF-8
@@ -157,7 +160,35 @@ type Domain interface {
 //
 //     http://goo.gl/C9BMz
 //
-func OpenDomain(name string, region Region, key aws.AccessKey) (Domain, error)
+func OpenDomain(name string, region Region, key aws.AccessKey) (d Domain, err error) {
+	// Open an appropriate HTTP connection.
+	endpoint := &url.URL{
+		Scheme: "https",
+		Host: string(region),
+	}
+
+	httpConn, err := conn.NewHttpConn(endpoint)
+	if err != nil {
+		err = fmt.Errorf("Opening HTTP connection: %v", err)
+		return
+	}
+
+	// Create a request signer.
+	signer, err := conn.NewSigner(key, endpoint.Host)
+	if err != nil {
+		err = fmt.Errorf("Creating signer: %v", err)
+		return
+	}
+
+	// Create a connection to the server.
+	c, err := conn.NewConn(key, httpConn, signer, time.RealClock())
+	if err != nil {
+		err = fmt.Errorf("Creating connection: %v", err)
+		return
+	}
+
+	return newDomain(name, c)
+}
 
 // As above, but allows injecting a Conn directly.
 func newDomain(name string, c conn.Conn) (Domain, error) {
