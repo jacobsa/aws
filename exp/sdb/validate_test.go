@@ -65,7 +65,10 @@ func (t *ValidateTest) InvalidUtf8() {
 }
 
 func (t *ValidateTest) LegalCharacters() {
-	ExpectEq("TODO", "")
+	s := "\x09 \x0a \x0d \x20 \x25 \x30 abcd ü 타코"
+	err := validateValue(s)
+
+	ExpectEq(nil, err)
 }
 
 func (t *ValidateTest) NullByte() {
