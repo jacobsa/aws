@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -38,8 +39,27 @@ type PutTest struct {
 
 func init() { RegisterTestSuite(&PutTest{}) }
 
+func (t *PutTest) SetUp(i *TestInfo) {
+	// Call common setup code.
+	t.domainTest.SetUp(i)
+
+	// Make the request legal by default.
+	t.item = "foo"
+	t.updates = []PutUpdate{PutUpdate{"bar", "baz", false}}
+}
+
+func (t *PutTest) callDomain() {
+	t.err = t.domain.PutAttributes(t.item, t.updates, t.preconditions)
+}
+
 func (t *PutTest) EmptyItemName() {
-	ExpectEq("TODO", "")
+	t.item = ""
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("item name")))
 }
 
 func (t *PutTest) InvalidItemName() {
