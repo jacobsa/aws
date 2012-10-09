@@ -16,6 +16,8 @@
 package sdb
 
 import (
+	"errors"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -50,7 +52,7 @@ func (t *DeleteTest) SetUp(i *TestInfo) {
 
 	// Make the request legal by default.
 	t.item = "foo"
-	t.updates = []DeleteUpdate{DeleteUpdate{"bar", "baz", false}}
+	t.updates = []DeleteUpdate{DeleteUpdate{Name: "bar"}}
 }
 
 func (t *DeleteTest) callDomain() {
@@ -78,32 +80,10 @@ func (t *DeleteTest) InvalidItemName() {
 	ExpectThat(t.err, Error(HasSubstr("UTF-8")))
 }
 
-func (t *DeleteTest) ZeroUpdates() {
-	t.updates = []DeleteUpdate{}
-
-	// Call
-	t.callDomain()
-
-	ExpectThat(t.err, Error(HasSubstr("number")))
-	ExpectThat(t.err, Error(HasSubstr("updates")))
-	ExpectThat(t.err, Error(HasSubstr("0")))
-}
-
-func (t *DeleteTest) TooManyUpdates() {
-	t.updates = make([]DeleteUpdate, 257)
-
-	// Call
-	t.callDomain()
-
-	ExpectThat(t.err, Error(HasSubstr("number")))
-	ExpectThat(t.err, Error(HasSubstr("updates")))
-	ExpectThat(t.err, Error(HasSubstr("257")))
-}
-
 func (t *DeleteTest) OneAttributeNameEmpty() {
 	t.updates = []DeleteUpdate{
 		DeleteUpdate{Name: "foo"},
-		DeleteUpdate{Name: "", Value: "taco"},
+		DeleteUpdate{Name: ""},
 		DeleteUpdate{Name: "bar"},
 	}
 
@@ -113,7 +93,6 @@ func (t *DeleteTest) OneAttributeNameEmpty() {
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
 	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("name")))
-	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
 
 func (t *DeleteTest) OneAttributeNameInvalid() {
@@ -135,7 +114,7 @@ func (t *DeleteTest) OneAttributeNameInvalid() {
 func (t *DeleteTest) OneAttributeValueInvalid() {
 	t.updates = []DeleteUpdate{
 		DeleteUpdate{Name: "foo"},
-		DeleteUpdate{Name: "bar", Value: "taco\x80\x81\x82"},
+		DeleteUpdate{Name: "bar", Value: newString("taco\x80\x81\x82")},
 		DeleteUpdate{Name: "baz"},
 	}
 
@@ -145,7 +124,7 @@ func (t *DeleteTest) OneAttributeValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
 	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("value")))
-	ExpectThat(t.err, Error(HasSubstr(t.updates[1].Value)))
+	ExpectThat(t.err, Error(HasSubstr(*t.updates[1].Value)))
 }
 
 func (t *DeleteTest) OnePreconditionNameEmpty() {
@@ -232,8 +211,8 @@ func (t *DeleteTest) BasicParameters() {
 	t.item = "some_item"
 	t.updates = []DeleteUpdate{
 		DeleteUpdate{Name: "foo"},
-		DeleteUpdate{Name: "bar", Value: "taco", Replace: true},
-		DeleteUpdate{Name: "baz", Value: "burrito"},
+		DeleteUpdate{Name: "bar", Value: newString("")},
+		DeleteUpdate{Name: "baz", Value: newString("taco")},
 	}
 
 	// Call
@@ -244,9 +223,7 @@ func (t *DeleteTest) BasicParameters() {
 		getSortedKeys(t.c.req),
 		ElementsAre(
 			"Attribute.1.Name",
-			"Attribute.1.Value",
 			"Attribute.2.Name",
-			"Attribute.2.Replace",
 			"Attribute.2.Value",
 			"Attribute.3.Name",
 			"Attribute.3.Value",
@@ -255,18 +232,19 @@ func (t *DeleteTest) BasicParameters() {
 		),
 	)
 
+	ExpectEq(t.name, t.c.req["DomainName"])
+	ExpectEq("some_item", t.c.req["ItemName"])
+
 	ExpectEq("foo", t.c.req["Attribute.1.Name"])
 	ExpectEq("bar", t.c.req["Attribute.2.Name"])
 	ExpectEq("baz", t.c.req["Attribute.3.Name"])
 
-	ExpectEq("", t.c.req["Attribute.1.Value"])
-	ExpectEq("taco", t.c.req["Attribute.2.Value"])
-	ExpectEq("burrito", t.c.req["Attribute.3.Value"])
+	ExpectEq("", t.c.req["Attribute.2.Value"])
+	ExpectEq("taco", t.c.req["Attribute.3.Value"])
+}
 
-	ExpectEq("true", t.c.req["Attribute.2.Replace"])
-
-	ExpectEq("some_item", t.c.req["ItemName"])
-	ExpectEq(t.name, t.c.req["DomainName"])
+func (t *DeleteTest) NoUpdates() {
+	ExpectEq("TODO", "")
 }
 
 func (t *DeleteTest) NoPreconditions() {
