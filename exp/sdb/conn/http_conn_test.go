@@ -126,7 +126,7 @@ func (t *HttpConnTest) BasicHttpInfo() {
 	AssertNe(nil, t.handler.req)
 	sysReq := t.handler.req
 
-	ExpectEq("PUT", sysReq.Method)
+	ExpectEq("POST", sysReq.Method)
 	ExpectEq("/", sysReq.URL.Path)
 
 	ExpectThat(
