@@ -17,7 +17,6 @@ package conn
 
 import (
 	. "github.com/jacobsa/ogletest"
-	"strings"
 	"testing"
 )
 
@@ -36,6 +35,30 @@ func init() { RegisterTestSuite(&PostBodyTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *PostBodyTest) DoesFoo() {
+func (t *PostBodyTest) NoParameters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PostBodyTest) OneParameter() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PostBodyTest) MultipleParameters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PostBodyTest) UnreservedCharacters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PostBodyTest) StructuralCharacters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PostBodyTest) SpaceAndPlus() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PostBodyTest) KoreanCharacters() {
 	ExpectEq("TODO", "")
 }
