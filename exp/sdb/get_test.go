@@ -82,11 +82,25 @@ func (t *GetTest) ItemNameInvalid() {
 }
 
 func (t *GetTest) OneAttributeNameEmpty() {
-	ExpectEq("TODO", "")
+	t.names = []string{"taco", "", "burrito"}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("empty")))
 }
 
 func (t *GetTest) OneAttributeNameInvalid() {
-	ExpectEq("TODO", "")
+	t.names = []string{"taco", "\x80\x81\x82", "burrito"}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("UTF-8")))
 }
 
 func (t *GetTest) InconsistentReadWithNoAttributeNames() {
