@@ -22,4 +22,4 @@ import (
 //
 // Reference:
 //     http://goo.gl/sRr8w
-func stringToSign(req Request) string
+func computeStringToSign(req Request) (string, error)
