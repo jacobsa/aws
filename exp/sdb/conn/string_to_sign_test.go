@@ -51,15 +51,51 @@ func (t *StringToSignTest) NoParameters() {
 }
 
 func (t *StringToSignTest) OneParameter() {
-	ExpectEq("TODO", "")
+	req := Request{
+		"taco": "burrito",
+	}
+
+	str, err := computeStringToSign(req, "some_host.com")
+	AssertEq(nil, err)
+
+	ExpectEq(
+		"POST\n" +
+		"some_host.com\n" +
+		"/\n" +
+		"taco=burrito",
+		str)
 }
 
 func (t *StringToSignTest) MultipleParameters() {
-	ExpectEq("TODO", "")
+	req := Request{
+		"taco": "burrito",
+		"enchilada": "queso",
+	}
+
+	str, err := computeStringToSign(req, "some_host.com")
+	AssertEq(nil, err)
+
+	ExpectEq(
+		"POST\n" +
+		"some_host.com\n" +
+		"/\n" +
+		"enchilada=queso&taco=burrito",
+		str)
 }
 
 func (t *StringToSignTest) MixedCaseHost() {
-	ExpectEq("TODO", "")
+	req := Request{
+	}
+
+	str, err := computeStringToSign(req, "SoMe_HoSt.cOm")
+	AssertEq(nil, err)
+
+	ExpectEq(
+		"POST\n" +
+		"some_host.com\n" +
+		"/\n" +
+		"",
+		str)
 }
 
 func (t *StringToSignTest) GoldenTest() {
