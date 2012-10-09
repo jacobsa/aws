@@ -16,6 +16,7 @@
 package conn
 
 import (
+	"fmt"
 	"net/url"
 )
 
@@ -35,4 +36,20 @@ type HttpConn interface {
 
 // Return a connection to the supplied endpoint, based on its scheme and host
 // fields.
-func NewHttpConn(endpoint *url.URL) (HttpConn, error)
+func NewHttpConn(endpoint *url.URL) (HttpConn, error) {
+	switch endpoint.Scheme {
+	case "http", "https":
+	default:
+		return nil, fmt.Errorf("Unsupported scheme: %s", endpoint.Scheme)
+	}
+
+	return &httpConn{endpoint}, nil
+}
+
+type httpConn struct {
+	endpoint *url.URL
+}
+
+func (c* httpConn) SendRequest(req Request) (resp *HttpResponse, err error) {
+	return nil, fmt.Errorf("TODO")
+}
