@@ -352,9 +352,29 @@ func (t *PutTest) ConnSaysOkay() {
 
 type BatchPutTest struct {
 	domainTest
+
+	updates       map[ItemName][]PutUpdate
+
+	err error
 }
 
 func init() { RegisterTestSuite(&BatchPutTest{}) }
+
+func (t *BatchPutTest) SetUp(i *TestInfo) {
+	// Call common setup code.
+	t.domainTest.SetUp(i)
+
+	// Make the request legal by default.
+	t.updates = map[ItemName][]PutUpdate{
+		"some_item": []PutUpdate{
+			PutUpdate{Name: "foo"},
+		},
+	}
+}
+
+func (t *BatchPutTest) callDomain() {
+	t.err = t.domain.BatchPutAttributes(t.updates)
+}
 
 func (t *BatchPutTest) NoItems() {
 	ExpectEq("TODO", "")
