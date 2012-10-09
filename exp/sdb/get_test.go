@@ -135,7 +135,22 @@ func (t *GetTest) ConsistentRead() {
 }
 
 func (t *GetTest) SomeAttributeNames() {
-	ExpectEq("TODO", "")
+	t.names = []string{"taco", "burrito"}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		AllOf(
+			Contains("AttributeName.0"),
+			Contains("AttributeName.1"),
+		),
+	)
+
+	ExpectEq("taco", t.c.req["AttributeName.0"])
+	ExpectEq("burrito", t.c.req["AttributeName.1"])
 }
 
 func (t *GetTest) ConnReturnsError() {
