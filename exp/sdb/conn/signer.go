@@ -24,5 +24,14 @@ type Signer interface {
 	SignRequest(req Request) error
 }
 
-// Create a signer that uses the supplied key.
-func NewSigner(key aws.AccessKey) (Signer, error)
+// Create a signer that uses the supplied key for requests to the given host.
+func NewSigner(key aws.AccessKey, host string) (Signer, error) {
+	return newSigner(key, host, computeStringToSign), nil
+}
+
+// The underlying constructor, which accepts a "string to sign" function for
+// testability.
+func newSigner(
+	key aws.AccessKey,
+	host string,
+	sts func (Request, string) (string, error)) Signer
