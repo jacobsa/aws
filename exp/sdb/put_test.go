@@ -407,7 +407,19 @@ func (t *BatchPutTest) TooManyItems() {
 }
 
 func (t *BatchPutTest) OneItemNameEmpty() {
-	ExpectEq("TODO", "")
+	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
+	t.updates = map[ItemName][]PutUpdate{
+		"foo": legalUpdates,
+		"": legalUpdates,
+		"baz": legalUpdates,
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("item")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("empty")))
 }
 
 func (t *BatchPutTest) OneItemNameInvalid() {
