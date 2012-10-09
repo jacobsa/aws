@@ -16,6 +16,11 @@
 package conn
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
+	"fmt"
 	"github.com/jacobsa/aws"
 )
 
@@ -35,12 +40,41 @@ func newSigner(
 	key aws.AccessKey,
 	host string,
 	sts func (Request, string) (string, error)) Signer {
-	return &signer{}
+	return &signer{key, host, sts}
 }
 
 type signer struct {
+	key aws.AccessKey
+	host string
+	sts func (Request, string) (string, error)
 }
 
 func (s *signer) SignRequest(req Request) error {
+	// Decide on the string to sign.
+	toSign, err := s.sts(req, s.host)
+	if err != nil {
+		return fmt.Errorf("computeStringToSign: %v", err)
+	}
+
+	// Sign the request.
+	h := hmac.New(sha1.New, []byte(s.key.Secret))
+	if _, err := h.Write([]byte(toSign)); err != nil {
+		return fmt.Errorf("hmac.Write: %v", err)
+	}
+
+	signature := h.Sum(nil)
+
+	// Base64-encode the result.
+	buf := new(bytes.Buffer)
+	encoder := base64.NewEncoder(base64.StdEncoding, buf)
+	if _, err := encoder.Write(signature); err != nil {
+		return fmt.Errorf("encoder.Write: %v", err)
+	}
+
+	encoder.Close()
+
+	// Add the appropriate parameter.
+	req["Signature"] = buf.String()
+
 	return nil
 }
