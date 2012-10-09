@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -186,13 +187,13 @@ func (t *HttpConnTest) RequestContainsMultipleParameters() {
 	// Call
 	_, err = c.SendRequest(req)
 	AssertEq(nil, err)
-
 	AssertNe(nil, t.handler.reqBody)
-	ExpectEq(
-		"taco=burrito" +
-		"&enchilada=queso" +
-		"&nachos=carnitas",
-		string(t.handler.reqBody))
+
+	components := strings.Split(string(t.handler.reqBody), "&")
+	AssertThat(components, ElementsAre(Any(), Any(), Any()))
+	ExpectThat(components, Contains("taco=burrito"))
+	ExpectThat(components, Contains("enchilada=queso"))
+	ExpectThat(components, Contains("nachos=carnitas"))
 }
 
 func (t *HttpConnTest) ParametersNeedEscaping() {
@@ -209,12 +210,12 @@ func (t *HttpConnTest) ParametersNeedEscaping() {
 	// Call
 	_, err = c.SendRequest(req)
 	AssertEq(nil, err)
-
 	AssertNe(nil, t.handler.reqBody)
-	ExpectEq(
-		"%ED%83%80%EC%BD%94=burrito" +
-		"&b%26az%3D=qu%20%3Fx",
-		string(t.handler.reqBody))
+
+	components := strings.Split(string(t.handler.reqBody), "&")
+	AssertThat(components, ElementsAre(Any(), Any()))
+	ExpectThat(components, Contains("%ED%83%80%EC%BD%94=burrito"))
+	ExpectThat(components, Contains("b%26az%3D=qu%20%3Fx"))
 }
 
 func (t *HttpConnTest) ReturnsStatusCode() {
