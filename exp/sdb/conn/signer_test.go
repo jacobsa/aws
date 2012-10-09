@@ -16,6 +16,10 @@
 package conn
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
 	"errors"
 	"github.com/jacobsa/aws"
 	. "github.com/jacobsa/oglematchers"
@@ -78,5 +82,36 @@ func (t *SignerTest) FunctionReturnsError() {
 }
 
 func (t *SignerTest) FunctionReturnsString() {
-	ExpectEq("TODO", "")
+	// Function
+	sts := func(r Request, h string) (string, error) {
+		return "taco", nil
+	}
+
+	// Signer
+	key := aws.AccessKey{Id: "queso", Secret: "burrito"}
+	signer := newSigner(key, "", sts)
+
+	// Expected output
+	h := hmac.New(sha1.New, []byte("burrito"))
+	_, err := h.Write([]byte("taco"))
+	AssertEq(nil, err)
+
+	buf := new(bytes.Buffer)
+	encoder := base64.NewEncoder(base64.StdEncoding, buf)
+	_, err = encoder.Write(h.Sum(nil))
+	AssertEq(nil, err)
+	AssertEq(nil, encoder.Close())
+
+	expected := buf.String()
+
+	// Call
+	req := Request{
+		"foo": "bar",
+	}
+
+	err = signer.SignRequest(req)
+	AssertEq(nil, err)
+
+	ExpectEq("bar", req["foo"])
+	ExpectEq(expected, req["Signature"])
 }
