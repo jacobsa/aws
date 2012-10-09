@@ -30,7 +30,7 @@ type fakeConn struct {
 
 	// Response to return
 	resp []byte
-	err error
+	err  error
 }
 
 func (c *fakeConn) SendRequest(r conn.Request) ([]byte, error) {
@@ -48,8 +48,8 @@ func (c *fakeConn) SendRequest(r conn.Request) ([]byte, error) {
 
 // A common helper class.
 type domainTest struct {
-	name string
-	c *fakeConn
+	name   string
+	c      *fakeConn
 	domain Domain
 }
 

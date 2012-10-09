@@ -46,8 +46,8 @@ func getSortedKeys(r conn.Request) []string {
 type PutTest struct {
 	domainTest
 
-	item ItemName
-	updates []PutUpdate
+	item          ItemName
+	updates       []PutUpdate
 	preconditions []Precondition
 
 	err error
