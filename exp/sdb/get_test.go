@@ -104,7 +104,24 @@ func (t *GetTest) OneAttributeNameInvalid() {
 }
 
 func (t *GetTest) InconsistentReadWithNoAttributeNames() {
-	ExpectEq("TODO", "")
+	t.item = "taco"
+	t.constistentRead = false
+	t.names = []string{}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		ElementsAre(
+			"DomainName",
+			"ItemName",
+		),
+	)
+
+	ExpectEq(t.name, t.c.req["DomainName"])
+	ExpectEq("taco", t.c.req["ItemName"])
 }
 
 func (t *GetTest) ConsistentRead() {
