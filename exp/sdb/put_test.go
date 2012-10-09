@@ -290,7 +290,39 @@ func (t *PutTest) NoPreconditions() {
 }
 
 func (t *PutTest) SomePreconditions() {
-	ExpectEq("TODO", "")
+	t.preconditions = []Precondition{
+		Precondition{Name: "foo", Exists: new(bool)},
+		Precondition{Name: "bar", Value: new(string)},
+		Precondition{Name: "baz", Exists: new(bool)},
+	}
+
+	*t.preconditions[0].Exists = false
+	*t.preconditions[1].Value = "taco"
+	*t.preconditions[2].Exists = true
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		AllOf(
+			Contains("Expected.1.Name"),
+			Contains("Expected.2.Name"),
+			Contains("Expected.3.Name"),
+			Contains("Expected.1.Exists"),
+			Contains("Expected.2.Value"),
+			Contains("Expected.3.Exists"),
+		),
+	)
+
+	ExpectEq("foo", t.c.req["Expected.1.Name"])
+	ExpectEq("bar", t.c.req["Expected.2.Name"])
+	ExpectEq("baz", t.c.req["Expected.3.Name"])
+
+	ExpectEq("false", t.c.req["Expected.1.Exists"])
+	ExpectEq("taco", t.c.req["Expected.2.Value"])
+	ExpectEq("true", t.c.req["Expected.3.Exists"])
 }
 
 func (t *PutTest) ConnReturnsError() {
