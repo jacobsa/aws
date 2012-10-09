@@ -101,11 +101,21 @@ type Domain interface {
 	// SimpleDB is too large.
 	BatchPutAttributes(updates map[ItemName][]PutUpdate) error
 
+	// Atomically delete attributes from the named item, but only if the supplied
+	// preconditions hold.
+	//
+	// If deletes is empty, delete all attributes from the item. Otherwise
+	// perform only the deletes is specifies. Deleting a non-existent attribute
+	// does not result in an error.
 	DeleteAttributes(
 		item ItemName,
 		deletes []DeleteUpdate,
 		preconditions []Precondition) error
 
+	// Atomically delete attributes from multiple items simultaneously.
+	//
+	// If no updates are supplied for a particular item, delete all of its
+	// attributes.
 	BatchDeleteAttributes(deletes map[ItemName][]DeleteUpdate) error
 
 	GetAttributes(
