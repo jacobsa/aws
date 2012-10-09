@@ -73,9 +73,9 @@ type Bucket interface {
 	ListKeys(prevKey string) (keys []string, err error)
 }
 
-// OpenBucket returns a Bucket tied to a given name in whe given region. You
-// must have previously created the bucket in the region, and the supplied
-// access key must have access to it.
+// OpenBucket returns a Bucket tied to a given name in a given region. You must
+// have previously created the bucket in the region, and the supplied access
+// key must have access to it.
 //
 // To easily create a bucket, use the AWS Console:
 //

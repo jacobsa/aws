@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	"github.com/jacobsa/aws"
 )
 
 // The name of an item within a SimpleDB domain. Item names must be UTF-8
@@ -146,3 +147,13 @@ type Domain interface {
 		constistentRead bool,
 		nextToken []byte) (res map[ItemName][]Attribute, tok []byte, err error)
 }
+
+// Return a Domain tied to a given name in a given region. You must have
+// previously created the domain in the region, and the supplied access key
+// must have access to it.
+//
+// To easily create a domain, use the Scratchpad app:
+//
+//     http://goo.gl/C9BMz
+//
+func OpenDomain(name string, region Region, key aws.AccessKey) (Domain, error)
