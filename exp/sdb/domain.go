@@ -17,6 +17,7 @@ package sdb
 
 import (
 	"github.com/jacobsa/aws"
+	"github.com/jacobsa/aws/exp/sdb/conn"
 )
 
 // The name of an item within a SimpleDB domain. Item names must be UTF-8
@@ -157,3 +158,6 @@ type Domain interface {
 //     http://goo.gl/C9BMz
 //
 func OpenDomain(name string, region Region, key aws.AccessKey) (Domain, error)
+
+// As above, but allows injecting a Conn directly.
+func newDomain(name string, c conn.Conn) (Domain, error)
