@@ -536,7 +536,50 @@ func (t *BatchPutTest) OneAttributeValueInvalid() {
 }
 
 func (t *BatchPutTest) CallsConn() {
-	ExpectEq("TODO", "")
+	t.updates = map[ItemName][]PutUpdate{
+		"bar": []PutUpdate{
+			PutUpdate{Name: "a", Value: ""},
+			PutUpdate{Name: "b", Value: "qux", Replace: true},
+		},
+		"foo": []PutUpdate{
+			PutUpdate{Name: "c", Value: "wot"},
+		},
+	}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		ElementsAre(
+			"DomainName",
+			"Item.1.Attribute.1.Name",
+			"Item.1.Attribute.1.Value",
+			"Item.1.Attribute.2.Name",
+			"Item.1.Attribute.2.Replace",
+			"Item.1.Attribute.2.Value",
+			"Item.1.ItemName",
+			"Item.2.Attribute.1.Name",
+			"Item.2.Attribute.1.Value",
+			"Item.2.ItemName",
+		),
+	)
+
+	ExpectEq(t.name, t.c.req["DomainName"])
+
+	ExpectEq("bar", t.c.req["Item.1.ItemName"])
+	ExpectEq("foo", t.c.req["Item.1.ItemName"])
+
+	ExpectEq("a", t.c.req["Item.1.Attribute.1.Name"])
+	ExpectEq("b", t.c.req["Item.1.Attribute.2.Name"])
+	ExpectEq("c", t.c.req["Item.2.Attribute.1.Name"])
+
+	ExpectEq("", t.c.req["Item.1.Attribute.1.Value"])
+	ExpectEq("qux", t.c.req["Item.1.Attribute.2.Value"])
+	ExpectEq("wot", t.c.req["Item.2.Attribute.1.Value"])
+
+	ExpectEq("true", t.c.req["Item.1.Attribute.2.Replace"])
 }
 
 func (t *BatchPutTest) ConnReturnsError() {
