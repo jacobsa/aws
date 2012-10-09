@@ -99,5 +99,43 @@ func (t *StringToSignTest) MixedCaseHost() {
 }
 
 func (t *StringToSignTest) GoldenTest() {
-	ExpectEq("TODO", "")
+	// An actual request from the documentation.
+	req := Request{
+		"DomainName": "MyDomain",
+		"ItemName": "Item123",
+		"Attribute.1.Name": "Color",
+		"Attribute.1.Value": "Blue",
+		"Attribute.2.Name": "Size",
+		"Attribute.2.Value": "Med",
+		"Attribute.3.Name": "Price",
+		"Attribute.3.Value": "0014.99",
+		"Version": "2009-04-15",
+		"Timestamp": "2010-01-25T15:01:28-07:00",
+		"SignatureVersion": "2",
+		"SignatureMethod": "HmacSHA256",
+		"AWSAccessKeyId": "some_key",
+	}
+
+	str, err := computeStringToSign(req, "sdb.amazonaws.com")
+	AssertEq(nil, err)
+
+	ExpectEq(
+		"POST\n" +
+		"sdb.amazonaws.com\n" +
+		"/\n" +
+		"AWSAccessKeyId=some_key" +
+		"&Action=PutAttributes" +
+		"&Attribute.1.Name=Color" +
+		"&Attribute.1.Value=Blue" +
+		"&Attribute.2.Name=Size" +
+		"&Attribute.2.Value=Med" +
+		"&Attribute.3.Name=Price" +
+		"&Attribute.3.Value=0014.99" +
+		"&DomainName=MyDomain" +
+		"&ItemName=Item123" +
+		"&SignatureMethod=HmacSHA256" +
+		"&SignatureVersion=2" +
+		"&Timestamp=2010-01-25T15%3A01%3A28-07%3A00" +
+		"&Version=2009-04-15",
+		str)
 }
