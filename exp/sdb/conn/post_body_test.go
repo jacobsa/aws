@@ -87,7 +87,17 @@ func (t *PostBodyTest) EmptyParameterName() {
 }
 
 func (t *PostBodyTest) UnreservedCharacters() {
-	ExpectEq("TODO", "")
+	req := Request{
+		"abcdefghijklmnopqrstuvwxyz": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+		"0123456789": "-_.~",
+	}
+
+	body := assemblePostBody(req)
+
+	ExpectThat(body, HasSubstr("abcdefghijklmnopqrstuvwxyz"))
+	ExpectThat(body, HasSubstr("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+	ExpectThat(body, HasSubstr("0123456789"))
+	ExpectThat(body, HasSubstr("-_.~"))
 }
 
 func (t *PostBodyTest) StructuralCharacters() {
