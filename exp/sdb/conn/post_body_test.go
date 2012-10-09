@@ -109,7 +109,8 @@ func (t *PostBodyTest) StructuralCharacters() {
 
 	body := assemblePostBody(req)
 
-	ExpectThat(body, HasSubstr("TODO"))
+	ExpectThat(body, HasSubstr("%3A%2F%3F%23%5B%5D%40="))
+	ExpectThat(body, HasSubstr("=%21%24%26%27%28%29%2A%2B%2C%3B%3D"))
 }
 
 func (t *PostBodyTest) PercentCharacter() {
@@ -119,7 +120,7 @@ func (t *PostBodyTest) PercentCharacter() {
 
 	body := assemblePostBody(req)
 
-	ExpectThat(body, HasSubstr("TODO"))
+	ExpectThat(body, HasSubstr("a%25b=c%25d"))
 }
 
 func (t *PostBodyTest) SpaceAndPlus() {
@@ -137,7 +138,7 @@ func (t *PostBodyTest) KoreanCharacters() {
 	}
 
 	body := assemblePostBody(req)
-	ExpectEq("TODO", body)
+	ExpectEq("%EC%9D%8C%EC%8B%9D=%ED%83%80%EC%BD%94", body)
 }
 
 func (t *PostBodyTest) ParameterOrdering() {
