@@ -74,11 +74,25 @@ func (t *PutTest) InvalidItemName() {
 }
 
 func (t *PutTest) ZeroUpdates() {
-	ExpectEq("TODO", "")
+	t.updates = []PutUpdate{}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("number")))
+	ExpectThat(t.err, Error(HasSubstr("updates")))
+	ExpectThat(t.err, Error(HasSubstr("0")))
 }
 
 func (t *PutTest) TooManyUpdates() {
-	ExpectEq("TODO", "")
+	t.updates = make([]PutUpdate, 257)
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("number")))
+	ExpectThat(t.err, Error(HasSubstr("updates")))
+	ExpectThat(t.err, Error(HasSubstr("256")))
 }
 
 func (t *PutTest) OneAttributeNameEmpty() {
