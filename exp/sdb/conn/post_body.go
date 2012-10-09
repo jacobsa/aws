@@ -59,7 +59,7 @@ func assemblePostBody(req Request) string {
 	// Amazon disagrees with Go about what to do with spaces; Go uses '+'
 	// characters and Amazon wants "%20". Transform '+' characters appropriately.
 	// This is safe because actual '+' characters have already been encoded as
-	// "%25".
+	// "%2B".
 	result = strings.Replace(result, "+", "%20", -1)
 
 	return result
