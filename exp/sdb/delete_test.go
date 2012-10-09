@@ -247,7 +247,23 @@ func (t *DeleteTest) BasicParameters() {
 }
 
 func (t *DeleteTest) NoUpdates() {
-	ExpectEq("TODO", "")
+	t.item = "some_item"
+	t.updates = []DeleteUpdate{}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		ElementsAre(
+			"DomainName",
+			"ItemName",
+		),
+	)
+
+	ExpectEq(t.name, t.c.req["DomainName"])
+	ExpectEq("some_item", t.c.req["ItemName"])
 }
 
 func (t *DeleteTest) NoPreconditions() {
