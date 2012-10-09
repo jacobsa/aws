@@ -175,6 +175,30 @@ func (t *PutTest) OnePreconditionNameInvalid() {
 }
 
 func (t *PutTest) OnePreconditionValueInvalid() {
+	t.preconditions = []Precondition{
+		Precondition{Name: "foo", Value: new(string)},
+		Precondition{Name: "bar", Value: new(string)},
+		Precondition{Name: "baz", Value: new(string)},
+	}
+
+	*t.preconditions[0].Value = ""
+	*t.preconditions[1].Value = "taco\x80\x81\x82"
+	*t.preconditions[2].Value = "qux"
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
+	ExpectThat(t.err, Error(HasSubstr("value")))
+	ExpectThat(t.err, Error(HasSubstr(*t.preconditions[1].Value)))
+}
+
+func (t *PutTest) OnePreconditionMissingOperand() {
+	ExpectEq("TODO", "")
+}
+
+func (t *PutTest) OnePreconditionHasTwoOperands() {
 	ExpectEq("TODO", "")
 }
 
