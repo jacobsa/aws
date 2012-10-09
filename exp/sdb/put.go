@@ -18,6 +18,7 @@ package sdb
 import (
 	"fmt"
 	"github.com/jacobsa/aws/exp/sdb/conn"
+	"sort"
 )
 
 type batchPutPair struct {
@@ -25,7 +26,22 @@ type batchPutPair struct {
 	Updates []PutUpdate
 }
 
-func getSortedPairs(updateMap map[ItemName][]PutUpdate) []batchPutPair
+type batchPutPairList []batchPutPair
+
+func (l batchPutPairList) Len() int           { return len(l) }
+func (l batchPutPairList) Less(i, j int) bool { return l[i].Item < l[j].Item }
+func (l batchPutPairList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
+
+// Return the elements of the map sorted by item name.
+func getSortedPairs(updateMap map[ItemName][]PutUpdate) batchPutPairList {
+	res := batchPutPairList{}
+	for item, updates := range updateMap {
+		res = append(res, batchPutPair{item, updates})
+	}
+
+	sort.Sort(res)
+	return res
+}
 
 func validateUpdate(u PutUpdate) (err error) {
 	// Make sure the attribute name is legal.
