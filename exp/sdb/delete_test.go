@@ -17,6 +17,7 @@ package sdb
 
 import (
 	"errors"
+	"fmt"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"testing"
@@ -28,7 +29,9 @@ func TestDelete(t *testing.T) { RunTests(t) }
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
-func newString(s string) *string
+func newString(s string) *string {
+	return &s
+}
 
 ////////////////////////////////////////////////////////////////////////
 // DeleteAttributes
@@ -484,9 +487,9 @@ func (t *BatchDeleteTest) OneAttributeValueInvalid() {
 	t.updates = map[ItemName][]DeleteUpdate{
 		"foo": legalUpdates,
 		"bar": []DeleteUpdate{
-			DeleteUpdate{Name: "a", Value: "qux"},
-			DeleteUpdate{Name: "b", Value: "taco\x80\x81\x82"},
-			DeleteUpdate{Name: "c", Value: "qux"},
+			DeleteUpdate{Name: "a"},
+			DeleteUpdate{Name: "b", Value: newString("taco\x80\x81\x82")},
+			DeleteUpdate{Name: "c", Value: newString("qux")},
 		},
 		"baz": legalUpdates,
 	}
@@ -503,11 +506,13 @@ func (t *BatchDeleteTest) OneAttributeValueInvalid() {
 func (t *BatchDeleteTest) CallsConn() {
 	t.updates = map[ItemName][]DeleteUpdate{
 		"bar": []DeleteUpdate{
-			DeleteUpdate{Name: "a", Value: ""},
-			DeleteUpdate{Name: "b", Value: "qux", Replace: true},
+			DeleteUpdate{Name: "a"},
+			DeleteUpdate{Name: "b", Value: newString("qux")},
+			DeleteUpdate{Name: "c", Value: newString("")},
 		},
+		"baz": []DeleteUpdate{},
 		"foo": []DeleteUpdate{
-			DeleteUpdate{Name: "c", Value: "wot"},
+			DeleteUpdate{Name: "d", Value: newString("wot")},
 		},
 	}
 
@@ -520,31 +525,32 @@ func (t *BatchDeleteTest) CallsConn() {
 		ElementsAre(
 			"DomainName",
 			"Item.1.Attribute.1.Name",
-			"Item.1.Attribute.1.Value",
 			"Item.1.Attribute.2.Name",
-			"Item.1.Attribute.2.Replace",
 			"Item.1.Attribute.2.Value",
+			"Item.1.Attribute.3.Name",
+			"Item.1.Attribute.3.Value",
 			"Item.1.ItemName",
-			"Item.2.Attribute.1.Name",
-			"Item.2.Attribute.1.Value",
 			"Item.2.ItemName",
+			"Item.3.Attribute.1.Name",
+			"Item.3.Attribute.1.Value",
+			"Item.3.ItemName",
 		),
 	)
 
 	ExpectEq(t.name, t.c.req["DomainName"])
 
 	ExpectEq("bar", t.c.req["Item.1.ItemName"])
-	ExpectEq("foo", t.c.req["Item.2.ItemName"])
+	ExpectEq("baz", t.c.req["Item.2.ItemName"])
+	ExpectEq("foo", t.c.req["Item.3.ItemName"])
 
 	ExpectEq("a", t.c.req["Item.1.Attribute.1.Name"])
 	ExpectEq("b", t.c.req["Item.1.Attribute.2.Name"])
-	ExpectEq("c", t.c.req["Item.2.Attribute.1.Name"])
+	ExpectEq("c", t.c.req["Item.1.Attribute.3.Name"])
+	ExpectEq("d", t.c.req["Item.3.Attribute.1.Name"])
 
-	ExpectEq("", t.c.req["Item.1.Attribute.1.Value"])
 	ExpectEq("qux", t.c.req["Item.1.Attribute.2.Value"])
-	ExpectEq("wot", t.c.req["Item.2.Attribute.1.Value"])
-
-	ExpectEq("true", t.c.req["Item.1.Attribute.2.Replace"])
+	ExpectEq("", t.c.req["Item.1.Attribute.3.Value"])
+	ExpectEq("wot", t.c.req["Item.3.Attribute.1.Value"])
 }
 
 func (t *BatchDeleteTest) ConnReturnsError() {
