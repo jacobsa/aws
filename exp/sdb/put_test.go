@@ -195,11 +195,33 @@ func (t *PutTest) OnePreconditionValueInvalid() {
 }
 
 func (t *PutTest) OnePreconditionMissingOperand() {
-	ExpectEq("TODO", "")
+	t.preconditions = []Precondition{
+		Precondition{Name: "foo", Exists: new(bool)},
+		Precondition{Name: "bar"},
+		Precondition{Name: "baz", Exists: new(bool)},
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("precondition")))
+	ExpectThat(t.err, Error(HasSubstr("bar")))
 }
 
 func (t *PutTest) OnePreconditionHasTwoOperands() {
-	ExpectEq("TODO", "")
+	t.preconditions = []Precondition{
+		Precondition{Name: "foo", Exists: new(bool)},
+		Precondition{Name: "bar", Exists: new(bool), Value: new(string)},
+		Precondition{Name: "baz", Exists: new(bool)},
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("precondition")))
+	ExpectThat(t.err, Error(HasSubstr("bar")))
 }
 
 func (t *PutTest) NoPreconditions() {
