@@ -16,24 +16,48 @@
 package sdb
 
 import (
-	"github.com/jacobsa/aws/exp/sdb/conn/mock"
+	"github.com/jacobsa/aws/exp/sdb/conn"
 	. "github.com/jacobsa/ogletest"
 )
+
+////////////////////////////////////////////////////////////////////////
+// Fake Conn
+////////////////////////////////////////////////////////////////////////
+
+type fakeConn struct {
+	// Argument received
+	req conn.Request
+
+	// Response to return
+	resp []byte
+	err error
+}
+
+func (c *fakeConn) SendRequest(r conn.Request) ([]byte, error) {
+	if c.req != nil {
+		panic("Already called!")
+	}
+
+	c.req = r
+	return c.resp, c.err
+}
+
+////////////////////////////////////////////////////////////////////////
+// Common test class
+////////////////////////////////////////////////////////////////////////
 
 // A common helper class.
 type domainTest struct {
 	name string
-	c mock_conn.MockConn
+	c *fakeConn
 	domain Domain
 }
-
-func init() { RegisterTestSuite(&domainTest{}) }
 
 func (t *domainTest) SetUp(i *TestInfo) {
 	var err error
 
 	t.name = "some_domain"
-	t.c = mock_conn.NewMockConn(i.MockController, "conn")
+	t.c = &fakeConn{}
 
 	t.domain, err = newDomain(t.name, t.c)
 	AssertEq(nil, err)
