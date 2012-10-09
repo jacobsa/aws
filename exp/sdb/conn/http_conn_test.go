@@ -148,7 +148,7 @@ func (t *HttpConnTest) RequestContainsNoParameters() {
 	AssertEq(nil, err)
 
 	AssertNe(nil, t.handler.reqBody)
-	ExpectEq(0, len(t.handler.reqBody))
+	ExpectEq(0, len(t.handler.reqBody), "Body: %s", t.handler.reqBody)
 }
 
 func (t *HttpConnTest) RequestContainsOneParameter() {
