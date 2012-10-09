@@ -42,10 +42,10 @@ func NewConn(
 }
 
 type conn struct {
-	key aws.AccessKey
+	key      aws.AccessKey
 	httpConn HttpConn
-	signer Signer
-	clock time.Clock
+	signer   Signer
+	clock    time.Clock
 }
 
 func (c *conn) SendRequest(req Request) (resp []byte, err error) {
