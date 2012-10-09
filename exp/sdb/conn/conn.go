@@ -16,6 +16,7 @@
 package conn
 
 import (
+	"fmt"
 	"github.com/jacobsa/aws"
 )
 
@@ -27,4 +28,13 @@ type Conn interface {
 }
 
 // Create a connection using the supplied dependencies.
-func NewConn(key aws.AccessKey, httpConn HttpConn, signer Signer) (Conn, error)
+func NewConn(key aws.AccessKey, httpConn HttpConn, signer Signer) (Conn, error) {
+	return &conn{}, nil
+}
+
+type conn struct {
+}
+
+func (c *conn) SendRequest(req Request) (resp []byte, err error) {
+	return nil, fmt.Errorf("TODO")
+}
