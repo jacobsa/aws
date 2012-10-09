@@ -35,6 +35,26 @@ func init() { RegisterTestSuite(&ValidateTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *ValidateTest) DoesFoo() {
+func (t *ValidateTest) EmptyString() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ValidateTest) LongString() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ValidateTest) InvalidUtf8() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ValidateTest) LegalCharacters() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ValidateTest) NullByte() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ValidateTest) ControlCharacter() {
 	ExpectEq("TODO", "")
 }
