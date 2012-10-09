@@ -58,7 +58,7 @@ func (c *conn) SendRequest(req Request) (resp []byte, err error) {
 
 	// Set authentication info.
 	req["AWSAccessKeyId"] = c.key.Id
-	req["Timestamp"] = c.clock.Now().Format(iso8601Format)
+	req["Timestamp"] = c.clock.Now().UTC().Format(iso8601Format)
 	req["SignatureVersion"] = "2"
 	req["SignatureMethod"] = "HmacSHA1"
 
