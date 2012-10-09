@@ -55,6 +55,46 @@ func init() { RegisterTestSuite(&GetTest{}) }
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *GetTest) DoesFoo() {
+func (t *GetTest) ItemNameEmpty() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) ItemNameInvalid() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) OneAttributeNameEmpty() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) OneAttributeNameInvalid() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) InconsistentReadWithNoAttributeNames() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) ConsistentRead() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) SomeAttributeNames() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) ConnReturnsError() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) ConnReturnsJunk() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) NoAttributesInResponse() {
+	ExpectEq("TODO", "")
+}
+
+func (t *GetTest) SomeAttributesInResponse() {
 	ExpectEq("TODO", "")
 }
