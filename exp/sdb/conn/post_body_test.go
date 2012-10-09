@@ -16,8 +16,10 @@
 package conn
 
 import (
+	"bytes"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -129,5 +131,41 @@ func (t *PostBodyTest) KoreanCharacters() {
 }
 
 func (t *PostBodyTest) ParameterOrdering() {
-	ExpectEq("TODO", "")
+	// Sanity check: ordering of Korean.
+	AssertEq(-1, bytes.Compare([]byte("음"), []byte("타")))
+
+	// Sanity check: ordering of unescaped strings reversed by escaping. (We
+	// should order by parameter name, not be escaped parameter name.)
+	AssertLt("f", "|")
+	AssertGt(url.QueryEscape("f"), url.QueryEscape("|"))
+
+	// Request
+	req := Request{
+		// Easy cases
+		"bar": "asd",
+		"qux": "asd",
+		"aaa": "asd",
+
+		// Korean ordering
+		"타코": "bar",
+		"음식": "foo",
+
+		// Order before escaping
+		"foo": "asd",
+		"|": "asd",
+	}
+
+	body := assemblePostBody(req)
+	components := strings.Split(string(body), "&")
+
+	ExpectThat(
+		components,
+		ElementsAre(
+			HasSubstr("aaa="),
+			HasSubstr("bar="),
+			HasSubstr("foo="),
+			HasSubstr("qux="),
+			HasSubstr(url.QueryEscape("|") + "="),
+			HasSubstr(url.QueryEscape("음식") + "="),
+			HasSubstr(url.QueryEscape("타코") + "=")))
 }
