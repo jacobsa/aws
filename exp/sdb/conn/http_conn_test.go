@@ -17,7 +17,9 @@ package conn_test
 
 import (
 	"github.com/jacobsa/aws/exp/sdb/conn"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -32,7 +34,7 @@ func TestHttpConn(t *testing.T) { RunTests(t) }
 
 type localHandler struct {
 	// Input seen.
-	req *sys_http.Request
+	req *http.Request
 	reqBody []byte
 
 	// To be returned.
@@ -40,7 +42,7 @@ type localHandler struct {
 	body       []byte
 }
 
-func (h *localHandler) ServeHTTP(w sys_http.ResponseWriter, r *sys_http.Request) {
+func (h *localHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	// Record the request.
@@ -96,14 +98,14 @@ func (t *HttpConnTest) InvalidScheme() {
 
 func (t *HttpConnTest) UnknownHost() {
 	// Connection
-	conn, err := conn.NewHttpConn(&url.URL{Scheme: "http", Host: "foo.sidofhdksjhf"})
+	c, err := conn.NewHttpConn(&url.URL{Scheme: "http", Host: "foo.sidofhdksjhf"})
 	AssertEq(nil, err)
 
 	// Request
 	req := conn.Request{}
 
 	// Call
-	_, err = conn.SendRequest(req)
+	_, err = c.SendRequest(req)
 
 	ExpectThat(err, Error(HasSubstr("foo.sidofhdksjhf")))
 	ExpectThat(err, Error(HasSubstr("no such host")))
@@ -111,14 +113,14 @@ func (t *HttpConnTest) UnknownHost() {
 
 func (t *HttpConnTest) BasicHttpInfo() {
 	// Connection
-	conn, err := conn.NewHttpConn(t.endpoint)
+	c, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 
 	// Request
 	req := conn.Request{}
 
 	// Call
-	_, err = conn.SendRequest(req)
+	_, err = c.SendRequest(req)
 	AssertEq(nil, err)
 
 	AssertNe(nil, t.handler.req)
@@ -138,25 +140,25 @@ func (t *HttpConnTest) BasicHttpInfo() {
 
 func (t *HttpConnTest) RequestContainsNoParameters() {
 	// Connection
-	conn, err := conn.NewConn(t.endpoint)
+	c, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 
 	// Request
 	req := conn.Request{}
 
 	// Call
-	_, err = conn.SendRequest(req)
+	_, err = c.SendRequest(req)
 	AssertEq(nil, err)
 
 	AssertNe(nil, t.handler.req)
 	sysReq := t.handler.req
 
-	ExpectEq(0, len(sysReq.Body))
+	ExpectEq(0, len(t.handler.reqBody))
 }
 
 func (t *HttpConnTest) RequestContainsOneParameter() {
 	// Connection
-	conn, err := http.NewConn(t.endpoint)
+	c, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 
 	// Request
@@ -165,7 +167,7 @@ func (t *HttpConnTest) RequestContainsOneParameter() {
 	}
 
 	// Call
-	_, err = conn.SendRequest(req)
+	_, err = c.SendRequest(req)
 	AssertEq(nil, err)
 
 	AssertNe(nil, t.handler.reqBody)
@@ -176,7 +178,7 @@ func (t *HttpConnTest) RequestContainsOneParameter() {
 
 func (t *HttpConnTest) RequestContainsMultipleParameters() {
 	// Connection
-	conn, err := http.NewConn(t.endpoint)
+	c, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 
 	// Request
@@ -187,7 +189,7 @@ func (t *HttpConnTest) RequestContainsMultipleParameters() {
 	}
 
 	// Call
-	_, err = conn.SendRequest(req)
+	_, err = c.SendRequest(req)
 	AssertEq(nil, err)
 
 	AssertNe(nil, t.handler.reqBody)
@@ -200,7 +202,7 @@ func (t *HttpConnTest) RequestContainsMultipleParameters() {
 
 func (t *HttpConnTest) ParametersNeedEscaping() {
 	// Connection
-	conn, err := http.NewConn(t.endpoint)
+	c, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 
 	// Request
@@ -210,7 +212,7 @@ func (t *HttpConnTest) ParametersNeedEscaping() {
 	}
 
 	// Call
-	_, err = conn.SendRequest(req)
+	_, err = c.SendRequest(req)
 	AssertEq(nil, err)
 
 	AssertNe(nil, t.handler.reqBody)
@@ -225,14 +227,14 @@ func (t *HttpConnTest) ReturnsStatusCode() {
 	t.handler.statusCode = 123
 
 	// Connection
-	conn, err := http.NewConn(t.endpoint)
+	c, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 
 	// Request
 	req := conn.Request{}
 
 	// Call
-	resp, err := conn.SendRequest(req)
+	resp, err := c.SendRequest(req)
 	AssertEq(nil, err)
 
 	ExpectEq(123, resp.StatusCode)
@@ -243,14 +245,14 @@ func (t *HttpConnTest) ReturnsBody() {
 	t.handler.body = []byte{0xde, 0xad, 0x00, 0xbe, 0xef}
 
 	// Connection
-	conn, err := http.NewConn(t.endpoint)
+	c, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 
 	// Request
 	req := conn.Request{}
 
 	// Call
-	resp, err := conn.SendRequest(req)
+	resp, err := c.SendRequest(req)
 	AssertEq(nil, err)
 
 	ExpectThat(resp.Body, DeepEquals(t.handler.body))
@@ -261,14 +263,14 @@ func (t *HttpConnTest) ServerReturnsEmptyBody() {
 	t.handler.body = []byte{}
 
 	// Connection
-	conn, err := http.NewConn(t.endpoint)
+	c, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 
 	// Request
 	req := conn.Request{}
 
 	// Call
-	resp, err := conn.SendRequest(req)
+	resp, err := c.SendRequest(req)
 	AssertEq(nil, err)
 
 	ExpectThat(resp.Body, ElementsAre())
@@ -278,6 +280,6 @@ func (t *HttpConnTest) HttpsAllowed() {
 	t.endpoint.Scheme = "https"
 
 	// Connection
-	_, err := http.NewConn(t.endpoint)
+	_, err := conn.NewHttpConn(t.endpoint)
 	AssertEq(nil, err)
 }
