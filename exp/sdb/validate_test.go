@@ -72,7 +72,12 @@ func (t *ValidateTest) LegalCharacters() {
 }
 
 func (t *ValidateTest) NullByte() {
-	ExpectEq("TODO", "")
+	s := "abc\x00def"
+	err := validateValue(s)
+
+	ExpectThat(err, Error(HasSubstr("codepoint")))
+	ExpectThat(err, Error(HasSubstr("XML 1.0")))
+	ExpectThat(err, Error(HasSubstr("U+0000")))
 }
 
 func (t *ValidateTest) ControlCharacter() {
