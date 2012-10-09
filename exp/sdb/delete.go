@@ -18,7 +18,30 @@ package sdb
 import (
 	"fmt"
 	"github.com/jacobsa/aws/exp/sdb/conn"
+	"sort"
 )
+
+type batchDeletePair struct {
+	Item ItemName
+	Updates []DeleteUpdate
+}
+
+type batchDeletePairList []batchDeletePair
+
+func (l batchDeletePairList) Len() int           { return len(l) }
+func (l batchDeletePairList) Less(i, j int) bool { return l[i].Item < l[j].Item }
+func (l batchDeletePairList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
+
+// Return the elements of the map sorted by item name.
+func getSortedDeletePairs(deleteMap map[ItemName][]DeleteUpdate) batchDeletePairList {
+	res := batchDeletePairList{}
+	for item, updates := range deleteMap {
+		res = append(res, batchDeletePair{item, updates})
+	}
+
+	sort.Sort(res)
+	return res
+}
 
 func validateDeleteUpdate(u DeleteUpdate) (err error) {
 	// Make sure the attribute name is legal.
@@ -110,6 +133,52 @@ func (d *domain) DeleteAttributes(
 	return nil
 }
 
-func (d *domain) BatchDeleteAttributes(deletes map[ItemName][]DeleteUpdate) error {
-	return fmt.Errorf("TODO")
+func (d *domain) BatchDeleteAttributes(
+	deleteMap map[ItemName][]DeleteUpdate) (err error) {
+	// Make sure the size of the request is legal.
+	numItems := len(deleteMap)
+	if numItems == 0 || numItems > 25 {
+		return fmt.Errorf("Illegal number of items: %d", numItems)
+	}
+
+	// Make sure each item name and set of updates is legal.
+	for item, updates := range deleteMap {
+		if item == "" {
+			return fmt.Errorf("Invalid item name; names must be non-empty.")
+		}
+
+		if err = validateValue(string(item)); err != nil {
+			return fmt.Errorf("Invalid item name: %v", err)
+		}
+
+		if err = validateDeleteUpdates(updates); err != nil {
+			return fmt.Errorf("Updates for item %s: %v", item, err)
+		}
+	}
+
+	// Build a request.
+	req := conn.Request{}
+	req["DomainName"] = d.name
+
+	pairs := getSortedDeletePairs(deleteMap)
+	for i, pair := range pairs {
+		itemPrefix := fmt.Sprintf("Item.%d.", i+1)
+		req[itemPrefix + "ItemName"] = string(pair.Item)
+
+		for j, u := range pair.Updates {
+			updatePrefix := fmt.Sprintf("%sAttribute.%d.", itemPrefix, j+1)
+			req[updatePrefix + "Name"] = u.Name
+
+			if u.Value != nil {
+				req[updatePrefix + "Value"] = *u.Value
+			}
+		}
+	}
+
+	// Call the connection.
+	if _, err = d.c.SendRequest(req); err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
+	}
+
+	return nil
 }
