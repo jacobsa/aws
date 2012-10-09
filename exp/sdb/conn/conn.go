@@ -68,5 +68,22 @@ func (c *conn) SendRequest(req Request) (resp []byte, err error) {
 		return
 	}
 
-	return nil, fmt.Errorf("TODO")
+	// Send the request.
+	httpResp, err := c.httpConn.SendRequest(req)
+	if err != nil {
+		err = fmt.Errorf("SendRequest: %v", err)
+		return
+	}
+
+	// Did the server return an error?
+	if httpResp.StatusCode != 200 {
+		err = fmt.Errorf(
+			"Error from server (%d): %s",
+			httpResp.StatusCode,
+			httpResp.Body)
+
+		return
+	}
+
+	return httpResp.Body, nil
 }
