@@ -143,8 +143,35 @@ func (t *PutTest) OneAttributeValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr(t.updates[1].Value)))
 }
 
+func (t *PutTest) OnePreconditionNameEmpty() {
+	t.preconditions = []Precondition{
+		Precondition{Name: "foo", Exists: new(bool)},
+		Precondition{Name: "", Exists: new(bool)},
+		Precondition{Name: "baz", Exists: new(bool)},
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+}
+
 func (t *PutTest) OnePreconditionNameInvalid() {
-	ExpectEq("TODO", "")
+	t.preconditions = []Precondition{
+		Precondition{Name: "foo", Exists: new(bool)},
+		Precondition{Name: "taco\x80\x81\x82", Exists: new(bool)},
+		Precondition{Name: "baz", Exists: new(bool)},
+	}
+
+	// Call
+	t.callDomain()
+
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("attribute")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr(t.preconditions[1].Name)))
 }
 
 func (t *PutTest) OnePreconditionValueInvalid() {
