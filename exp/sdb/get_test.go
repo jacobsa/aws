@@ -178,9 +178,47 @@ func (t *GetTest) ConnReturnsJunk() {
 }
 
 func (t *GetTest) NoAttributesInResponse() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.resp = []byte(`
+		<GetAttributesResponse>
+		  <GetAttributesResult>
+		  </GetAttributesResult>
+		  <ResponseMetadata>
+		    <RequestId>b1e8f1f7-42e9-494c-ad09-2674e557526d</RequestId>
+		    <BoxUsage>0.0000219907</BoxUsage>
+		  </ResponseMetadata>
+		</GetAttributesResponse>`)
+
+	// Call
+	t.callDomain()
+
+	AssertEq(nil, t.err)
+	ExpectThat(t.attributes, ElementsAre())
 }
 
 func (t *GetTest) SomeAttributesInResponse() {
-	ExpectEq("TODO", "")
+	// Conn
+	t.c.resp = []byte(`
+		<GetAttributesResponse>
+		  <GetAttributesResult>
+		    <Attribute><Name>taco</Name><Value>burrito</Value></Attribute>
+		    <Attribute><Name>enchilada</Name><Value>queso</Value></Attribute>
+		  </GetAttributesResult>
+		  <ResponseMetadata>
+		    <RequestId>b1e8f1f7-42e9-494c-ad09-2674e557526d</RequestId>
+		    <BoxUsage>0.0000219907</BoxUsage>
+		  </ResponseMetadata>
+		</GetAttributesResponse>`)
+
+	// Call
+	t.callDomain()
+
+	AssertEq(nil, t.err)
+	ExpectThat(
+		t.attributes,
+		ElementsAre(
+			DeepEquals(Attribute{Name: "taco", Value: "burrito"}),
+			DeepEquals(Attribute{Name: "enchilada", Value: "queso"}),
+		),
+	)
 }
