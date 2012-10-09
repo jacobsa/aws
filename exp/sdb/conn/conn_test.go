@@ -30,9 +30,9 @@ func TestConn(t *testing.T) { RunTests(t) }
 ////////////////////////////////////////////////////////////////////////
 
 type ConnTest struct {
-	key aws.AccessKey
+	key      aws.AccessKey
 	httpConn mock_conn.MockHttpConn
-	signer mock_conn.MockSigner
+	signer   mock_conn.MockSigner
 
 	c conn.Conn
 }

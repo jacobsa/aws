@@ -7,8 +7,8 @@
 package mock_conn
 
 import (
-	conn "github.com/jacobsa/aws/exp/sdb/conn"
 	fmt "fmt"
+	conn "github.com/jacobsa/aws/exp/sdb/conn"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
 	unsafe "unsafe"
@@ -20,16 +20,16 @@ type MockSigner interface {
 }
 
 type mockSigner struct {
-	controller	oglemock.Controller
-	description	string
+	controller  oglemock.Controller
+	description string
 }
 
 func NewMockSigner(
 	c oglemock.Controller,
 	desc string) MockSigner {
 	return &mockSigner{
-		controller:	c,
-		description:	desc,
+		controller:  c,
+		description: desc,
 	}
 }
 

@@ -29,9 +29,9 @@ type keyValuePair struct {
 // Sortable by key.
 type keyValueList []keyValuePair
 
-func (l keyValueList) Len() int { return len(l) }
+func (l keyValueList) Len() int           { return len(l) }
 func (l keyValueList) Less(i, j int) bool { return l[i].Key < l[j].Key }
-func (l keyValueList) Swap(i, j int) { l[j], l[i] = l[i], l[j] }
+func (l keyValueList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
 
 // Given a set of request parameters, assemble them into a form usable both as
 // a POST body in a request to SimpleDB and as the "canonicalized query string"

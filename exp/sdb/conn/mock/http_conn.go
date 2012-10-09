@@ -7,8 +7,8 @@
 package mock_conn
 
 import (
-	conn "github.com/jacobsa/aws/exp/sdb/conn"
 	fmt "fmt"
+	conn "github.com/jacobsa/aws/exp/sdb/conn"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
 	unsafe "unsafe"
@@ -20,16 +20,16 @@ type MockHttpConn interface {
 }
 
 type mockHttpConn struct {
-	controller	oglemock.Controller
-	description	string
+	controller  oglemock.Controller
+	description string
 }
 
 func NewMockHttpConn(
 	c oglemock.Controller,
 	desc string) MockHttpConn {
 	return &mockHttpConn{
-		controller:	c,
-		description:	desc,
+		controller:  c,
+		description: desc,
 	}
 }
 

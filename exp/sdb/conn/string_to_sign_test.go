@@ -36,17 +36,16 @@ func init() { RegisterTestSuite(&StringToSignTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *StringToSignTest) NoParameters() {
-	req := Request{
-	}
+	req := Request{}
 
 	str, err := computeStringToSign(req, "some_host.com")
 	AssertEq(nil, err)
 
 	ExpectEq(
-		"POST\n" +
-		"some_host.com\n" +
-		"/\n" +
-		"",
+		"POST\n"+
+			"some_host.com\n"+
+			"/\n"+
+			"",
 		str)
 }
 
@@ -59,16 +58,16 @@ func (t *StringToSignTest) OneParameter() {
 	AssertEq(nil, err)
 
 	ExpectEq(
-		"POST\n" +
-		"some_host.com\n" +
-		"/\n" +
-		"taco=burrito",
+		"POST\n"+
+			"some_host.com\n"+
+			"/\n"+
+			"taco=burrito",
 		str)
 }
 
 func (t *StringToSignTest) MultipleParameters() {
 	req := Request{
-		"taco": "burrito",
+		"taco":      "burrito",
 		"enchilada": "queso",
 	}
 
@@ -76,67 +75,66 @@ func (t *StringToSignTest) MultipleParameters() {
 	AssertEq(nil, err)
 
 	ExpectEq(
-		"POST\n" +
-		"some_host.com\n" +
-		"/\n" +
-		"enchilada=queso&taco=burrito",
+		"POST\n"+
+			"some_host.com\n"+
+			"/\n"+
+			"enchilada=queso&taco=burrito",
 		str)
 }
 
 func (t *StringToSignTest) MixedCaseHost() {
-	req := Request{
-	}
+	req := Request{}
 
 	str, err := computeStringToSign(req, "SoMe_HoSt.cOm")
 	AssertEq(nil, err)
 
 	ExpectEq(
-		"POST\n" +
-		"some_host.com\n" +
-		"/\n" +
-		"",
+		"POST\n"+
+			"some_host.com\n"+
+			"/\n"+
+			"",
 		str)
 }
 
 func (t *StringToSignTest) GoldenTest() {
 	// An actual request from the documentation.
 	req := Request{
-		"Action": "PutAttributes",
-		"DomainName": "MyDomain",
-		"ItemName": "Item123",
-		"Attribute.1.Name": "Color",
+		"Action":            "PutAttributes",
+		"DomainName":        "MyDomain",
+		"ItemName":          "Item123",
+		"Attribute.1.Name":  "Color",
 		"Attribute.1.Value": "Blue",
-		"Attribute.2.Name": "Size",
+		"Attribute.2.Name":  "Size",
 		"Attribute.2.Value": "Med",
-		"Attribute.3.Name": "Price",
+		"Attribute.3.Name":  "Price",
 		"Attribute.3.Value": "0014.99",
-		"Version": "2009-04-15",
-		"Timestamp": "2010-01-25T15:01:28-07:00",
-		"SignatureVersion": "2",
-		"SignatureMethod": "HmacSHA256",
-		"AWSAccessKeyId": "some_key",
+		"Version":           "2009-04-15",
+		"Timestamp":         "2010-01-25T15:01:28-07:00",
+		"SignatureVersion":  "2",
+		"SignatureMethod":   "HmacSHA256",
+		"AWSAccessKeyId":    "some_key",
 	}
 
 	str, err := computeStringToSign(req, "sdb.amazonaws.com")
 	AssertEq(nil, err)
 
 	ExpectEq(
-		"POST\n" +
-		"sdb.amazonaws.com\n" +
-		"/\n" +
-		"AWSAccessKeyId=some_key" +
-		"&Action=PutAttributes" +
-		"&Attribute.1.Name=Color" +
-		"&Attribute.1.Value=Blue" +
-		"&Attribute.2.Name=Size" +
-		"&Attribute.2.Value=Med" +
-		"&Attribute.3.Name=Price" +
-		"&Attribute.3.Value=0014.99" +
-		"&DomainName=MyDomain" +
-		"&ItemName=Item123" +
-		"&SignatureMethod=HmacSHA256" +
-		"&SignatureVersion=2" +
-		"&Timestamp=2010-01-25T15%3A01%3A28-07%3A00" +
-		"&Version=2009-04-15",
+		"POST\n"+
+			"sdb.amazonaws.com\n"+
+			"/\n"+
+			"AWSAccessKeyId=some_key"+
+			"&Action=PutAttributes"+
+			"&Attribute.1.Name=Color"+
+			"&Attribute.1.Value=Blue"+
+			"&Attribute.2.Name=Size"+
+			"&Attribute.2.Value=Med"+
+			"&Attribute.3.Name=Price"+
+			"&Attribute.3.Value=0014.99"+
+			"&DomainName=MyDomain"+
+			"&ItemName=Item123"+
+			"&SignatureMethod=HmacSHA256"+
+			"&SignatureVersion=2"+
+			"&Timestamp=2010-01-25T15%3A01%3A28-07%3A00"+
+			"&Version=2009-04-15",
 		str)
 }

@@ -40,8 +40,7 @@ func init() { RegisterTestSuite(&PostBodyTest{}) }
 ////////////////////////////////////////////////////////////////////////
 
 func (t *PostBodyTest) NoParameters() {
-	req := Request{
-	}
+	req := Request{}
 
 	body := assemblePostBody(req)
 
@@ -60,9 +59,9 @@ func (t *PostBodyTest) OneParameter() {
 
 func (t *PostBodyTest) MultipleParameters() {
 	req := Request{
-		"taco": "burrito",
+		"taco":      "burrito",
 		"enchilada": "queso",
-		"nachos": "carnitas",
+		"nachos":    "carnitas",
 	}
 
 	body := assemblePostBody(req)
@@ -76,7 +75,7 @@ func (t *PostBodyTest) MultipleParameters() {
 
 func (t *PostBodyTest) EmptyParameterName() {
 	req := Request{
-		"": "burrito",
+		"":          "burrito",
 		"enchilada": "queso",
 	}
 
@@ -91,7 +90,7 @@ func (t *PostBodyTest) EmptyParameterName() {
 func (t *PostBodyTest) UnreservedCharacters() {
 	req := Request{
 		"abcdefghijklmnopqrstuvwxyz": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-		"0123456789": "-_.~",
+		"0123456789":                 "-_.~",
 	}
 
 	body := assemblePostBody(req)
@@ -163,7 +162,7 @@ func (t *PostBodyTest) ParameterOrdering() {
 
 		// Order before escaping
 		"foo": "asd",
-		"|": "asd",
+		"|":   "asd",
 	}
 
 	body := assemblePostBody(req)
@@ -176,7 +175,7 @@ func (t *PostBodyTest) ParameterOrdering() {
 			HasSubstr("bar="),
 			HasSubstr("foo="),
 			HasSubstr("qux="),
-			HasSubstr(url.QueryEscape("|") + "="),
-			HasSubstr(url.QueryEscape("음식") + "="),
-			HasSubstr(url.QueryEscape("타코") + "=")))
+			HasSubstr(url.QueryEscape("|")+"="),
+			HasSubstr(url.QueryEscape("음식")+"="),
+			HasSubstr(url.QueryEscape("타코")+"=")))
 }
