@@ -37,6 +37,31 @@ func validateUpdate(u PutUpdate) (err error) {
 	return nil
 }
 
+func validatePrecondition(p Precondition) (err error) {
+	// Make sure the attribute name is legal.
+	if p.Name == "" {
+		return fmt.Errorf("Invalid attribute name; names must be non-empty.")
+	}
+
+	if err = validateValue(string(p.Name)); err != nil {
+		return fmt.Errorf("Invalid attribute name: %v", err)
+	}
+
+	// We require exactly one operand.
+	if (p.Value == nil) == (p.Exists == nil) {
+		return fmt.Errorf("Preconditions must contain exactly one of Value and Exists.")
+	}
+
+	// Make sure the attribute value is legal, if present.
+	if p.Value != nil {
+		if err = validateValue(string(*p.Value)); err != nil {
+			return fmt.Errorf("Invalid attribute value: %v", err)
+		}
+	}
+
+	return nil
+}
+
 func (d *domain) PutAttributes(
 	item ItemName,
 	updates []PutUpdate,
@@ -59,6 +84,13 @@ func (d *domain) PutAttributes(
 	for _, u := range updates {
 		if err = validateUpdate(u); err != nil {
 			return fmt.Errorf("Invalid update (%v): %v", err, u)
+		}
+	}
+
+	// Validate preconditions.
+	for _, p := range preconditions {
+		if err = validatePrecondition(p); err != nil {
+			return fmt.Errorf("Invalid precondition (%v): %v", err, p)
 		}
 	}
 
