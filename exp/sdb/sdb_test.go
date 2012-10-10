@@ -20,7 +20,7 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////
-// Common test class
+// Helpers
 ////////////////////////////////////////////////////////////////////////
 
 // A common helper class.
@@ -36,4 +36,33 @@ func (t *simpleDBTest) SetUp(i *TestInfo) {
 
 	t.db, err = newSimpleDB(t.c)
 	AssertEq(nil, err)
+}
+
+////////////////////////////////////////////////////////////////////////
+// CreateDomain
+////////////////////////////////////////////////////////////////////////
+
+type CreateDomainTest struct {
+	simpleDBTest
+
+	name string
+	err error
+}
+
+func init() { RegisterTestSuite(&CreateDomainTest{}) }
+
+func (t *CreateDomainTest) SetUp(i *TestInfo) {
+	// Call common setup code.
+	t.simpleDBTest.SetUp(i)
+
+	// Make the request legal by default.
+	t.name = "foo"
+}
+
+func (t *CreateDomainTest) callDB() {
+	t.err = t.db.CreateDomain(t.name)
+}
+
+func (t *CreateDomainTest) DoesFoo() {
+	ExpectFalse(true, "TODO")
 }
