@@ -146,10 +146,12 @@ func (t *OpenDomainTest) CallsConn() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"DomainName",
 		),
 	)
 
+	ExpectEq("CreateDomain", t.c.req["Action"])
 	ExpectEq("f00_bar.baz-qux", t.c.req["DomainName"])
 }
 
@@ -213,10 +215,12 @@ func (t *DeleteDomainTest) CallsConn() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"DomainName",
 		),
 	)
 
+	ExpectEq("DeleteDomain", t.c.req["Action"])
 	ExpectEq(t.domain.Name(), t.c.req["DomainName"])
 }
 

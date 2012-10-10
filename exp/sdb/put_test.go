@@ -256,6 +256,7 @@ func (t *PutTest) BasicParameters() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"Attribute.1.Name",
 			"Attribute.1.Value",
 			"Attribute.2.Name",
@@ -268,6 +269,10 @@ func (t *PutTest) BasicParameters() {
 		),
 	)
 
+	ExpectEq("PutAttributes", t.c.req["Action"])
+	ExpectEq(t.name, t.c.req["DomainName"])
+	ExpectEq("some_item", t.c.req["ItemName"])
+
 	ExpectEq("foo", t.c.req["Attribute.1.Name"])
 	ExpectEq("bar", t.c.req["Attribute.2.Name"])
 	ExpectEq("baz", t.c.req["Attribute.3.Name"])
@@ -277,9 +282,6 @@ func (t *PutTest) BasicParameters() {
 	ExpectEq("burrito", t.c.req["Attribute.3.Value"])
 
 	ExpectEq("true", t.c.req["Attribute.2.Replace"])
-
-	ExpectEq("some_item", t.c.req["ItemName"])
-	ExpectEq(t.name, t.c.req["DomainName"])
 }
 
 func (t *PutTest) NoPreconditions() {
@@ -552,6 +554,7 @@ func (t *BatchPutTest) CallsConn() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"DomainName",
 			"Item.1.Attribute.1.Name",
 			"Item.1.Attribute.1.Value",
@@ -565,6 +568,7 @@ func (t *BatchPutTest) CallsConn() {
 		),
 	)
 
+	ExpectEq("BatchPutAttributes", t.c.req["Action"])
 	ExpectEq(t.name, t.c.req["DomainName"])
 
 	ExpectEq("bar", t.c.req["Item.1.ItemName"])

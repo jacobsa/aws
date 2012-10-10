@@ -224,6 +224,7 @@ func (t *DeleteTest) BasicParameters() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"Attribute.1.Name",
 			"Attribute.2.Name",
 			"Attribute.2.Value",
@@ -234,6 +235,7 @@ func (t *DeleteTest) BasicParameters() {
 		),
 	)
 
+	ExpectEq("DeleteAttributes", t.c.req["Action"])
 	ExpectEq(t.name, t.c.req["DomainName"])
 	ExpectEq("some_item", t.c.req["ItemName"])
 
@@ -256,11 +258,13 @@ func (t *DeleteTest) NoUpdates() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"DomainName",
 			"ItemName",
 		),
 	)
 
+	ExpectEq("DeleteAttributes", t.c.req["Action"])
 	ExpectEq(t.name, t.c.req["DomainName"])
 	ExpectEq("some_item", t.c.req["ItemName"])
 }
@@ -520,6 +524,7 @@ func (t *BatchDeleteTest) CallsConn() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"DomainName",
 			"Item.1.Attribute.1.Name",
 			"Item.1.Attribute.2.Name",
@@ -534,6 +539,7 @@ func (t *BatchDeleteTest) CallsConn() {
 		),
 	)
 
+	ExpectEq("BatchDeleteAttributes", t.c.req["Action"])
 	ExpectEq(t.name, t.c.req["DomainName"])
 
 	ExpectEq("bar", t.c.req["Item.1.ItemName"])

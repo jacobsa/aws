@@ -116,11 +116,13 @@ func (t *GetTest) InconsistentReadWithNoAttributeNames() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"DomainName",
 			"ItemName",
 		),
 	)
 
+	ExpectEq("GetAttributes", t.c.req["Action"])
 	ExpectEq(t.name, t.c.req["DomainName"])
 	ExpectEq("taco", t.c.req["ItemName"])
 }

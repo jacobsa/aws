@@ -65,10 +65,12 @@ func (t *SelectTest) NoExtraOptions() {
 	AssertThat(
 		getSortedKeys(t.c.req),
 		ElementsAre(
+			"Action",
 			"SelectExpression",
 		),
 	)
 
+	ExpectEq("Select", t.c.req["Action"])
 	ExpectEq("taco", t.c.req["SelectExpression"])
 }
 
