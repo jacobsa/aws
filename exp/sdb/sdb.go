@@ -16,7 +16,32 @@
 package sdb
 
 import (
+	"github.com/jacobsa/aws"
 )
+
+// The name of an item within a SimpleDB domain. Item names must be UTF-8
+// strings no longer than 1024 bytes. They must contain only characters that
+// are valid in XML 1.0 documents, as defined by Section 2.2 of the XML 1.0
+// spec. (Note that this is a more restrictive condition than imposed by
+// SimpleDB itself, and is done for the sake of Go's XML 1.0 parser.)
+//
+// For more info:
+//
+//     http://goo.gl/Fkjnz
+//     http://goo.gl/csem8
+//
+type ItemName string
+
+// An attribute is a (name, value) pair possessed by an item. Items contain
+// sets of attributes; they may contain multiple attributes with the same name,
+// but not with the same (name, value) pair.
+//
+// Attribute names and values share the same restrictions as those on item
+// names.
+type Attribute struct {
+	Name  string
+	Value string
+}
 
 // SimpleDB represents an authenticated connection to a particular endpoint the
 // SimpleDB service.
