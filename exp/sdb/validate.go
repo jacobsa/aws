@@ -63,11 +63,6 @@ func validatePrecondition(p Precondition) (err error) {
 		return fmt.Errorf("Invalid attribute name: %v", err)
 	}
 
-	// We require exactly one operand.
-	if (p.Value == nil) == (p.Exists == nil) {
-		return fmt.Errorf("Preconditions must contain exactly one of Value and Exists.")
-	}
-
 	// Make sure the attribute value is legal, if present.
 	if p.Value != nil {
 		if err = validateValue(string(*p.Value)); err != nil {

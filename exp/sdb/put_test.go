@@ -164,7 +164,6 @@ func (t *PutTest) OneAttributeValueInvalid() {
 func (t *PutTest) PreconditionNameEmpty() {
 	t.precondition = &Precondition{
 		Name:   "",
-		Exists: new(bool),
 	}
 
 	// Call
@@ -178,7 +177,6 @@ func (t *PutTest) PreconditionNameEmpty() {
 func (t *PutTest) PreconditionNameInvalid() {
 	t.precondition = &Precondition{
 		Name:   "taco\x80\x81\x82",
-		Exists: new(bool),
 	}
 
 	// Call
@@ -202,34 +200,6 @@ func (t *PutTest) PreconditionValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
 	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("value")))
-}
-
-func (t *PutTest) PreconditionMissingOperand() {
-	t.precondition = &Precondition{
-		Name: "bar",
-	}
-
-	// Call
-	t.callDomain()
-
-	ExpectThat(t.err, Error(HasSubstr("Invalid")))
-	ExpectThat(t.err, Error(HasSubstr("precondition")))
-	ExpectThat(t.err, Error(HasSubstr("bar")))
-}
-
-func (t *PutTest) PreconditionHasTwoOperands() {
-	t.precondition = &Precondition{
-		Name:   "bar",
-		Value:  new(string),
-		Exists: new(bool),
-	}
-
-	// Call
-	t.callDomain()
-
-	ExpectThat(t.err, Error(HasSubstr("Invalid")))
-	ExpectThat(t.err, Error(HasSubstr("precondition")))
-	ExpectThat(t.err, Error(HasSubstr("bar")))
 }
 
 func (t *PutTest) BasicParameters() {
@@ -286,35 +256,9 @@ func (t *PutTest) NoPrecondition() {
 	ExpectThat(getSortedKeys(t.c.req), Not(Contains(HasSubstr("Expected"))))
 }
 
-func (t *PutTest) PositiveExistencePrecondition() {
-	t.precondition = &Precondition{
-		Name:   "foo",
-		Exists: new(bool),
-	}
-
-	*t.precondition.Exists = true
-
-	// Call
-	t.callDomain()
-	AssertNe(nil, t.c.req, "Error: %v", t.err)
-
-	AssertThat(
-		getSortedKeys(t.c.req),
-		AllOf(
-			Contains("Expected.1.Name"),
-			Contains("Expected.1.Exists"),
-			Not(Contains("Expected.1.Value")),
-		),
-	)
-
-	ExpectEq("foo", t.c.req["Expected.1.Name"])
-	ExpectEq("true", t.c.req["Expected.1.Exists"])
-}
-
 func (t *PutTest) NegativeExistencePrecondition() {
 	t.precondition = &Precondition{
 		Name:   "foo",
-		Exists: new(bool),
 	}
 
 	// Call

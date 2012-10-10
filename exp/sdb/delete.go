@@ -126,8 +126,6 @@ func (d *domain) DeleteAttributes(
 
 		if precondition.Value != nil {
 			req[keyPrefix+"Value"] = *precondition.Value
-		} else if *precondition.Exists {
-			req[keyPrefix+"Exists"] = "true"
 		} else {
 			req[keyPrefix+"Exists"] = "false"
 		}
