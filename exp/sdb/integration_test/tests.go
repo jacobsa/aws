@@ -22,6 +22,7 @@ import (
 	. "github.com/jacobsa/ogletest"
 	"math/rand"
 	"sort"
+	"strings"
 	"sync"
 )
 
@@ -63,12 +64,14 @@ func (t *integrationTest) TearDown() {
 // deleted.
 func (t *integrationTest) makeItemName() sdb.ItemName {
 	name := sdb.ItemName(fmt.Sprintf("item.%16x", uint64(rand.Int63())))
+	t.ensureDeleted(name)
+	return name
+}
 
+func (t *integrationTest) ensureDeleted(item sdb.ItemName) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
-	t.deleteRequest[name] = nil
-
-	return name
+	t.deleteRequest[item] = nil
 }
 
 type nameSortedAttrList []sdb.Attribute
@@ -1043,7 +1046,59 @@ func (t *ItemsTest) SelectEmptyResultSet() {
 }
 
 func (t *ItemsTest) ItemNamesAreCaseSensitive() {
-	ExpectEq("TODO", "")
+	var err error
+
+	item0 := t.makeItemName()
+	item1 := sdb.ItemName(strings.ToUpper(string(item0)))
+	t.ensureDeleted(item1)
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		sdb.BatchPutMap{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "taco"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "enchilada"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select itemName() from `%s`",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	AssertEq(2, len(results), "Results: %v", results)
+
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item0,
+				},
+			),
+		),
+	)
+
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item1,
+				},
+			),
+		),
+	)
 }
 
 func (t *ItemsTest) AttributeNamesAreCaseSensitive() {
