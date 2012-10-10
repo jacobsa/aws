@@ -44,9 +44,9 @@ type PutUpdate struct {
 	// The value to set for the attribute.
 	Value string
 
-	// Whether to replace existing values for the attribute or to simply add a
-	// new one.
-	Replace bool
+	// If true, add this (name, value) attribute rather than replacing any
+	// existing attributes with the given name (the default).
+	Add bool
 }
 
 // An update to make to a particular attribute as part of a Delete request.
