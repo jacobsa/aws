@@ -213,11 +213,41 @@ func (t *DomainsTest) Delete() {
 // Items
 ////////////////////////////////////////////////////////////////////////
 
+var g_itemsTestDb     sdb.SimpleDB
+var g_itemsTestDomain sdb.Domain
+
 type ItemsTest struct {
 	integrationTest
 }
 
 func init() { RegisterTestSuite(&ItemsTest{}) }
+
+func (t *ItemsTest) SetUpTestSuite() {
+	var err error
+
+	// Open a connection.
+	g_itemsTestDb, err = sdb.NewSimpleDB(g_region, g_accessKey)
+	if err != nil {
+		panic(err)
+	}
+
+	// Create a domain.
+	g_itemsTestDomain, err = g_itemsTestDb.OpenDomain("ItemsTest.domain")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (t *ItemsTest) TearDownTestSuite() {
+	// Delete the domain.
+	if err := g_itemsTestDb.DeleteDomain(g_itemsTestDomain); err != nil {
+		panic(err)
+	}
+
+	// Clear variables.
+	g_itemsTestDb = nil
+	g_itemsTestDomain = nil
+}
 
 func (t *ItemsTest) WrongAccessKeySecret() {
 	ExpectEq("TODO", "")
