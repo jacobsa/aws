@@ -21,6 +21,7 @@ import (
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"math/rand"
+	"sort"
 	"sync"
 )
 
@@ -45,7 +46,18 @@ func (t *integrationTest) makeItemName() sdb.ItemName {
 	return sdb.ItemName(fmt.Sprintf("item.%16x", uint64(rand.Int63())))
 }
 
-func sortByName(attrs []sdb.Attribute) []sdb.Attribute
+type nameSortedAttrList []sdb.Attribute
+
+func (l nameSortedAttrList) Len() int           { return len(l) }
+func (l nameSortedAttrList) Less(i, j int) bool { return l[i].Name < l[j].Name }
+func (l nameSortedAttrList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
+
+func sortByName(attrs []sdb.Attribute) []sdb.Attribute {
+	res := make(nameSortedAttrList, len(attrs))
+	copy(res, attrs)
+	sort.Sort(res)
+	return res
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Domains
