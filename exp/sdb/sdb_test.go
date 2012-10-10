@@ -52,7 +52,7 @@ func (d *fakeDomain) Name() string {
 func (d *fakeDomain) PutAttributes(
 		item ItemName,
 		updates []PutUpdate,
-		preconditions []Precondition) error {
+		precondition *Precondition) error {
 	panic("Unsupported")
 }
 
@@ -63,7 +63,7 @@ func (d *fakeDomain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) erro
 func (d *fakeDomain) DeleteAttributes(
 		item ItemName,
 		deletes []DeleteUpdate,
-		preconditions []Precondition) error {
+		precondition *Precondition) error {
 	panic("Unsupported")
 }
 
