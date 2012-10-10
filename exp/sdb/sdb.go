@@ -21,7 +21,14 @@ import (
 	"github.com/jacobsa/aws/exp/sdb/conn"
 	"github.com/jacobsa/aws/time"
 	"net/url"
+	"regexp"
 )
+
+// A regexp for valid domain names.
+//
+// Reference:
+//     http://goo.gl/Kkbnf
+var domainNameRe = regexp.MustCompile(`[-a-zA-Z0-9_.]{3,255}`)
 
 // The name of an item within a SimpleDB domain. Item names must be UTF-8
 // strings no longer than 1024 bytes. They must contain only characters that

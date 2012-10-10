@@ -137,7 +137,7 @@ func (t *OpenDomainTest) NameContainsUnusableCharacter() {
 }
 
 func (t *OpenDomainTest) CallsConn() {
-	t.name = "taco"
+	t.name = "f00_bar.baz-qux"
 
 	// Call
 	t.callDB()
@@ -150,7 +150,7 @@ func (t *OpenDomainTest) CallsConn() {
 		),
 	)
 
-	ExpectEq("taco", t.c.req["DomainName"])
+	ExpectEq("f00_bar.baz-qux", t.c.req["DomainName"])
 }
 
 func (t *OpenDomainTest) ConnReturnsError() {
