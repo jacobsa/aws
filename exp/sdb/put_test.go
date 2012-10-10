@@ -48,9 +48,9 @@ func getSortedKeys(r conn.Request) []string {
 type PutTest struct {
 	domainTest
 
-	item          ItemName
-	updates       []PutUpdate
-	preconditions []Precondition
+	item         ItemName
+	updates      []PutUpdate
+	precondition *Precondition
 
 	err error
 }
@@ -67,7 +67,7 @@ func (t *PutTest) SetUp(i *TestInfo) {
 }
 
 func (t *PutTest) callDomain() {
-	t.err = t.domain.PutAttributes(t.item, t.updates, t.preconditions)
+	t.err = t.domain.PutAttributes(t.item, t.updates, t.precondition)
 }
 
 func (t *PutTest) EmptyItemName() {
@@ -161,11 +161,10 @@ func (t *PutTest) OneAttributeValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr(t.updates[1].Value)))
 }
 
-func (t *PutTest) OnePreconditionNameEmpty() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "", Exists: new(bool)},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *PutTest) PreconditionNameEmpty() {
+	t.precondition = &Precondition{
+		Name: "",
+		Exists: new(bool),
 	}
 
 	// Call
@@ -176,11 +175,10 @@ func (t *PutTest) OnePreconditionNameEmpty() {
 	ExpectThat(t.err, Error(HasSubstr("name")))
 }
 
-func (t *PutTest) OnePreconditionNameInvalid() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "taco\x80\x81\x82", Exists: new(bool)},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *PutTest) PreconditionNameInvalid() {
+	t.precondition = &Precondition{
+		Name: "taco\x80\x81\x82",
+		Exists: new(bool),
 	}
 
 	// Call
@@ -189,19 +187,14 @@ func (t *PutTest) OnePreconditionNameInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
 	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("name")))
-	ExpectThat(t.err, Error(HasSubstr(t.preconditions[1].Name)))
+	ExpectThat(t.err, Error(HasSubstr(t.precondition.Name)))
 }
 
-func (t *PutTest) OnePreconditionValueInvalid() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Value: new(string)},
-		Precondition{Name: "bar", Value: new(string)},
-		Precondition{Name: "baz", Value: new(string)},
+func (t *PutTest) PreconditionValueInvalid() {
+	t.precondition = &Precondition{
+		Name: "bar",
+		Value: newString("taco\x80\x81\x82"),
 	}
-
-	*t.preconditions[0].Value = ""
-	*t.preconditions[1].Value = "taco\x80\x81\x82"
-	*t.preconditions[2].Value = "qux"
 
 	// Call
 	t.callDomain()
@@ -211,11 +204,9 @@ func (t *PutTest) OnePreconditionValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("value")))
 }
 
-func (t *PutTest) OnePreconditionMissingOperand() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "bar"},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *PutTest) PreconditionMissingOperand() {
+	t.precondition = &Precondition{
+		Name: "bar",
 	}
 
 	// Call
@@ -226,11 +217,11 @@ func (t *PutTest) OnePreconditionMissingOperand() {
 	ExpectThat(t.err, Error(HasSubstr("bar")))
 }
 
-func (t *PutTest) OnePreconditionHasTwoOperands() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "bar", Exists: new(bool), Value: new(string)},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *PutTest) PreconditionHasTwoOperands() {
+	t.precondition = &Precondition{
+		Name: "bar",
+		Value: new(string),
+		Exists: new(bool),
 	}
 
 	// Call
@@ -287,48 +278,83 @@ func (t *PutTest) BasicParameters() {
 	ExpectEq("true", t.c.req["Attribute.2.Replace"])
 }
 
-func (t *PutTest) NoPreconditions() {
+func (t *PutTest) NoPrecondition() {
 	// Call
 	t.callDomain()
-	AssertNe(nil, t.c.req)
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
 
 	ExpectThat(getSortedKeys(t.c.req), Not(Contains(HasSubstr("Expected"))))
 }
 
-func (t *PutTest) SomePreconditions() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "bar", Value: new(string)},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *PutTest) PositiveExistencePrecondition() {
+	t.precondition = &Precondition{
+		Name: "foo",
+		Exists: new(bool),
 	}
 
-	*t.preconditions[0].Exists = false
-	*t.preconditions[1].Value = "taco"
-	*t.preconditions[2].Exists = true
+	*t.precondition.Exists = true
 
 	// Call
 	t.callDomain()
-	AssertNe(nil, t.c.req)
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
 
 	AssertThat(
 		getSortedKeys(t.c.req),
 		AllOf(
 			Contains("Expected.1.Name"),
-			Contains("Expected.2.Name"),
-			Contains("Expected.3.Name"),
 			Contains("Expected.1.Exists"),
-			Contains("Expected.2.Value"),
-			Contains("Expected.3.Exists"),
+			Not(Contains("Expected.1.Value")),
 		),
 	)
 
 	ExpectEq("foo", t.c.req["Expected.1.Name"])
-	ExpectEq("bar", t.c.req["Expected.2.Name"])
-	ExpectEq("baz", t.c.req["Expected.3.Name"])
+	ExpectEq("true", t.c.req["Expected.1.Exists"])
+}
 
+func (t *PutTest) NegativeExistencePrecondition() {
+	t.precondition = &Precondition{
+		Name: "foo",
+		Exists: new(bool),
+	}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		AllOf(
+			Contains("Expected.1.Name"),
+			Contains("Expected.1.Exists"),
+			Not(Contains("Expected.1.Value")),
+		),
+	)
+
+	ExpectEq("foo", t.c.req["Expected.1.Name"])
 	ExpectEq("false", t.c.req["Expected.1.Exists"])
-	ExpectEq("taco", t.c.req["Expected.2.Value"])
-	ExpectEq("true", t.c.req["Expected.3.Exists"])
+}
+
+func (t *PutTest) ValuePrecondition() {
+	t.precondition = &Precondition{
+		Name: "foo",
+		Value: newString("taco"),
+	}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		AllOf(
+			Contains("Expected.1.Name"),
+			Contains("Expected.1.Value"),
+			Not(Contains("Expected.1.Exists")),
+		),
+	)
+
+	ExpectEq("foo", t.c.req["Expected.1.Name"])
+	ExpectEq("taco", t.c.req["Expected.1.Value"])
 }
 
 func (t *PutTest) ConnReturnsError() {
