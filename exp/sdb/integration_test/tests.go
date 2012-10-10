@@ -1015,7 +1015,31 @@ func (t *ItemsTest) SelectWithLimit() {
 }
 
 func (t *ItemsTest) SelectEmptyResultSet() {
-	ExpectEq("TODO", "")
+	var err error
+	item0 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		sdb.BatchPutMap{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "017"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select itemName() from `%s` where foo > '099'",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	ExpectThat(results, ElementsAre())
 }
 
 func (t *ItemsTest) ItemNamesAreCaseSensitive() {
