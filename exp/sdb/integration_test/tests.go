@@ -294,15 +294,23 @@ func (t *ItemsTest) PutThenGet() {
 	)
 }
 
-func (t *ItemsTest) PutThenReplace() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) PutThenAdd() {
+func (t *ItemsTest) PutThenAddAndReplace() {
 	ExpectEq("TODO", "")
 }
 
 func (t *ItemsTest) PutThenAddThenReplace() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) ItemNamesAreCaseSensitive() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) AttributeNamesAreCaseSensitive() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) AttributeValuesAreCaseSensitive() {
 	ExpectEq("TODO", "")
 }
 
