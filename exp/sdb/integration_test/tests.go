@@ -31,19 +31,44 @@ import (
 
 type integrationTest struct {
 	db sdb.SimpleDB
+
+	mutex sync.Mutex
+	deleteRequest map[sdb.ItemName][]sdb.DeleteUpdate  // Protected by mutex
 }
 
 func (t *integrationTest) SetUp(i *TestInfo) {
 	var err error
+
+	// Set up the record of what item names to delete.
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+	t.deleteRequest = map[sdb.ItemName][]sdb.DeleteUpdate{}
 
 	// Open a connection.
 	t.db, err = sdb.NewSimpleDB(g_region, g_accessKey)
 	AssertEq(nil, err)
 }
 
-// Generate an item name likely to be unique.
+func (t *integrationTest) TearDown() {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
+	// Delete items, if appropriate.
+	if len(t.deleteRequest) > 0 {
+		AssertEq(nil, g_itemsTestDomain.BatchDeleteAttributes(t.deleteRequest))
+	}
+}
+
+// Generate an item name likely to be unique, and make sure it is later
+// deleted.
 func (t *integrationTest) makeItemName() sdb.ItemName {
-	return sdb.ItemName(fmt.Sprintf("item.%16x", uint64(rand.Int63())))
+	name := sdb.ItemName(fmt.Sprintf("item.%16x", uint64(rand.Int63())))
+
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+	t.deleteRequest[name] = nil
+
+	return name
 }
 
 func getKeys(m map[sdb.ItemName][]sdb.Attribute) (keys []sdb.ItemName) {
