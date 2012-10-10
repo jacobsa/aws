@@ -535,7 +535,47 @@ func (t *ItemsTest) GetNonExistentAttributeName() {
 }
 
 func (t *ItemsTest) DeleteParticularAttributes() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito", Add: true},
+			sdb.PutUpdate{Name: "bar", Value: "enchilada", Add: true},
+			sdb.PutUpdate{Name: "baz", Value: "queso", Add: true},
+			sdb.PutUpdate{Name: "baz", Value: "carnitas", Add: true},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Delete
+	err = g_itemsTestDomain.DeleteAttributes(
+		item,
+		[]sdb.DeleteUpdate{
+			sdb.DeleteUpdate{Name: "foo"},
+			sdb.DeleteUpdate{Name: "bar", Value: makeStrPtr("enchilada")},
+			sdb.DeleteUpdate{Name: "baz"},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
+		),
+	)
 }
 
 func (t *ItemsTest) DeleteAllAttributes() {
