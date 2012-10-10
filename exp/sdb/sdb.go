@@ -28,7 +28,7 @@ import (
 //
 // Reference:
 //     http://goo.gl/Kkbnf
-var domainNameRe = regexp.MustCompile(`[-a-zA-Z0-9_.]{3,255}`)
+var domainNameRe = regexp.MustCompile(`^[-a-zA-Z0-9_.]{3,255}$`)
 
 // The name of an item within a SimpleDB domain. Item names must be UTF-8
 // strings no longer than 1024 bytes. They must contain only characters that
@@ -125,6 +125,12 @@ type simpleDB struct {
 }
 
 func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
+	// Make sure the requested name is legal.
+	if !domainNameRe.MatchString(name) {
+		err = fmt.Errorf("Illegal domain name: %s", name)
+		return
+	}
+
 	return newDomain(name, db.c)
 }
 
