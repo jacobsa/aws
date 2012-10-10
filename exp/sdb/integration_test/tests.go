@@ -249,10 +249,6 @@ func (t *ItemsTest) TearDownTestSuite() {
 	g_itemsTestDomain = nil
 }
 
-func (t *ItemsTest) WrongAccessKeySecret() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ItemsTest) InvalidUtf8ItemName() {
 	ExpectEq("TODO", "")
 }
