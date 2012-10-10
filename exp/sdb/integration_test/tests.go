@@ -607,7 +607,53 @@ func (t *ItemsTest) DeleteAllAttributes() {
 }
 
 func (t *ItemsTest) BatchDelete() {
-	ExpectEq("TODO", "")
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		map[sdb.ItemName][]sdb.PutUpdate{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "taco"},
+				sdb.PutUpdate{Name: "bar", Value: "burrito", Add: true},
+				sdb.PutUpdate{Name: "bar", Value: "carnitas", Add: true},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+			},
+		},
+	)
+
+	// Batch delete
+	err = g_itemsTestDomain.BatchDeleteAttributes(
+		map[sdb.ItemName][]sdb.DeleteUpdate{
+			item0: []sdb.DeleteUpdate{
+				sdb.DeleteUpdate{Name: "foo"},
+				sdb.DeleteUpdate{Name: "bar", Value: makeStrPtr("carnitas")},
+			},
+			item1: nil,
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Get for item 0
+	attrs, err := g_itemsTestDomain.GetAttributes(item0, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
+		),
+	)
+
+	// Get for item 1
+	attrs, err = g_itemsTestDomain.GetAttributes(item1, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(attrs, ElementsAre())
 }
 
 func (t *ItemsTest) InvalidSelectQuery() {
