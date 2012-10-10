@@ -119,10 +119,13 @@ func (t *GetTest) InconsistentReadWithNoAttributeNames() {
 			"Action",
 			"DomainName",
 			"ItemName",
+			"Version",
 		),
 	)
 
 	ExpectEq("GetAttributes", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
+
 	ExpectEq(t.name, t.c.req["DomainName"])
 	ExpectEq("taco", t.c.req["ItemName"])
 }

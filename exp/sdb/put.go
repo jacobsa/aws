@@ -104,6 +104,7 @@ func (d *domain) PutAttributes(
 	// Assemble an appropriate request.
 	req := conn.Request{
 		"Action": "PutAttributes",
+		"Version": apiVersion,
 		"DomainName": d.name,
 		"ItemName": string(item),
 	}
@@ -164,6 +165,7 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 	// Build a request.
 	req := conn.Request{
 		"Action": "BatchPutAttributes",
+		"Version": apiVersion,
 		"DomainName": d.name,
 	}
 

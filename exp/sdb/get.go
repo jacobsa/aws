@@ -74,6 +74,7 @@ func (d *domain) GetAttributes(
 	//     http://goo.gl/MmaJA
 	req := conn.Request{
 		"Action": "GetAttributes",
+		"Version": apiVersion,
 		"DomainName": d.name,
 		"ItemName": string(item),
 	}

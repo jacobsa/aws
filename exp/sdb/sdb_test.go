@@ -148,10 +148,13 @@ func (t *OpenDomainTest) CallsConn() {
 		ElementsAre(
 			"Action",
 			"DomainName",
+			"Version",
 		),
 	)
 
 	ExpectEq("CreateDomain", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
+
 	ExpectEq("f00_bar.baz-qux", t.c.req["DomainName"])
 }
 
@@ -217,10 +220,13 @@ func (t *DeleteDomainTest) CallsConn() {
 		ElementsAre(
 			"Action",
 			"DomainName",
+			"Version",
 		),
 	)
 
 	ExpectEq("DeleteDomain", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
+
 	ExpectEq(t.domain.Name(), t.c.req["DomainName"])
 }
 

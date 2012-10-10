@@ -64,6 +64,7 @@ func (db *simpleDB) Select(
 	//     http://goo.gl/GTsSZ
 	req := conn.Request{
 		"Action": "Select",
+		"Version": apiVersion,
 		"SelectExpression": query,
 	}
 

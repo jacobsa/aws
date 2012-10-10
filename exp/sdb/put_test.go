@@ -266,10 +266,13 @@ func (t *PutTest) BasicParameters() {
 			"Attribute.3.Value",
 			"DomainName",
 			"ItemName",
+			"Version",
 		),
 	)
 
 	ExpectEq("PutAttributes", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
+
 	ExpectEq(t.name, t.c.req["DomainName"])
 	ExpectEq("some_item", t.c.req["ItemName"])
 
@@ -565,10 +568,13 @@ func (t *BatchPutTest) CallsConn() {
 			"Item.2.Attribute.1.Name",
 			"Item.2.Attribute.1.Value",
 			"Item.2.ItemName",
+			"Version",
 		),
 	)
 
 	ExpectEq("BatchPutAttributes", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
+
 	ExpectEq(t.name, t.c.req["DomainName"])
 
 	ExpectEq("bar", t.c.req["Item.1.ItemName"])

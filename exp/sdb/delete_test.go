@@ -232,10 +232,12 @@ func (t *DeleteTest) BasicParameters() {
 			"Attribute.3.Value",
 			"DomainName",
 			"ItemName",
+			"Version",
 		),
 	)
 
 	ExpectEq("DeleteAttributes", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
 	ExpectEq(t.name, t.c.req["DomainName"])
 	ExpectEq("some_item", t.c.req["ItemName"])
 
@@ -261,10 +263,12 @@ func (t *DeleteTest) NoUpdates() {
 			"Action",
 			"DomainName",
 			"ItemName",
+			"Version",
 		),
 	)
 
 	ExpectEq("DeleteAttributes", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
 	ExpectEq(t.name, t.c.req["DomainName"])
 	ExpectEq("some_item", t.c.req["ItemName"])
 }
@@ -536,10 +540,12 @@ func (t *BatchDeleteTest) CallsConn() {
 			"Item.3.Attribute.1.Name",
 			"Item.3.Attribute.1.Value",
 			"Item.3.ItemName",
+			"Version",
 		),
 	)
 
 	ExpectEq("BatchDeleteAttributes", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
 	ExpectEq(t.name, t.c.req["DomainName"])
 
 	ExpectEq("bar", t.c.req["Item.1.ItemName"])

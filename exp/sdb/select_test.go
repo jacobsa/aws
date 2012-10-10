@@ -67,10 +67,13 @@ func (t *SelectTest) NoExtraOptions() {
 		ElementsAre(
 			"Action",
 			"SelectExpression",
+			"Version",
 		),
 	)
 
 	ExpectEq("Select", t.c.req["Action"])
+	ExpectEq("2009-04-15", t.c.req["Version"])
+
 	ExpectEq("taco", t.c.req["SelectExpression"])
 }
 

@@ -30,6 +30,9 @@ import (
 //     http://goo.gl/Kkbnf
 var domainNameRe = regexp.MustCompile(`^[-a-zA-Z0-9_.]{3,255}$`)
 
+// The API version for which this package was written.
+const apiVersion = "2009-04-15"
+
 // The name of an item within a SimpleDB domain. Item names must be UTF-8
 // strings no longer than 1024 bytes. They must contain only characters that
 // are valid in XML 1.0 documents, as defined by Section 2.2 of the XML 1.0
@@ -135,6 +138,7 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 	req := conn.Request{
 		"Action": "CreateDomain",
 		"DomainName": name,
+		"Version": apiVersion,
 	}
 
 	// Call the connection.
@@ -152,6 +156,7 @@ func (db *simpleDB) DeleteDomain(d Domain) (err error) {
 	req := conn.Request{
 		"Action": "DeleteDomain",
 		"DomainName": d.Name(),
+		"Version": apiVersion,
 	}
 
 	// Call the connection.
