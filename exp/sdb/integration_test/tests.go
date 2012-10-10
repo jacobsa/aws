@@ -46,6 +46,14 @@ func (t *integrationTest) makeItemName() sdb.ItemName {
 	return sdb.ItemName(fmt.Sprintf("item.%16x", uint64(rand.Int63())))
 }
 
+func getKeys(m map[sdb.ItemName][]sdb.Attribute) (keys []sdb.ItemName) {
+	for key, _ := range m {
+		keys = append(keys, key)
+	}
+
+	return
+}
+
 type nameSortedAttrList []sdb.Attribute
 
 func (l nameSortedAttrList) Len() int           { return len(l) }
@@ -672,7 +680,58 @@ func (t *ItemsTest) InvalidSelectQuery() {
 }
 
 func (t *ItemsTest) SelectAll() {
-	ExpectEq("TODO", "")
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		map[sdb.ItemName][]sdb.PutUpdate{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "taco"},
+				sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select * from `%s`",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	ExpectEq(2, len(results), "Results: %v", results)
+	AssertThat(
+		getKeys(results),
+		AllOf(
+			Contains(item0),
+			Contains(item1),
+		),
+	)
+
+	ExpectThat(
+		sortByName(results[item0]),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
+
+	ExpectThat(
+		sortByName(results[item1]),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
+		),
+	)
 }
 
 func (t *ItemsTest) SelectItemName() {
