@@ -111,4 +111,18 @@ func NewSimpleDB(region Region, key aws.AccessKey) (db SimpleDB, err error) {
 }
 
 // Create a SimpleDB with the supplied underlying connection.
-func newSimpleDB(c conn.Conn) (SimpleDB, error)
+func newSimpleDB(c conn.Conn) (SimpleDB, error) {
+	return &simpleDB{c}, nil
+}
+
+type simpleDB struct {
+	c conn.Conn
+}
+
+func (db *simpleDB) OpenDomain(name string) (Domain, error)
+func (db *simpleDB) CreateDomain(name string) error
+func (db *simpleDB) DeleteDomain(name string) error
+func (db *simpleDB) Select(
+		query string,
+		constistentRead bool,
+		nextToken []byte) (res map[ItemName][]Attribute, tok []byte, err error)
