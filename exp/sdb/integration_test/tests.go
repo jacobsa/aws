@@ -1018,10 +1018,6 @@ func (t *ItemsTest) SelectEmptyResultSet() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ItemsTest) SelectLargeResultSet() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ItemsTest) ItemNamesAreCaseSensitive() {
 	ExpectEq("TODO", "")
 }
