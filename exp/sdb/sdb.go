@@ -16,7 +16,11 @@
 package sdb
 
 import (
+	"fmt"
 	"github.com/jacobsa/aws"
+	"github.com/jacobsa/aws/exp/sdb/conn"
+	"github.com/jacobsa/aws/time"
+	"net/url"
 )
 
 // The name of an item within a SimpleDB domain. Item names must be UTF-8
@@ -76,4 +80,35 @@ type SimpleDB interface {
 
 // Return a SimpleDB connection tied to the given region, using the sipplied
 // access key to authenticate requests.
-func NewSimpleDB(region Region, key aws.AccessKey) (db SimpleDB, err error)
+func NewSimpleDB(region Region, key aws.AccessKey) (db SimpleDB, err error) {
+	// Open an appropriate HTTP connection.
+	endpoint := &url.URL{
+		Scheme: "https",
+		Host: string(region),
+	}
+
+	httpConn, err := conn.NewHttpConn(endpoint)
+	if err != nil {
+		err = fmt.Errorf("Opening HTTP connection: %v", err)
+		return
+	}
+
+	// Create a request signer.
+	signer, err := conn.NewSigner(key, endpoint.Host)
+	if err != nil {
+		err = fmt.Errorf("Creating signer: %v", err)
+		return
+	}
+
+	// Create a connection to the server.
+	c, err := conn.NewConn(key, httpConn, signer, time.RealClock())
+	if err != nil {
+		err = fmt.Errorf("Creating connection: %v", err)
+		return
+	}
+
+	return newSimpleDB(c)
+}
+
+// Create a SimpleDB with the supplied underlying connection.
+func newSimpleDB(c conn.Conn) (SimpleDB, error)

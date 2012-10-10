@@ -16,11 +16,7 @@
 package sdb
 
 import (
-	"fmt"
-	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/exp/sdb/conn"
-	"github.com/jacobsa/aws/time"
-	"net/url"
 )
 
 // A precondition for a conditional Put or Delete operation. Preconditions may
@@ -111,45 +107,6 @@ type Domain interface {
 		attrNames []string) (attrs []Attribute, err error)
 }
 
-// Return a Domain tied to a given name in a given region. You must have
-// previously created the domain in the region, and the supplied access key
-// must have access to it.
-//
-// To easily create a domain, use the Scratchpad app:
-//
-//     http://goo.gl/C9BMz
-//
-func OpenDomain(name string, region Region, key aws.AccessKey) (d Domain, err error) {
-	// Open an appropriate HTTP connection.
-	endpoint := &url.URL{
-		Scheme: "https",
-		Host: string(region),
-	}
-
-	httpConn, err := conn.NewHttpConn(endpoint)
-	if err != nil {
-		err = fmt.Errorf("Opening HTTP connection: %v", err)
-		return
-	}
-
-	// Create a request signer.
-	signer, err := conn.NewSigner(key, endpoint.Host)
-	if err != nil {
-		err = fmt.Errorf("Creating signer: %v", err)
-		return
-	}
-
-	// Create a connection to the server.
-	c, err := conn.NewConn(key, httpConn, signer, time.RealClock())
-	if err != nil {
-		err = fmt.Errorf("Creating connection: %v", err)
-		return
-	}
-
-	return newDomain(name, c)
-}
-
-// As above, but allows injecting a Conn directly.
 func newDomain(name string, c conn.Conn) (Domain, error) {
 	return &domain{name, c}, nil
 }
