@@ -40,7 +40,6 @@ import (
 ////////////////////////////////////////////////////////////////////////
 
 var g_keyId = flag.String("key_id", "", "Access key ID.")
-var g_domainName = flag.String("domain", "", "Domain name.")
 var g_region = flag.String("region", "", "Region endpoint server.")
 var g_accessKey aws.AccessKey
 
@@ -55,11 +54,6 @@ func main() {
 		fmt.Println("You must set the -key_id flag.")
 		fmt.Println("Find a key ID here:")
 		fmt.Println("    https://portal.aws.amazon.com/gp/aws/securityCredentials")
-		os.Exit(1)
-	}
-
-	if *g_domainName == "" {
-		fmt.Println("You must set the -domain flag.")
 		os.Exit(1)
 	}
 

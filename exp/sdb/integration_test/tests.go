@@ -25,166 +25,177 @@ import (
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
-type DomainTest struct {
-	domain sdb.Domain
+type integrationTest struct {
+	db sdb.SimpleDB
 
-	mutex        sync.Mutex
-	itemsToDelete []sdb.ItemName
+	mutex           sync.Mutex
+	itemsToDelete   map[sdb.Domain]sdb.ItemName  // Protected by mutex
+	domainsToDelete []string                     // Protected by mutex
 }
 
-func init() { RegisterTestSuite(&DomainTest{}) }
-
-// Ensure that the given item is deleted before the test finishes.
-func (t *DomainTest) ensureDeleted(item sdb.ItemName) {
-	t.mutex.Lock()
-	defer t.mutex.Unlock()
-
-	t.itemsToDelete = append(t.itemsToDelete, item)
-}
-
-func (t *DomainTest) SetUp(i *TestInfo) {
+func (t *integrationTest) SetUp(i *TestInfo) {
 	var err error
 
-	// Open a domain.
-	t.domain, err = sdb.OpenDomain(*g_domainName, sdb.Region(*g_region), g_accessKey)
+	// Open a connection.
+	t.db, err = sdb.NewSimpleDB(sdb.Region(*g_region), g_accessKey)
 	AssertEq(nil, err)
 }
 
-func (t *DomainTest) TearDown() {
+func (t *integrationTest) TearDown() {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
-	AssertEq("", "TODO: Delete items from itemsToDelete")
+	AssertEq("", "TODO: Delete domains and items as specified")
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Tests
+// Domains
 ////////////////////////////////////////////////////////////////////////
 
-func (t *DomainTest) WrongAccessKeySecret() {
+type DomainsTest struct {
+	integrationTest
+}
+
+func init() { RegisterTestSuite(&DomainsTest{}) }
+
+func (t *DomainsTest) DoesFoo() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) InvalidUtf8ItemName() {
+////////////////////////////////////////////////////////////////////////
+// Items
+////////////////////////////////////////////////////////////////////////
+
+type ItemsTest struct {
+	integrationTest
+}
+
+func init() { RegisterTestSuite(&ItemsTest{}) }
+
+func (t *ItemsTest) WrongAccessKeySecret() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) InvalidUtf8AttributeName() {
+func (t *ItemsTest) InvalidUtf8ItemName() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) InvalidUtf8AttributeValue() {
+func (t *ItemsTest) InvalidUtf8AttributeName() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) LongItemName() {
+func (t *ItemsTest) InvalidUtf8AttributeValue() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) LongAttributeName() {
+func (t *ItemsTest) LongItemName() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) LongAttributeValue() {
+func (t *ItemsTest) LongAttributeName() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) PutThenGet() {
+func (t *ItemsTest) LongAttributeValue() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) BatchPutThenGet() {
+func (t *ItemsTest) PutThenGet() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) BatchPutThenBatchGet() {
+func (t *ItemsTest) BatchPutThenGet() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) GetForNonExistentItem() {
+func (t *ItemsTest) BatchPutThenBatchGet() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) GetParticularAttributes() {
+func (t *ItemsTest) GetForNonExistentItem() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) BatchGetParticularAttributes() {
+func (t *ItemsTest) GetParticularAttributes() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) BatchGetForNonExistentItems() {
+func (t *ItemsTest) BatchGetParticularAttributes() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) GetNonExistentAttributeName() {
+func (t *ItemsTest) BatchGetForNonExistentItems() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) BatchGetNonExistentAttributeName() {
+func (t *ItemsTest) GetNonExistentAttributeName() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) FailedValuePrecondition() {
+func (t *ItemsTest) BatchGetNonExistentAttributeName() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) FailedExistencePrecondition() {
+func (t *ItemsTest) FailedValuePrecondition() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) FailedNonExistencePrecondition() {
+func (t *ItemsTest) FailedExistencePrecondition() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SuccessfulPreconditions() {
+func (t *ItemsTest) FailedNonExistencePrecondition() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) DeleteParticularAttributes() {
+func (t *ItemsTest) SuccessfulPreconditions() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) DeleteAllAttributes() {
+func (t *ItemsTest) DeleteParticularAttributes() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) BatchDelete() {
+func (t *ItemsTest) DeleteAllAttributes() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) InvalidSelectQuery() {
+func (t *ItemsTest) BatchDelete() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SelectAll() {
+func (t *ItemsTest) InvalidSelectQuery() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SelectItemName() {
+func (t *ItemsTest) SelectAll() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SelectCount() {
+func (t *ItemsTest) SelectItemName() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SelectWithPredicates() {
+func (t *ItemsTest) SelectCount() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SelectWithSortOrder() {
+func (t *ItemsTest) SelectWithPredicates() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SelectWithLimit() {
+func (t *ItemsTest) SelectWithSortOrder() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SelectEmptyResultSet() {
+func (t *ItemsTest) SelectWithLimit() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainTest) SelectLargeResultSet() {
+func (t *ItemsTest) SelectEmptyResultSet() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectLargeResultSet() {
 	ExpectEq("TODO", "")
 }
