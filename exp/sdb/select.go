@@ -54,7 +54,7 @@ func parseSelectResponse(resp []byte) (
 	return
 }
 
-func (d *domain) Select(
+func (db *simpleDB) Select(
 	query string,
 	constistentRead bool,
 	nextToken []byte) (attrMap map[ItemName][]Attribute, tok []byte, err error) {
@@ -75,7 +75,7 @@ func (d *domain) Select(
 	}
 
 	// Call the connection.
-	resp, err := d.c.SendRequest(req)
+	resp, err := db.c.SendRequest(req)
 	if err != nil {
 		err = fmt.Errorf("SendRequest: %v", err)
 		return

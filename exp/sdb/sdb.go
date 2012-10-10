@@ -122,7 +122,3 @@ type simpleDB struct {
 func (db *simpleDB) OpenDomain(name string) (Domain, error)
 func (db *simpleDB) CreateDomain(name string) error
 func (db *simpleDB) DeleteDomain(name string) error
-func (db *simpleDB) Select(
-		query string,
-		constistentRead bool,
-		nextToken []byte) (res map[ItemName][]Attribute, tok []byte, err error)
