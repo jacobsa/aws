@@ -848,8 +848,64 @@ func (t *ItemsTest) SelectCount() {
 	)
 }
 
-func (t *ItemsTest) SelectWithPredicates() {
-	ExpectEq("TODO", "")
+func (t *ItemsTest) SelectWithPredicatesAndParticularAttributes() {
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+	item2 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		map[sdb.ItemName][]sdb.PutUpdate{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "017"},
+				sdb.PutUpdate{Name: "bar", Value: "taco"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "013"},
+				sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			},
+			item2: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "031"},
+				sdb.PutUpdate{Name: "bar", Value: "enchilada"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select bar from `%s` where 'foo' > '013'",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	ExpectEq(2, len(results), "Results: %v", results)
+	AssertThat(
+		getKeys(results),
+		AllOf(
+			Contains(item0),
+			Contains(item2),
+		),
+	)
+
+	ExpectThat(
+		sortByName(results[item0]),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "taco"}),
+		),
+	)
+
+	ExpectThat(
+		sortByName(results[item2]),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "enchilada"}),
+		),
+	)
 }
 
 func (t *ItemsTest) SelectWithSortOrder() {
