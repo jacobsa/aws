@@ -79,7 +79,9 @@ func (t *DomainsTest) InvalidAccessKey() {
 	// Attempt to create a domain.
 	_, err = db.OpenDomain("some_domain")
 
-	ExpectThat(err, Error(HasSubstr("TODO")))
+	ExpectThat(err, Error(HasSubstr("403")))
+	ExpectThat(err, Error(HasSubstr("Key Id")))
+	ExpectThat(err, Error(HasSubstr("exist")))
 }
 
 func (t *DomainsTest) DomainsHaveIndependentItems() {
