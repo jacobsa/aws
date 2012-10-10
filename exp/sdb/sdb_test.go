@@ -205,6 +205,38 @@ func (t *DeleteDomainTest) callDB() {
 	t.err = t.db.DeleteDomain(t.domain)
 }
 
-func (t *DeleteDomainTest) DoesFoo() {
-	ExpectFalse(true, "TODO")
+func (t *DeleteDomainTest) CallsConn() {
+	// Call
+	t.callDB()
+	AssertNe(nil, t.c.req)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		ElementsAre(
+			"DomainName",
+		),
+	)
+
+	ExpectEq(t.domain.Name(), t.c.req["DomainName"])
+}
+
+func (t *DeleteDomainTest) ConnReturnsError() {
+	// Conn
+	t.c.err = errors.New("taco")
+
+	// Call
+	t.callDB()
+
+	ExpectThat(t.err, Error(HasSubstr("SendRequest")))
+	ExpectThat(t.err, Error(HasSubstr("taco")))
+}
+
+func (t *DeleteDomainTest) ConnSaysOkay() {
+	// Conn
+	t.c.resp = []byte{}
+
+	// Call
+	t.callDB()
+
+	ExpectEq(nil, t.err)
 }
