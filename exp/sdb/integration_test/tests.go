@@ -536,6 +536,10 @@ func (t *ItemsTest) GetNonExistentAttributeName() {
 	)
 }
 
+func (t *ItemsTest) PreconditionWithMultiValuedAttribute() {
+	ExpectEq("TODO", "")
+}
+
 func (t *ItemsTest) FailedValuePrecondition() {
 	var err error
 	item := t.makeItemName()
@@ -582,11 +586,11 @@ func (t *ItemsTest) FailedValuePrecondition() {
 	)
 }
 
-func (t *ItemsTest) FailedExistencePrecondition() {
+func (t *ItemsTest) FailedPositiveExistencePrecondition() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ItemsTest) FailedNonExistencePrecondition() {
+func (t *ItemsTest) FailedNegativeExistencePrecondition() {
 	ExpectEq("TODO", "")
 }
 
