@@ -59,9 +59,8 @@ func sortByName(attrs []sdb.Attribute) []sdb.Attribute {
 	return res
 }
 
-func makeStrPtr(s string) *string {
-	return &s
-}
+func makeStrPtr(s string) *string { return &s }
+func makeBoolPtr(b bool) *bool { return &b }
 
 ////////////////////////////////////////////////////////////////////////
 // Domains
@@ -574,7 +573,21 @@ func (t *ItemsTest) FailedValuePrecondition() {
 	ExpectThat(err, Error(HasSubstr("expected")))
 	ExpectThat(err, Error(HasSubstr("asdf")))
 
-	// Get -- the second write shouldn't have taken effect.
+	// Delete
+	err = g_itemsTestDomain.DeleteAttributes(
+		item,
+		[]sdb.DeleteUpdate{},
+		&sdb.Precondition{Name: "bar", Value: makeStrPtr("asdf")},
+	)
+
+	ExpectThat(err, Error(HasSubstr("409")))
+	ExpectThat(err, Error(HasSubstr("ConditionalCheckFailed")))
+	ExpectThat(err, Error(HasSubstr("bar")))
+	ExpectThat(err, Error(HasSubstr("burrito")))
+	ExpectThat(err, Error(HasSubstr("expected")))
+	ExpectThat(err, Error(HasSubstr("asdf")))
+
+	// Get -- neither the second put nor the delete should have taken effect.
 	attrs, err := g_itemsTestDomain.GetAttributes(
 		item,
 		true,
@@ -591,48 +604,7 @@ func (t *ItemsTest) FailedValuePrecondition() {
 }
 
 func (t *ItemsTest) FailedPositiveExistencePrecondition() {
-	var err error
-	item := t.makeItemName()
-
-	// Put (first call)
-	err = g_itemsTestDomain.PutAttributes(
-		item,
-		[]sdb.PutUpdate{
-			sdb.PutUpdate{Name: "foo", Value: "taco"},
-		},
-		nil,
-	)
-
-	AssertEq(nil, err)
-
-	// Put (second call)
-	err = g_itemsTestDomain.PutAttributes(
-		item,
-		[]sdb.PutUpdate{
-			sdb.PutUpdate{Name: "foo", Value: "blahblah"},
-			sdb.PutUpdate{Name: "qux", Value: "queso"},
-		},
-		&sdb.Precondition{Name: "bar", Exists: makeBoolPtr(true)},
-	)
-
-	ExpectThat(err, Error(HasSubstr("409")))
-	ExpectThat(err, Error(HasSubstr("ConditionalCheckFailed")))
-	ExpectThat(err, Error(HasSubstr("TODO")))
-
-	// Get -- the second write shouldn't have taken effect.
-	attrs, err := g_itemsTestDomain.GetAttributes(
-		item,
-		true,
-		[]string{"foo", "qux"},
-	)
-
-	AssertEq(nil, err)
-	ExpectThat(
-		sortByName(attrs),
-		ElementsAre(
-			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
-		),
-	)
+	ExpectEq("TODO", "")
 }
 
 func (t *ItemsTest) FailedNegativeExistencePrecondition() {
