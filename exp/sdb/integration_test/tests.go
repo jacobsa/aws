@@ -71,14 +71,6 @@ func (t *integrationTest) makeItemName() sdb.ItemName {
 	return name
 }
 
-func getKeys(m map[sdb.ItemName][]sdb.Attribute) (keys []sdb.ItemName) {
-	for key, _ := range m {
-		keys = append(keys, key)
-	}
-
-	return
-}
-
 type nameSortedAttrList []sdb.Attribute
 
 func (l nameSortedAttrList) Len() int           { return len(l) }
@@ -734,27 +726,34 @@ func (t *ItemsTest) SelectAll() {
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
 
-	ExpectEq(2, len(results), "Results: %v", results)
-	AssertThat(
-		getKeys(results),
-		AllOf(
-			Contains(item0),
-			Contains(item1),
+	AssertEq(2, len(results), "Results: %v", results)
+
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item0,
+					Attributes: []sdb.Attribute{
+						sdb.Attribute{Name: "bar", Value: "burrito"},
+						sdb.Attribute{Name: "foo", Value: "taco"},
+					},
+				},
+			),
 		),
 	)
 
 	ExpectThat(
-		sortByName(results[item0]),
-		ElementsAre(
-			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
-			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
-		),
-	)
-
-	ExpectThat(
-		sortByName(results[item1]),
-		ElementsAre(
-			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item1,
+					Attributes: []sdb.Attribute{
+						sdb.Attribute{Name: "baz", Value: "enchilada"},
+					},
+				},
+			),
 		),
 	)
 }
@@ -789,17 +788,29 @@ func (t *ItemsTest) SelectItemName() {
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
 
-	ExpectEq(2, len(results), "Results: %v", results)
-	AssertThat(
-		getKeys(results),
-		AllOf(
-			Contains(item0),
-			Contains(item1),
+	AssertEq(2, len(results), "Results: %v", results)
+
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item0,
+				},
+			),
 		),
 	)
 
-	ExpectThat(results[item0], ElementsAre())
-	ExpectThat(results[item1], ElementsAre())
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item1,
+				},
+			),
+		),
+	)
 }
 
 func (t *ItemsTest) SelectCount() {
@@ -832,18 +843,19 @@ func (t *ItemsTest) SelectCount() {
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
 
-	ExpectEq(1, len(results), "Results: %v", results)
-	AssertThat(
-		getKeys(results),
-		AllOf(
-			Contains("Domain"),
-		),
-	)
+	AssertEq(1, len(results), "Results: %v", results)
 
 	ExpectThat(
-		sortByName(results["Domain"]),
-		ElementsAre(
-			DeepEquals(sdb.Attribute{Name: "Count", Value: "2"}),
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: "Domain",
+					Attributes: []sdb.Attribute{
+						sdb.Attribute{Name: "Count", Value: "2"},
+					},
+				},
+			),
 		),
 	)
 }
@@ -884,26 +896,33 @@ func (t *ItemsTest) SelectWithPredicatesAndParticularAttributes() {
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
 
-	ExpectEq(2, len(results), "Results: %v", results)
-	AssertThat(
-		getKeys(results),
-		AllOf(
-			Contains(item0),
-			Contains(item2),
+	AssertEq(2, len(results), "Results: %v", results)
+
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item0,
+					Attributes: []sdb.Attribute{
+						sdb.Attribute{Name: "bar", Value: "taco"},
+					},
+				},
+			),
 		),
 	)
 
 	ExpectThat(
-		sortByName(results[item0]),
-		ElementsAre(
-			DeepEquals(sdb.Attribute{Name: "bar", Value: "taco"}),
-		),
-	)
-
-	ExpectThat(
-		sortByName(results[item2]),
-		ElementsAre(
-			DeepEquals(sdb.Attribute{Name: "bar", Value: "enchilada"}),
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item2,
+					Attributes: []sdb.Attribute{
+						sdb.Attribute{Name: "bar", Value: "enchilada"},
+					},
+				},
+			),
 		),
 	)
 }
