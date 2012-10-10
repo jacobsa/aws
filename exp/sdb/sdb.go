@@ -131,6 +131,17 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 		return
 	}
 
+	// Build a request.
+	req := conn.Request{}
+	req["DomainName"] = name
+
+	// Call the connection.
+	if _, err = db.c.SendRequest(req); err != nil {
+		err = fmt.Errorf("SendRequest: %v", err)
+		return
+	}
+
+	// Create the object.
 	return newDomain(name, db.c)
 }
 
