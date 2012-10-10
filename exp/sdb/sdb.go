@@ -120,8 +120,7 @@ type simpleDB struct {
 }
 
 func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
-	err = fmt.Errorf("TODO")
-	return
+	return newDomain(name, db.c)
 }
 
 func (db *simpleDB) CreateDomain(name string) (err error) {
