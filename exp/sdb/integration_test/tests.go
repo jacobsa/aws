@@ -876,7 +876,7 @@ func (t *ItemsTest) SelectWithPredicatesAndParticularAttributes() {
 
 	// Select
 	query := fmt.Sprintf(
-		"select bar from `%s` where 'foo' > '013'",
+		"select bar from `%s` where foo > '013'",
 		g_itemsTestDomain.Name())
 
 	results, tok, err := g_itemsTestDb.Select( query, true, nil)
