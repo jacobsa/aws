@@ -28,9 +28,6 @@ import (
 
 type integrationTest struct {
 	db sdb.SimpleDB
-
-	mutex           sync.Mutex
-	domainsToDelete []sdb.Domain  // Protected by mutex
 }
 
 func (t *integrationTest) SetUp(i *TestInfo) {
@@ -41,14 +38,27 @@ func (t *integrationTest) SetUp(i *TestInfo) {
 	AssertEq(nil, err)
 }
 
-func (t *integrationTest) ensureDeleted(d sdb.Domain) {
+////////////////////////////////////////////////////////////////////////
+// Domains
+////////////////////////////////////////////////////////////////////////
+
+type DomainsTest struct {
+	integrationTest
+
+	mutex           sync.Mutex
+	domainsToDelete []sdb.Domain  // Protected by mutex
+}
+
+func init() { RegisterTestSuite(&DomainsTest{}) }
+
+func (t *DomainsTest) ensureDeleted(d sdb.Domain) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
 	t.domainsToDelete = append(t.domainsToDelete, d)
 }
 
-func (t *integrationTest) TearDown() {
+func (t *DomainsTest) TearDown() {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
@@ -57,16 +67,6 @@ func (t *integrationTest) TearDown() {
 		ExpectEq(nil, t.db.DeleteDomain(d), "Domain: %s", d.Name())
 	}
 }
-
-////////////////////////////////////////////////////////////////////////
-// Domains
-////////////////////////////////////////////////////////////////////////
-
-type DomainsTest struct {
-	integrationTest
-}
-
-func init() { RegisterTestSuite(&DomainsTest{}) }
 
 func (t *DomainsTest) InvalidAccessKey() {
 	// Open a connection with an unknown key ID.
