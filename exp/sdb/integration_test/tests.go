@@ -535,6 +535,10 @@ func (t *ItemsTest) GetNonExistentAttributeName() {
 	)
 }
 
+func (t *ItemsTest) PreconditionWithNonConsistentRead() {
+	ExpectEq("TODO", "")
+}
+
 func (t *ItemsTest) PreconditionWithMultiValuedAttribute() {
 	ExpectEq("TODO", "")
 }

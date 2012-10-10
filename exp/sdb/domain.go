@@ -20,20 +20,16 @@ import (
 )
 
 // A precondition for a conditional Put or Delete operation. Preconditions may
-// specify a value that an attribute must have or whether the attribute must
-// exist or not.
+// specify a value that an attribute must have or that the attribute must not
+// exist.
 type Precondition struct {
 	// The name of the attribute to be inspected. Attributes with multiple values
 	// are not supported.
 	Name string
 
-	// If present, the value that the attribute must possess at the time of the
-	// update. Must be present iff Exists is not present.
+	// If non-nil, the value that the attribute must possess at the time of the
+	// update. If nil, the attribute must not exist at the time of the update.
 	Value *string
-
-	// If present, whether the attribute must exist at the time of the update.
-	// Must be present iff Value is not present.
-	Exists *bool
 }
 
 // An update to make to a particular attribute as part of a Put request.
