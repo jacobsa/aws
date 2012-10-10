@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	"github.com/jacobsa/aws/exp/sdb/mock"
 	. "github.com/jacobsa/ogletest"
 )
 
@@ -101,6 +102,13 @@ func init() { RegisterTestSuite(&DeleteDomainTest{}) }
 func (t *DeleteDomainTest) SetUp(i *TestInfo) {
 	// Call common setup code.
 	t.simpleDBTest.SetUp(i)
+
+	// Set up a fake named domain.
+	domain := mock_sdb.NewMockDomain(i.MockController, "domain")
+	ExpectCall(domain, "Name")().
+		WillRepeatedly(oglemock.Return("some_domain"))
+
+	t.domain = domain
 }
 
 func (t *DeleteDomainTest) callDB() {
