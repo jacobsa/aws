@@ -16,7 +16,6 @@
 package sdb
 
 import (
-	"github.com/jacobsa/aws/exp/sdb/mock"
 	. "github.com/jacobsa/ogletest"
 )
 
@@ -37,6 +36,43 @@ func (t *simpleDBTest) SetUp(i *TestInfo) {
 
 	t.db, err = newSimpleDB(t.c)
 	AssertEq(nil, err)
+}
+
+type fakeDomain struct {
+	name string
+}
+
+func (d *fakeDomain) Name() string {
+	return d.name
+}
+
+func (d *fakeDomain) PutAttributes(
+		item ItemName,
+		updates []PutUpdate,
+		preconditions []Precondition) error {
+	panic("Unsupported")
+}
+
+func (d *fakeDomain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) error {
+	panic("Unsupported")
+}
+
+func (d *fakeDomain) DeleteAttributes(
+		item ItemName,
+		deletes []DeleteUpdate,
+		preconditions []Precondition) error {
+	panic("Unsupported")
+}
+
+func (d *fakeDomain) BatchDeleteAttributes(deleteMap map[ItemName][]DeleteUpdate) error {
+	panic("Unsupported")
+}
+
+func (d *fakeDomain) GetAttributes(
+		item ItemName,
+		constistentRead bool,
+		attrNames []string) (attrs []Attribute, err error) {
+	panic("Unsupported")
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -104,11 +140,7 @@ func (t *DeleteDomainTest) SetUp(i *TestInfo) {
 	t.simpleDBTest.SetUp(i)
 
 	// Set up a fake named domain.
-	domain := mock_sdb.NewMockDomain(i.MockController, "domain")
-	ExpectCall(domain, "Name")().
-		WillRepeatedly(oglemock.Return("some_domain"))
-
-	t.domain = domain
+	t.domain = &fakeDomain{"some_domain"}
 }
 
 func (t *DeleteDomainTest) callDB() {
