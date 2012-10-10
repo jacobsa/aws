@@ -16,9 +16,7 @@
 // An integration test that uses a real SimpleDB account. Run as follows:
 //
 //     go run integration_test/*.go \
-//         -key_id <key ID> \
-//         -domain <domain> \
-//         -region sdb.ap-northeast-1.amazonaws.com
+//         -key_id <key ID>
 //
 // Before doing this, create an empty domain (or delete the contents of an
 // existing domain).
@@ -29,6 +27,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jacobsa/aws"
+	"github.com/jacobsa/aws/exp/sdb"
 	"github.com/jacobsa/ogletest"
 	"os"
 	"regexp"
@@ -40,7 +39,8 @@ import (
 ////////////////////////////////////////////////////////////////////////
 
 var g_keyId = flag.String("key_id", "", "Access key ID.")
-var g_region = flag.String("region", "", "Region endpoint server.")
+
+var g_region = sdb.RegionApacTokyo
 var g_accessKey aws.AccessKey
 
 ////////////////////////////////////////////////////////////////////////
@@ -54,11 +54,6 @@ func main() {
 		fmt.Println("You must set the -key_id flag.")
 		fmt.Println("Find a key ID here:")
 		fmt.Println("    https://portal.aws.amazon.com/gp/aws/securityCredentials")
-		os.Exit(1)
-	}
-
-	if *g_region == "" {
-		fmt.Println("You must set the -region flag. See region.go.")
 		os.Exit(1)
 	}
 

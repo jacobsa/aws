@@ -17,6 +17,7 @@ package main
 
 import (
 	"github.com/jacobsa/aws/exp/sdb"
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"sync"
 )
@@ -36,7 +37,7 @@ func (t *integrationTest) SetUp(i *TestInfo) {
 	var err error
 
 	// Open a connection.
-	t.db, err = sdb.NewSimpleDB(sdb.Region(*g_region), g_accessKey)
+	t.db, err = sdb.NewSimpleDB(g_region, g_accessKey)
 	AssertEq(nil, err)
 }
 
@@ -68,7 +69,17 @@ type DomainsTest struct {
 func init() { RegisterTestSuite(&DomainsTest{}) }
 
 func (t *DomainsTest) InvalidAccessKey() {
-	ExpectEq("TODO", "")
+	// Open a connection with an unknown key ID.
+	wrongKey := g_accessKey
+	wrongKey.Id += "taco"
+
+	db, err := sdb.NewSimpleDB(g_region, wrongKey)
+	AssertEq(nil, err)
+
+	// Attempt to create a domain.
+	_, err = db.OpenDomain("some_domain")
+
+	ExpectThat(err, Error(HasSubstr("TODO")))
 }
 
 func (t *DomainsTest) DomainsHaveIndependentItems() {
