@@ -735,7 +735,46 @@ func (t *ItemsTest) SelectAll() {
 }
 
 func (t *ItemsTest) SelectItemName() {
-	ExpectEq("TODO", "")
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		map[sdb.ItemName][]sdb.PutUpdate{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "taco"},
+				sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select itemName() from `%s`",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	ExpectEq(2, len(results), "Results: %v", results)
+	AssertThat(
+		getKeys(results),
+		AllOf(
+			Contains(item0),
+			Contains(item1),
+		),
+	)
+
+	ExpectThat(results[item0], ElementsAre())
+	ExpectThat(results[item1], ElementsAre())
 }
 
 func (t *ItemsTest) SelectCount() {
