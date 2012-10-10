@@ -45,6 +45,8 @@ func (t *integrationTest) makeItemName() sdb.ItemName {
 	return sdb.ItemName(fmt.Sprintf("item.%16x", uint64(rand.Int63())))
 }
 
+func sortByName(attrs []sdb.Attribute) []sdb.Attribute
+
 ////////////////////////////////////////////////////////////////////////
 // Domains
 ////////////////////////////////////////////////////////////////////////
@@ -250,7 +252,34 @@ func (t *ItemsTest) TearDownTestSuite() {
 }
 
 func (t *ItemsTest) PutThenGet() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
+			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
 }
 
 func (t *ItemsTest) BatchPutThenGet() {
