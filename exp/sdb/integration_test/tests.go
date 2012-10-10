@@ -563,7 +563,12 @@ func (t *ItemsTest) FailedValuePrecondition() {
 		&sdb.Precondition{Name: "bar", Value: makeStrPtr("asdf")},
 	)
 
-	ExpectThat(err, Error(HasSubstr("TODO")))
+	ExpectThat(err, Error(HasSubstr("409")))
+	ExpectThat(err, Error(HasSubstr("ConditionalCheckFailed")))
+	ExpectThat(err, Error(HasSubstr("bar")))
+	ExpectThat(err, Error(HasSubstr("burrito")))
+	ExpectThat(err, Error(HasSubstr("expected")))
+	ExpectThat(err, Error(HasSubstr("asdf")))
 
 	// Get -- the second write shouldn't have taken effect.
 	attrs, err := g_itemsTestDomain.GetAttributes(item, true, []string{"qux"})
