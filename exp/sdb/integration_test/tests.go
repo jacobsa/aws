@@ -295,7 +295,47 @@ func (t *ItemsTest) PutThenGet() {
 }
 
 func (t *ItemsTest) BatchPutThenGet() {
-	ExpectEq("TODO", "")
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		map[sdb.ItemName][]sdb.PutUpdate{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "taco"},
+				sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			},
+			item1: []sdb.PutUpdate{
+			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Get for item 0
+	attrs, err := g_itemsTestDomain.GetAttributes(item0, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
+
+	// Get for item 1
+	attrs, err = g_itemsTestDomain.GetAttributes(item1, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
+		),
+	)
 }
 
 func (t *ItemsTest) BatchPutThenBatchGet() {
