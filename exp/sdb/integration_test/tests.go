@@ -658,7 +658,7 @@ func (t *ItemsTest) FailedValuePrecondition() {
 	)
 }
 
-func (t *ItemsTest) FailedNegativeExistencePrecondition() {
+func (t *ItemsTest) FailedNonExistencePrecondition() {
 	var err error
 	item := t.makeItemName()
 
@@ -721,7 +721,7 @@ func (t *ItemsTest) SuccessfulValuePrecondition() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ItemsTest) SuccessfulNegativeExistencePrecondition() {
+func (t *ItemsTest) SuccessfulNonExistencePrecondition() {
 	ExpectEq("TODO", "")
 }
 

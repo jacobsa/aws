@@ -242,7 +242,7 @@ func (t *DeleteTest) NoPrecondition() {
 	ExpectThat(getSortedKeys(t.c.req), Not(Contains(HasSubstr("Expected"))))
 }
 
-func (t *DeleteTest) NegativeExistencePrecondition() {
+func (t *DeleteTest) NonExistencePrecondition() {
 	t.precondition = &Precondition{
 		Name:   "foo",
 	}

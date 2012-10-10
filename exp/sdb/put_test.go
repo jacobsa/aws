@@ -256,7 +256,7 @@ func (t *PutTest) NoPrecondition() {
 	ExpectThat(getSortedKeys(t.c.req), Not(Contains(HasSubstr("Expected"))))
 }
 
-func (t *PutTest) NegativeExistencePrecondition() {
+func (t *PutTest) NonExistencePrecondition() {
 	t.precondition = &Precondition{
 		Name:   "foo",
 	}
