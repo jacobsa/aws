@@ -60,7 +60,6 @@ func sortByName(attrs []sdb.Attribute) []sdb.Attribute {
 }
 
 func makeStrPtr(s string) *string { return &s }
-func makeBoolPtr(b bool) *bool { return &b }
 
 ////////////////////////////////////////////////////////////////////////
 // Domains
@@ -659,15 +658,70 @@ func (t *ItemsTest) FailedValuePrecondition() {
 	)
 }
 
-func (t *ItemsTest) FailedPositiveExistencePrecondition() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ItemsTest) FailedNegativeExistencePrecondition() {
+	var err error
+	item := t.makeItemName()
+
+	// Put (first call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito"},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Put (second call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "blahblah"},
+			sdb.PutUpdate{Name: "qux", Value: "queso"},
+		},
+		&sdb.Precondition{Name: "bar"},
+	)
+
+	ExpectThat(err, Error(HasSubstr("409")))
+	ExpectThat(err, Error(HasSubstr("ConditionalCheckFailed")))
+	ExpectThat(err, Error(HasSubstr("bar")))
+	ExpectThat(err, Error(HasSubstr("exists")))
+
+	// Delete
+	err = g_itemsTestDomain.DeleteAttributes(
+		item,
+		[]sdb.DeleteUpdate{},
+		&sdb.Precondition{Name: "bar"},
+	)
+
+	ExpectThat(err, Error(HasSubstr("409")))
+	ExpectThat(err, Error(HasSubstr("ConditionalCheckFailed")))
+	ExpectThat(err, Error(HasSubstr("bar")))
+	ExpectThat(err, Error(HasSubstr("exists")))
+
+	// Get -- neither the second put nor the delete should have taken effect.
+	attrs, err := g_itemsTestDomain.GetAttributes(
+		item,
+		true,
+		[]string{"foo", "qux"},
+	)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
+}
+
+func (t *ItemsTest) SuccessfulValuePrecondition() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ItemsTest) SuccessfulPreconditions() {
+func (t *ItemsTest) SuccessfulNegativeExistencePrecondition() {
 	ExpectEq("TODO", "")
 }
 
