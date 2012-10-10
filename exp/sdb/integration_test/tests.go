@@ -67,21 +67,32 @@ func (t *DomainsTest) SetUpTestSuite() {
 
 	// Open a connection.
 	g_domainsTestDb, err = sdb.NewSimpleDB(g_region, g_accessKey)
-	AssertEq(nil, err)
+	if err != nil {
+		panic(err)
+	}
 
 	// Create domain 0.
 	g_domainsTestDomain0, err = g_domainsTestDb.OpenDomain("DomainsTest.domain0")
-	AssertEq(nil, err)
+	if err != nil {
+		panic(err)
+	}
 
 	// Create domain 1.
 	g_domainsTestDomain1, err = g_domainsTestDb.OpenDomain("DomainsTest.domain1")
-	AssertEq(nil, err)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (t *DomainsTest) TearDownTestSuite() {
 	// Delete both domains.
-	AssertEq(nil, g_domainsTestDb.DeleteDomain(g_domainsTestDomain0))
-	AssertEq(nil, g_domainsTestDb.DeleteDomain(g_domainsTestDomain1))
+	if err := g_domainsTestDb.DeleteDomain(g_domainsTestDomain0); err != nil {
+		panic(err)
+	}
+
+	if err := g_domainsTestDb.DeleteDomain(g_domainsTestDomain1); err != nil {
+		panic(err)
+	}
 
 	// Clear variables.
 	g_domainsTestDb = nil
