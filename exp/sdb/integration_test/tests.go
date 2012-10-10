@@ -820,5 +820,59 @@ func (t *ItemsTest) SuccessfulNonExistencePrecondition() {
 }
 
 func (t *ItemsTest) PreconditionWithMultiValuedAttribute() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put (first call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito", Add: true},
+			sdb.PutUpdate{Name: "bar", Value: "carnitas", Add: true},
+			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Put (second call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "queso"},
+		},
+		&sdb.Precondition{Name: "bar", Value: makeStrPtr("burrito")},
+	)
+
+	ExpectThat(err, Error(HasSubstr("409")))
+	ExpectThat(err, Error(HasSubstr("MultiValuedAttribute")))
+	ExpectThat(err, Error(HasSubstr("bar")))
+
+	// Delete
+	err = g_itemsTestDomain.DeleteAttributes(
+		item,
+		[]sdb.DeleteUpdate{},
+		&sdb.Precondition{Name: "bar", Value: makeStrPtr("burrito")},
+	)
+
+	ExpectThat(err, Error(HasSubstr("409")))
+	ExpectThat(err, Error(HasSubstr("MultiValuedAttribute")))
+	ExpectThat(err, Error(HasSubstr("bar")))
+
+	// Get -- neither the second put nor the delete should have taken effect.
+	attrs, err := g_itemsTestDomain.GetAttributes(
+		item,
+		true,
+		[]string{"foo", "qux"},
+	)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
 }
