@@ -146,6 +146,15 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 }
 
 func (db *simpleDB) DeleteDomain(d Domain) (err error) {
-	err = fmt.Errorf("TODO")
+	// Build a request.
+	req := conn.Request{}
+	req["DomainName"] = d.Name()
+
+	// Call the connection.
+	if _, err = db.c.SendRequest(req); err != nil {
+		err = fmt.Errorf("SendRequest: %v", err)
+		return
+	}
+
 	return
 }
