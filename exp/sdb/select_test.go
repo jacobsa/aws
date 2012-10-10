@@ -29,7 +29,7 @@ func TestSelect(t *testing.T) { RunTests(t) }
 ////////////////////////////////////////////////////////////////////////
 
 type SelectTest struct {
-	domainTest
+	simpleDBTest
 
 	query string
 	constistentRead bool
@@ -42,11 +42,11 @@ type SelectTest struct {
 
 func (t *SelectTest) SetUp(i *TestInfo) {
 	// Call common setup code.
-	t.domainTest.SetUp(i)
+	t.simpleDBTest.SetUp(i)
 }
 
-func (t *SelectTest) callDomain() {
-	t.attrMap, t.tok, t.err = t.domain.Select(t.query, t.constistentRead, t.nextToken)
+func (t *SelectTest) callDB() {
+	t.attrMap, t.tok, t.err = t.db.Select(t.query, t.constistentRead, t.nextToken)
 }
 
 func init() { RegisterTestSuite(&SelectTest{}) }
@@ -59,7 +59,7 @@ func (t *SelectTest) NoExtraOptions() {
 	t.query = "taco"
 
 	// Call
-	t.callDomain()
+	t.callDB()
 	AssertNe(nil, t.c.req)
 
 	AssertThat(
@@ -76,7 +76,7 @@ func (t *SelectTest) ConistentRead() {
 	t.constistentRead = true
 
 	// Call
-	t.callDomain()
+	t.callDB()
 	AssertNe(nil, t.c.req)
 
 	ExpectEq("true", t.c.req["ConsistentRead"])
@@ -86,7 +86,7 @@ func (t *SelectTest) TokenPresent() {
 	t.nextToken = []byte("taco")
 
 	// Call
-	t.callDomain()
+	t.callDB()
 	AssertNe(nil, t.c.req)
 
 	ExpectEq("taco", t.c.req["NextToken"])
@@ -97,7 +97,7 @@ func (t *SelectTest) ConnReturnsError() {
 	t.c.err = errors.New("taco")
 
 	// Call
-	t.callDomain()
+	t.callDB()
 
 	ExpectThat(t.err, Error(HasSubstr("SendRequest")))
 	ExpectThat(t.err, Error(HasSubstr("taco")))
@@ -116,7 +116,7 @@ func (t *SelectTest) ConnReturnsJunk() {
 		</SelectResponse>`)
 
 	// Call
-	t.callDomain()
+	t.callDB()
 
 	AssertEq(nil, t.err)
 	ExpectEq(0, len(t.attrMap))
@@ -135,7 +135,7 @@ func (t *SelectTest) NoItemsInResponse() {
 		</SelectResponse>`)
 
 	// Call
-	t.callDomain()
+	t.callDB()
 
 	AssertEq(nil, t.err)
 	ExpectEq(0, len(t.attrMap))
@@ -163,7 +163,7 @@ func (t *SelectTest) SomeItemsInResponse() {
 		</SelectResponse>`)
 
 	// Call
-	t.callDomain()
+	t.callDB()
 
 	AssertEq(nil, t.err)
 
@@ -203,7 +203,7 @@ func (t *SelectTest) NoNextTokenInResponse() {
 		</SelectResponse>`)
 
 	// Call
-	t.callDomain()
+	t.callDB()
 
 	AssertEq(nil, t.err)
 	ExpectEq(nil, t.tok)
@@ -224,7 +224,7 @@ func (t *SelectTest) NextTokenInResponse() {
 		</SelectResponse>`)
 
 	// Call
-	t.callDomain()
+	t.callDB()
 
 	AssertEq(nil, t.err)
 	ExpectThat(t.tok, DeepEquals([]byte("taco")))
