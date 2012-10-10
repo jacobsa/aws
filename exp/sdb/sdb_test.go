@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 )
 
@@ -103,7 +104,14 @@ func (t *OpenDomainTest) callDB() {
 }
 
 func (t *OpenDomainTest) NameIsEmpty() {
-	ExpectFalse(true, "TODO")
+	t.name = ""
+
+	// Call
+	t.callDB()
+
+	ExpectThat(t.err, Error(HasSubstr("domain")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("empty")))
 }
 
 func (t *OpenDomainTest) NameIsInvalid() {
