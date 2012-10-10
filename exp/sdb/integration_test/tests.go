@@ -657,7 +657,18 @@ func (t *ItemsTest) BatchDelete() {
 }
 
 func (t *ItemsTest) InvalidSelectQuery() {
-	ExpectEq("TODO", "")
+	var err error
+
+	// Select
+	_, _, err = g_itemsTestDb.Select(
+		"select foo bar baz",
+		true,
+		nil,
+	)
+
+	ExpectThat(err, Error(HasSubstr("400")))
+	ExpectThat(err, Error(HasSubstr("InvalidQueryExpression")))
+	ExpectThat(err, Error(HasSubstr("syntax")))
 }
 
 func (t *ItemsTest) SelectAll() {
