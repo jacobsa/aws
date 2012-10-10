@@ -54,10 +54,12 @@ type SimpleDB interface {
 	// been created on the service.
 	OpenDomain(name string) (Domain, error)
 
-	// Create a domain with the supplied name on the service.
+	// Create a domain with the supplied name on the service. It is not an error
+	// to create a domain that already exists.
 	CreateDomain(name string) error
 
-	// Delete the domain with the supplied name from the service.
+	// Delete the domain with the supplied name from the service. It is not an
+	// error to delete a domain that does not exist.
 	DeleteDomain(name string) error
 
 	// Retrieve a set of items and their attributes based on a query string.

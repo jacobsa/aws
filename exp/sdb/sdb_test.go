@@ -63,7 +63,23 @@ func (t *CreateDomainTest) callDB() {
 	t.err = t.db.CreateDomain(t.name)
 }
 
-func (t *CreateDomainTest) DoesFoo() {
+func (t *CreateDomainTest) NameIsEmpty() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *CreateDomainTest) NameIsInvalid() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *CreateDomainTest) CallsConn() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *CreateDomainTest) ConnReturnsError() {
+	ExpectFalse(true, "TODO")
+}
+
+func (t *CreateDomainTest) ConnSaysOkay() {
 	ExpectFalse(true, "TODO")
 }
 
