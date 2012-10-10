@@ -58,7 +58,19 @@ type DomainsTest struct {
 
 func init() { RegisterTestSuite(&DomainsTest{}) }
 
-func (t *DomainsTest) DoesFoo() {
+func (t *DomainsTest) InvalidAccessKey() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainsTest) DomainsHaveIndependentItems() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainsTest) DeleteDomain() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainsTest) OpeningTwiceDoesntDeleteExistingItems() {
 	ExpectEq("TODO", "")
 }
 

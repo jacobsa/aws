@@ -53,7 +53,9 @@ type SimpleDB interface {
 	// Ensure that the domain with the specified name exists, then return it.
 	OpenDomain(name string) (Domain, error)
 
-	// Remove the supplied domain from the DB.
+	// Remove the supplied domain from the DB. Any domains previously opened with
+	// this domain's name will no longer be valid. It is not an error to call
+	// this method for a domain that has already been deleted.
 	DeleteDomain(d Domain) error
 
 	// Retrieve a set of items and their attributes based on a query string.
