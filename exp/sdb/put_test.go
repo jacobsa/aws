@@ -329,7 +329,7 @@ func (t *PutTest) ConnSaysOkay() {
 type BatchPutTest struct {
 	domainTest
 
-	updates map[ItemName][]PutUpdate
+	updates BatchPutMap
 
 	err error
 }
@@ -341,7 +341,7 @@ func (t *BatchPutTest) SetUp(i *TestInfo) {
 	t.domainTest.SetUp(i)
 
 	// Make the request legal by default.
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"some_item": []PutUpdate{
 			PutUpdate{Name: "foo"},
 		},
@@ -353,7 +353,7 @@ func (t *BatchPutTest) callDomain() {
 }
 
 func (t *BatchPutTest) NoItems() {
-	t.updates = map[ItemName][]PutUpdate{}
+	t.updates = BatchPutMap{}
 
 	// Call
 	t.callDomain()
@@ -364,7 +364,7 @@ func (t *BatchPutTest) NoItems() {
 }
 
 func (t *BatchPutTest) TooManyItems() {
-	t.updates = map[ItemName][]PutUpdate{}
+	t.updates = BatchPutMap{}
 
 	for i := 0; i < 26; i++ {
 		t.updates[ItemName(fmt.Sprintf("%d", i))] = []PutUpdate{
@@ -382,7 +382,7 @@ func (t *BatchPutTest) TooManyItems() {
 
 func (t *BatchPutTest) OneItemNameEmpty() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"foo": legalUpdates,
 		"":    legalUpdates,
 		"baz": legalUpdates,
@@ -398,7 +398,7 @@ func (t *BatchPutTest) OneItemNameEmpty() {
 
 func (t *BatchPutTest) OneItemNameInvalid() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"foo":             legalUpdates,
 		"bar\x80\x81\x82": legalUpdates,
 		"baz":             legalUpdates,
@@ -414,7 +414,7 @@ func (t *BatchPutTest) OneItemNameInvalid() {
 
 func (t *BatchPutTest) ZeroUpdatesForOneItem() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"foo": legalUpdates,
 		"bar": []PutUpdate{},
 		"baz": legalUpdates,
@@ -431,7 +431,7 @@ func (t *BatchPutTest) ZeroUpdatesForOneItem() {
 
 func (t *BatchPutTest) TooManyUpdatesForOneItem() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"foo": legalUpdates,
 		"bar": make([]PutUpdate, 257),
 		"baz": legalUpdates,
@@ -448,7 +448,7 @@ func (t *BatchPutTest) TooManyUpdatesForOneItem() {
 
 func (t *BatchPutTest) OneAttributeNameEmpty() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"foo": legalUpdates,
 		"bar": []PutUpdate{
 			PutUpdate{Name: "qux"},
@@ -469,7 +469,7 @@ func (t *BatchPutTest) OneAttributeNameEmpty() {
 
 func (t *BatchPutTest) OneAttributeNameInvalid() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"foo": legalUpdates,
 		"bar": []PutUpdate{
 			PutUpdate{Name: "qux"},
@@ -490,7 +490,7 @@ func (t *BatchPutTest) OneAttributeNameInvalid() {
 
 func (t *BatchPutTest) OneAttributeValueInvalid() {
 	legalUpdates := []PutUpdate{PutUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"foo": legalUpdates,
 		"bar": []PutUpdate{
 			PutUpdate{Name: "a", Value: "qux"},
@@ -510,7 +510,7 @@ func (t *BatchPutTest) OneAttributeValueInvalid() {
 }
 
 func (t *BatchPutTest) CallsConn() {
-	t.updates = map[ItemName][]PutUpdate{
+	t.updates = BatchPutMap{
 		"bar": []PutUpdate{
 			PutUpdate{Name: "a", Value: "", Add: true},
 			PutUpdate{Name: "b", Value: "qux"},

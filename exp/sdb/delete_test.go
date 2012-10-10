@@ -315,7 +315,7 @@ func (t *DeleteTest) ConnSaysOkay() {
 type BatchDeleteTest struct {
 	domainTest
 
-	updates map[ItemName][]DeleteUpdate
+	updates BatchDeleteMap
 
 	err error
 }
@@ -327,7 +327,7 @@ func (t *BatchDeleteTest) SetUp(i *TestInfo) {
 	t.domainTest.SetUp(i)
 
 	// Make the request legal by default.
-	t.updates = map[ItemName][]DeleteUpdate{
+	t.updates = BatchDeleteMap{
 		"some_item": []DeleteUpdate{
 			DeleteUpdate{Name: "foo"},
 		},
@@ -339,7 +339,7 @@ func (t *BatchDeleteTest) callDomain() {
 }
 
 func (t *BatchDeleteTest) NoItems() {
-	t.updates = map[ItemName][]DeleteUpdate{}
+	t.updates = BatchDeleteMap{}
 
 	// Call
 	t.callDomain()
@@ -350,7 +350,7 @@ func (t *BatchDeleteTest) NoItems() {
 }
 
 func (t *BatchDeleteTest) TooManyItems() {
-	t.updates = map[ItemName][]DeleteUpdate{}
+	t.updates = BatchDeleteMap{}
 
 	for i := 0; i < 26; i++ {
 		t.updates[ItemName(fmt.Sprintf("%d", i))] = []DeleteUpdate{
@@ -368,7 +368,7 @@ func (t *BatchDeleteTest) TooManyItems() {
 
 func (t *BatchDeleteTest) OneItemNameEmpty() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]DeleteUpdate{
+	t.updates = BatchDeleteMap{
 		"foo": legalUpdates,
 		"":    legalUpdates,
 		"baz": legalUpdates,
@@ -384,7 +384,7 @@ func (t *BatchDeleteTest) OneItemNameEmpty() {
 
 func (t *BatchDeleteTest) OneItemNameInvalid() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]DeleteUpdate{
+	t.updates = BatchDeleteMap{
 		"foo":             legalUpdates,
 		"bar\x80\x81\x82": legalUpdates,
 		"baz":             legalUpdates,
@@ -400,7 +400,7 @@ func (t *BatchDeleteTest) OneItemNameInvalid() {
 
 func (t *BatchDeleteTest) TooManyUpdatesForOneItem() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]DeleteUpdate{
+	t.updates = BatchDeleteMap{
 		"foo": legalUpdates,
 		"bar": make([]DeleteUpdate, 257),
 		"baz": legalUpdates,
@@ -417,7 +417,7 @@ func (t *BatchDeleteTest) TooManyUpdatesForOneItem() {
 
 func (t *BatchDeleteTest) OneAttributeNameEmpty() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]DeleteUpdate{
+	t.updates = BatchDeleteMap{
 		"foo": legalUpdates,
 		"bar": []DeleteUpdate{
 			DeleteUpdate{Name: "qux"},
@@ -438,7 +438,7 @@ func (t *BatchDeleteTest) OneAttributeNameEmpty() {
 
 func (t *BatchDeleteTest) OneAttributeNameInvalid() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]DeleteUpdate{
+	t.updates = BatchDeleteMap{
 		"foo": legalUpdates,
 		"bar": []DeleteUpdate{
 			DeleteUpdate{Name: "qux"},
@@ -459,7 +459,7 @@ func (t *BatchDeleteTest) OneAttributeNameInvalid() {
 
 func (t *BatchDeleteTest) OneAttributeValueInvalid() {
 	legalUpdates := []DeleteUpdate{DeleteUpdate{Name: "foo"}}
-	t.updates = map[ItemName][]DeleteUpdate{
+	t.updates = BatchDeleteMap{
 		"foo": legalUpdates,
 		"bar": []DeleteUpdate{
 			DeleteUpdate{Name: "a"},
@@ -479,7 +479,7 @@ func (t *BatchDeleteTest) OneAttributeValueInvalid() {
 }
 
 func (t *BatchDeleteTest) CallsConn() {
-	t.updates = map[ItemName][]DeleteUpdate{
+	t.updates = BatchDeleteMap{
 		"bar": []DeleteUpdate{
 			DeleteUpdate{Name: "a"},
 			DeleteUpdate{Name: "b", Value: newString("qux")},

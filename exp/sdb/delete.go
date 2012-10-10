@@ -33,7 +33,7 @@ func (l batchDeletePairList) Less(i, j int) bool { return l[i].Item < l[j].Item 
 func (l batchDeletePairList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
 
 // Return the elements of the map sorted by item name.
-func getSortedDeletePairs(deleteMap map[ItemName][]DeleteUpdate) batchDeletePairList {
+func getSortedDeletePairs(deleteMap BatchDeleteMap) batchDeletePairList {
 	res := batchDeletePairList{}
 	for item, updates := range deleteMap {
 		res = append(res, batchDeletePair{item, updates})
@@ -140,7 +140,7 @@ func (d *domain) DeleteAttributes(
 }
 
 func (d *domain) BatchDeleteAttributes(
-	deleteMap map[ItemName][]DeleteUpdate) (err error) {
+	deleteMap BatchDeleteMap) (err error) {
 	// Make sure the size of the request is legal.
 	numItems := len(deleteMap)
 	if numItems == 0 || numItems > 25 {

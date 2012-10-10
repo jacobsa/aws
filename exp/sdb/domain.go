@@ -55,6 +55,14 @@ type DeleteUpdate struct {
 	Value *string
 }
 
+// A map from item names to updates that should be applied to those items.
+type BatchPutMap map[ItemName][]PutUpdate
+
+// A map from item names to delete updates that should be applied to those
+// items. A nil slice indicates that all of the item's attributes should be
+// deleted.
+type BatchDeleteMap map[ItemName][]DeleteUpdate
+
 // A domain represents a named domain within the SimpleDB service. It is a
 // collection of named items, each of which possesses a set of attributes.
 type Domain interface {
@@ -76,7 +84,7 @@ type Domain interface {
 	// The length of the map must be in [1, 25]. The length of each of its values
 	// must be in [1, 256]. An error may be returned if the underlying request to
 	// SimpleDB is too large.
-	BatchPutAttributes(updateMap map[ItemName][]PutUpdate) error
+	BatchPutAttributes(updateMap BatchPutMap) error
 
 	// Retrieve a set of attributes for the named item, or all attributes if the
 	// attribute name slice is empty.
@@ -104,7 +112,7 @@ type Domain interface {
 	//
 	// If no updates are supplied for a particular item, delete all of its
 	// attributes.
-	BatchDeleteAttributes(deleteMap map[ItemName][]DeleteUpdate) error
+	BatchDeleteAttributes(deleteMap BatchDeleteMap) error
 }
 
 func newDomain(name string, c conn.Conn) (Domain, error) {

@@ -33,7 +33,7 @@ func (l batchPutPairList) Less(i, j int) bool { return l[i].Item < l[j].Item }
 func (l batchPutPairList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
 
 // Return the elements of the map sorted by item name.
-func getSortedPutPairs(updateMap map[ItemName][]PutUpdate) batchPutPairList {
+func getSortedPutPairs(updateMap BatchPutMap) batchPutPairList {
 	res := batchPutPairList{}
 	for item, updates := range updateMap {
 		res = append(res, batchPutPair{item, updates})
@@ -138,7 +138,7 @@ func (d *domain) PutAttributes(
 	return nil
 }
 
-func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err error) {
+func (d *domain) BatchPutAttributes(updateMap BatchPutMap) (err error) {
 	// Make sure the size of the request is legal.
 	numItems := len(updateMap)
 	if numItems == 0 || numItems > 25 {

@@ -56,7 +56,7 @@ func (d *fakeDomain) PutAttributes(
 	panic("Unsupported")
 }
 
-func (d *fakeDomain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) error {
+func (d *fakeDomain) BatchPutAttributes(updateMap BatchPutMap) error {
 	panic("Unsupported")
 }
 
@@ -67,7 +67,7 @@ func (d *fakeDomain) DeleteAttributes(
 	panic("Unsupported")
 }
 
-func (d *fakeDomain) BatchDeleteAttributes(deleteMap map[ItemName][]DeleteUpdate) error {
+func (d *fakeDomain) BatchDeleteAttributes(deleteMap BatchDeleteMap) error {
 	panic("Unsupported")
 }
 
