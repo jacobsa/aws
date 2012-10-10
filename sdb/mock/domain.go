@@ -8,9 +8,9 @@ package mock_sdb
 
 import (
 	fmt "fmt"
-	sdb "github.com/jacobsa/aws/sdb"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
+	sdb "github.com/jacobsa/aws/sdb"
 	unsafe "unsafe"
 )
 
@@ -20,16 +20,16 @@ type MockDomain interface {
 }
 
 type mockDomain struct {
-	controller  oglemock.Controller
-	description string
+	controller	oglemock.Controller
+	description	string
 }
 
 func NewMockDomain(
 	c oglemock.Controller,
 	desc string) MockDomain {
 	return &mockDomain{
-		controller:  c,
-		description: desc,
+		controller:	c,
+		description:	desc,
 	}
 }
 
@@ -89,7 +89,7 @@ func (m *mockDomain) BatchPutAttributes(p0 sdb.BatchPutMap) (o0 error) {
 	return
 }
 
-func (m *mockDomain) DeleteAttributes(p0 sdb.ItemName, p1 []sdb.DeleteUpdate, p2 []sdb.Precondition) (o0 error) {
+func (m *mockDomain) DeleteAttributes(p0 sdb.ItemName, p1 []sdb.DeleteUpdate, p2 *sdb.Precondition) (o0 error) {
 	// Get a file name and line number for the caller.
 	_, file, line, _ := runtime.Caller(1)
 
@@ -166,7 +166,7 @@ func (m *mockDomain) Name() (o0 string) {
 	return
 }
 
-func (m *mockDomain) PutAttributes(p0 sdb.ItemName, p1 []sdb.PutUpdate, p2 []sdb.Precondition) (o0 error) {
+func (m *mockDomain) PutAttributes(p0 sdb.ItemName, p1 []sdb.PutUpdate, p2 *sdb.Precondition) (o0 error) {
 	// Get a file name and line number for the caller.
 	_, file, line, _ := runtime.Caller(1)
 

@@ -8,9 +8,9 @@ package mock_sdb
 
 import (
 	fmt "fmt"
-	sdb "github.com/jacobsa/aws/sdb"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
+	sdb "github.com/jacobsa/aws/sdb"
 	unsafe "unsafe"
 )
 
@@ -20,16 +20,16 @@ type MockSimpleDB interface {
 }
 
 type mockSimpleDB struct {
-	controller  oglemock.Controller
-	description string
+	controller	oglemock.Controller
+	description	string
 }
 
 func NewMockSimpleDB(
 	c oglemock.Controller,
 	desc string) MockSimpleDB {
 	return &mockSimpleDB{
-		controller:  c,
-		description: desc,
+		controller:	c,
+		description:	desc,
 	}
 }
 
@@ -94,7 +94,7 @@ func (m *mockSimpleDB) OpenDomain(p0 string) (o0 sdb.Domain, o1 error) {
 	return
 }
 
-func (m *mockSimpleDB) Select(p0 string, p1 bool, p2 []uint8) (o0 map[sdb.ItemName][]sdb.Attribute, o1 []uint8, o2 error) {
+func (m *mockSimpleDB) Select(p0 string, p1 bool, p2 []uint8) (o0 []sdb.SelectedItem, o1 []uint8, o2 error) {
 	// Get a file name and line number for the caller.
 	_, file, line, _ := runtime.Caller(1)
 
@@ -110,9 +110,9 @@ func (m *mockSimpleDB) Select(p0 string, p1 bool, p2 []uint8) (o0 map[sdb.ItemNa
 		panic(fmt.Sprintf("mockSimpleDB.Select: invalid return values: %v", retVals))
 	}
 
-	// o0 map[sdb.ItemName][]sdb.Attribute
+	// o0 []sdb.SelectedItem
 	if retVals[0] != nil {
-		o0 = retVals[0].(map[sdb.ItemName][]sdb.Attribute)
+		o0 = retVals[0].([]sdb.SelectedItem)
 	}
 
 	// o1 []uint8
