@@ -39,19 +39,21 @@ func (t *simpleDBTest) SetUp(i *TestInfo) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// CreateDomain
+// OpenDomain
 ////////////////////////////////////////////////////////////////////////
 
-type CreateDomainTest struct {
+type OpenDomainTest struct {
 	simpleDBTest
 
 	name string
+
+	domain Domain
 	err error
 }
 
-func init() { RegisterTestSuite(&CreateDomainTest{}) }
+func init() { RegisterTestSuite(&OpenDomainTest{}) }
 
-func (t *CreateDomainTest) SetUp(i *TestInfo) {
+func (t *OpenDomainTest) SetUp(i *TestInfo) {
 	// Call common setup code.
 	t.simpleDBTest.SetUp(i)
 
@@ -59,27 +61,27 @@ func (t *CreateDomainTest) SetUp(i *TestInfo) {
 	t.name = "foo"
 }
 
-func (t *CreateDomainTest) callDB() {
-	t.err = t.db.CreateDomain(t.name)
+func (t *OpenDomainTest) callDB() {
+	t.domain, t.err = t.db.OpenDomain(t.name)
 }
 
-func (t *CreateDomainTest) NameIsEmpty() {
+func (t *OpenDomainTest) NameIsEmpty() {
 	ExpectFalse(true, "TODO")
 }
 
-func (t *CreateDomainTest) NameIsInvalid() {
+func (t *OpenDomainTest) NameIsInvalid() {
 	ExpectFalse(true, "TODO")
 }
 
-func (t *CreateDomainTest) CallsConn() {
+func (t *OpenDomainTest) CallsConn() {
 	ExpectFalse(true, "TODO")
 }
 
-func (t *CreateDomainTest) ConnReturnsError() {
+func (t *OpenDomainTest) ConnReturnsError() {
 	ExpectFalse(true, "TODO")
 }
 
-func (t *CreateDomainTest) ConnSaysOkay() {
+func (t *OpenDomainTest) CallsFactoryFuncAndReturnsResult() {
 	ExpectFalse(true, "TODO")
 }
 
@@ -90,7 +92,7 @@ func (t *CreateDomainTest) ConnSaysOkay() {
 type DeleteDomainTest struct {
 	simpleDBTest
 
-	name string
+	domain Domain
 	err error
 }
 
@@ -99,13 +101,10 @@ func init() { RegisterTestSuite(&DeleteDomainTest{}) }
 func (t *DeleteDomainTest) SetUp(i *TestInfo) {
 	// Call common setup code.
 	t.simpleDBTest.SetUp(i)
-
-	// Make the request legal by default.
-	t.name = "foo"
 }
 
 func (t *DeleteDomainTest) callDB() {
-	t.err = t.db.DeleteDomain(t.name)
+	t.err = t.db.DeleteDomain(t.domain)
 }
 
 func (t *DeleteDomainTest) DoesFoo() {
