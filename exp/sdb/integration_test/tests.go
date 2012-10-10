@@ -40,7 +40,12 @@ func (t *integrationTest) SetUp(i *TestInfo) {
 	AssertEq(nil, err)
 }
 
-func (t *integrationTest) ensureDeleted(d sdb.Domain)
+func (t *integrationTest) ensureDeleted(d sdb.Domain) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
+	t.domainsToDelete = append(t.domainsToDelete, d)
+}
 
 func (t *integrationTest) TearDown() {
 	t.mutex.Lock()
