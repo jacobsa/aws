@@ -338,10 +338,6 @@ func (t *ItemsTest) BatchPutThenGet() {
 	)
 }
 
-func (t *ItemsTest) BatchPutThenBatchGet() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ItemsTest) GetForNonExistentItem() {
 	ExpectEq("TODO", "")
 }
@@ -350,19 +346,7 @@ func (t *ItemsTest) GetParticularAttributes() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ItemsTest) BatchGetParticularAttributes() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) BatchGetForNonExistentItems() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ItemsTest) GetNonExistentAttributeName() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) BatchGetNonExistentAttributeName() {
 	ExpectEq("TODO", "")
 }
 
