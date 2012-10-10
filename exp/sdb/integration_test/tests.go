@@ -349,8 +349,63 @@ func (t *ItemsTest) GetForNonExistentItem() {
 	ExpectThat(attrs, ElementsAre())
 }
 
-func (t *ItemsTest) GetParticularAttributes() {
-	ExpectEq("TODO", "")
+func (t *ItemsTest) GetOneParticularAttribute() {
+	var err error
+	item := t.makeItemName()
+
+	// Put
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, []string{"bar"})
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
+		),
+	)
+}
+
+func (t *ItemsTest) GetTwoParticularAttributes() {
+	var err error
+	item := t.makeItemName()
+
+	// Put
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, []string{"foo", "baz"})
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
 }
 
 func (t *ItemsTest) GetNonExistentAttributeName() {
