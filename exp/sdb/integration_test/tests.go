@@ -61,6 +61,130 @@ func (t *DomainTest) TearDown() {
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *DomainTest) DoesFoo() {
+func (t *DomainTest) WrongAccessKeySecret() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) InvalidUtf8ItemName() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) InvalidUtf8AttributeName() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) InvalidUtf8AttributeValue() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) LongItemName() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) LongAttributeName() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) LongAttributeValue() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) PutThenGet() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) BatchPutThenGet() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) BatchPutThenBatchGet() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) GetForNonExistentItem() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) GetParticularAttributes() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) BatchGetParticularAttributes() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) BatchGetForNonExistentItems() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) GetNonExistentAttributeName() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) BatchGetNonExistentAttributeName() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) FailedValuePrecondition() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) FailedExistencePrecondition() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) FailedNonExistencePrecondition() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SuccessfulPreconditions() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) DeleteParticularAttributes() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) DeleteAllAttributes() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) BatchDelete() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) InvalidSelectQuery() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SelectAll() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SelectItemName() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SelectCount() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SelectWithPredicates() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SelectWithSortOrder() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SelectWithLimit() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SelectEmptyResultSet() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainTest) SelectLargeResultSet() {
 	ExpectEq("TODO", "")
 }
