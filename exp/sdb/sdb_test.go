@@ -28,7 +28,7 @@ import (
 
 // A common helper class.
 type simpleDBTest struct {
-	c *fakeConn
+	c  *fakeConn
 	db SimpleDB
 }
 
@@ -50,9 +50,9 @@ func (d *fakeDomain) Name() string {
 }
 
 func (d *fakeDomain) PutAttributes(
-		item ItemName,
-		updates []PutUpdate,
-		precondition *Precondition) error {
+	item ItemName,
+	updates []PutUpdate,
+	precondition *Precondition) error {
 	panic("Unsupported")
 }
 
@@ -61,9 +61,9 @@ func (d *fakeDomain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) erro
 }
 
 func (d *fakeDomain) DeleteAttributes(
-		item ItemName,
-		deletes []DeleteUpdate,
-		precondition *Precondition) error {
+	item ItemName,
+	deletes []DeleteUpdate,
+	precondition *Precondition) error {
 	panic("Unsupported")
 }
 
@@ -72,9 +72,9 @@ func (d *fakeDomain) BatchDeleteAttributes(deleteMap map[ItemName][]DeleteUpdate
 }
 
 func (d *fakeDomain) GetAttributes(
-		item ItemName,
-		constistentRead bool,
-		attrNames []string) (attrs []Attribute, err error) {
+	item ItemName,
+	constistentRead bool,
+	attrNames []string) (attrs []Attribute, err error) {
 	panic("Unsupported")
 }
 
@@ -88,7 +88,7 @@ type OpenDomainTest struct {
 	name string
 
 	domain Domain
-	err error
+	err    error
 }
 
 func init() { RegisterTestSuite(&OpenDomainTest{}) }
@@ -193,7 +193,7 @@ type DeleteDomainTest struct {
 	simpleDBTest
 
 	domain Domain
-	err error
+	err    error
 }
 
 func init() { RegisterTestSuite(&DeleteDomainTest{}) }

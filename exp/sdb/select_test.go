@@ -31,13 +31,13 @@ func TestSelect(t *testing.T) { RunTests(t) }
 type SelectTest struct {
 	simpleDBTest
 
-	query string
+	query           string
 	constistentRead bool
-	nextToken []byte
+	nextToken       []byte
 
 	attrMap map[ItemName][]Attribute
-	tok []byte
-	err error
+	tok     []byte
+	err     error
 }
 
 func (t *SelectTest) SetUp(i *TestInfo) {

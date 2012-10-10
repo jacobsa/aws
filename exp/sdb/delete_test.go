@@ -131,7 +131,7 @@ func (t *DeleteTest) OneAttributeValueInvalid() {
 
 func (t *DeleteTest) PreconditionNameEmpty() {
 	t.precondition = &Precondition{
-		Name: "",
+		Name:   "",
 		Exists: new(bool),
 	}
 
@@ -145,7 +145,7 @@ func (t *DeleteTest) PreconditionNameEmpty() {
 
 func (t *DeleteTest) PreconditionNameInvalid() {
 	t.precondition = &Precondition{
-		Name: "taco\x80\x81\x82",
+		Name:   "taco\x80\x81\x82",
 		Exists: new(bool),
 	}
 
@@ -160,7 +160,7 @@ func (t *DeleteTest) PreconditionNameInvalid() {
 
 func (t *DeleteTest) PreconditionValueInvalid() {
 	t.precondition = &Precondition{
-		Name: "bar",
+		Name:  "bar",
 		Value: newString("taco\x80\x81\x82"),
 	}
 
@@ -187,8 +187,8 @@ func (t *DeleteTest) PreconditionMissingOperand() {
 
 func (t *DeleteTest) PreconditionHasTwoOperands() {
 	t.precondition = &Precondition{
-		Name: "bar",
-		Value: new(string),
+		Name:   "bar",
+		Value:  new(string),
 		Exists: new(bool),
 	}
 
@@ -274,7 +274,7 @@ func (t *DeleteTest) NoPrecondition() {
 
 func (t *DeleteTest) PositiveExistencePrecondition() {
 	t.precondition = &Precondition{
-		Name: "foo",
+		Name:   "foo",
 		Exists: new(bool),
 	}
 
@@ -299,7 +299,7 @@ func (t *DeleteTest) PositiveExistencePrecondition() {
 
 func (t *DeleteTest) NegativeExistencePrecondition() {
 	t.precondition = &Precondition{
-		Name: "foo",
+		Name:   "foo",
 		Exists: new(bool),
 	}
 
@@ -322,7 +322,7 @@ func (t *DeleteTest) NegativeExistencePrecondition() {
 
 func (t *DeleteTest) ValuePrecondition() {
 	t.precondition = &Precondition{
-		Name: "foo",
+		Name:  "foo",
 		Value: newString("taco"),
 	}
 

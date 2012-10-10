@@ -75,7 +75,7 @@ type DomainsTest struct {
 	integrationTest
 
 	mutex           sync.Mutex
-	domainsToDelete []sdb.Domain  // Protected by mutex
+	domainsToDelete []sdb.Domain // Protected by mutex
 }
 
 func init() { RegisterTestSuite(&DomainsTest{}) }
@@ -231,7 +231,7 @@ func (t *DomainsTest) Delete() {
 // Items
 ////////////////////////////////////////////////////////////////////////
 
-var g_itemsTestDb     sdb.SimpleDB
+var g_itemsTestDb sdb.SimpleDB
 var g_itemsTestDomain sdb.Domain
 
 type ItemsTest struct {
@@ -320,9 +320,9 @@ func (t *ItemsTest) PutThenAddAndReplace() {
 		item,
 		[]sdb.PutUpdate{
 			sdb.PutUpdate{Name: "foo", Value: "queso", Add: false},
-			sdb.PutUpdate{Name: "bar", Value: "burrito", Add: true},  // Same as first
+			sdb.PutUpdate{Name: "bar", Value: "burrito", Add: true}, // Same as first
 			sdb.PutUpdate{Name: "bar", Value: "carnitas", Add: true},
-			sdb.PutUpdate{Name: "baz", Value: "enchilada", Add: false},  // Same as first
+			sdb.PutUpdate{Name: "baz", Value: "enchilada", Add: false}, // Same as first
 		},
 		nil,
 	)
@@ -407,7 +407,7 @@ func (t *ItemsTest) BatchPutThenGet() {
 				sdb.PutUpdate{Name: "bar", Value: "burrito"},
 			},
 			item1: []sdb.PutUpdate{
-			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+				sdb.PutUpdate{Name: "baz", Value: "enchilada"},
 			},
 		},
 	)
@@ -578,7 +578,8 @@ func (t *ItemsTest) FailedValuePrecondition() {
 	attrs, err := g_itemsTestDomain.GetAttributes(
 		item,
 		true,
-		[]string{"foo", "qux"})
+		[]string{"foo", "qux"},
+	)
 
 	AssertEq(nil, err)
 	ExpectThat(

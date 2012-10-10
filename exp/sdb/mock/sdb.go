@@ -8,9 +8,9 @@ package mock_sdb
 
 import (
 	fmt "fmt"
+	sdb "github.com/jacobsa/aws/exp/sdb"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
-	sdb "github.com/jacobsa/aws/exp/sdb"
 	unsafe "unsafe"
 )
 
@@ -20,16 +20,16 @@ type MockSimpleDB interface {
 }
 
 type mockSimpleDB struct {
-	controller	oglemock.Controller
-	description	string
+	controller  oglemock.Controller
+	description string
 }
 
 func NewMockSimpleDB(
 	c oglemock.Controller,
 	desc string) MockSimpleDB {
 	return &mockSimpleDB{
-		controller:	c,
-		description:	desc,
+		controller:  c,
+		description: desc,
 	}
 }
 

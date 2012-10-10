@@ -105,10 +105,10 @@ func (d *domain) DeleteAttributes(
 
 	// Assemble an appropriate request.
 	req := conn.Request{
-		"Action": "DeleteAttributes",
-		"Version": apiVersion,
+		"Action":     "DeleteAttributes",
+		"Version":    apiVersion,
 		"DomainName": d.name,
-		"ItemName": string(item),
+		"ItemName":   string(item),
 	}
 
 	for i, u := range deletes {
@@ -166,8 +166,8 @@ func (d *domain) BatchDeleteAttributes(
 
 	// Build a request.
 	req := conn.Request{
-		"Action": "BatchDeleteAttributes",
-		"Version": apiVersion,
+		"Action":     "BatchDeleteAttributes",
+		"Version":    apiVersion,
 		"DomainName": d.name,
 	}
 

@@ -22,12 +22,12 @@ import (
 )
 
 type selectedItem struct {
-	Name ItemName
+	Name       ItemName
 	Attributes []Attribute `xml:"Attribute"`
 }
 
 type selectResult struct {
-	Items []selectedItem `xml:"Item"`
+	Items     []selectedItem `xml:"Item"`
 	NextToken []byte
 }
 
@@ -63,8 +63,8 @@ func (db *simpleDB) Select(
 	// Reference:
 	//     http://goo.gl/GTsSZ
 	req := conn.Request{
-		"Action": "Select",
-		"Version": apiVersion,
+		"Action":           "Select",
+		"Version":          apiVersion,
 		"SelectExpression": query,
 	}
 

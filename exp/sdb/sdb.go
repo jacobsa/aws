@@ -92,7 +92,7 @@ func NewSimpleDB(region Region, key aws.AccessKey) (db SimpleDB, err error) {
 	// Open an appropriate HTTP connection.
 	endpoint := &url.URL{
 		Scheme: "https",
-		Host: string(region),
+		Host:   string(region),
 	}
 
 	httpConn, err := conn.NewHttpConn(endpoint)
@@ -136,9 +136,9 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 
 	// Build a request.
 	req := conn.Request{
-		"Action": "CreateDomain",
+		"Action":     "CreateDomain",
 		"DomainName": name,
-		"Version": apiVersion,
+		"Version":    apiVersion,
 	}
 
 	// Call the connection.
@@ -154,9 +154,9 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 func (db *simpleDB) DeleteDomain(d Domain) (err error) {
 	// Build a request.
 	req := conn.Request{
-		"Action": "DeleteDomain",
+		"Action":     "DeleteDomain",
 		"DomainName": d.Name(),
-		"Version": apiVersion,
+		"Version":    apiVersion,
 	}
 
 	// Call the connection.

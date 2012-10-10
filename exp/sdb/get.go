@@ -73,10 +73,10 @@ func (d *domain) GetAttributes(
 	// Reference:
 	//     http://goo.gl/MmaJA
 	req := conn.Request{
-		"Action": "GetAttributes",
-		"Version": apiVersion,
+		"Action":     "GetAttributes",
+		"Version":    apiVersion,
 		"DomainName": d.name,
-		"ItemName": string(item),
+		"ItemName":   string(item),
 	}
 
 	if constistentRead {

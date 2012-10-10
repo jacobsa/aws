@@ -163,7 +163,7 @@ func (t *PutTest) OneAttributeValueInvalid() {
 
 func (t *PutTest) PreconditionNameEmpty() {
 	t.precondition = &Precondition{
-		Name: "",
+		Name:   "",
 		Exists: new(bool),
 	}
 
@@ -177,7 +177,7 @@ func (t *PutTest) PreconditionNameEmpty() {
 
 func (t *PutTest) PreconditionNameInvalid() {
 	t.precondition = &Precondition{
-		Name: "taco\x80\x81\x82",
+		Name:   "taco\x80\x81\x82",
 		Exists: new(bool),
 	}
 
@@ -192,7 +192,7 @@ func (t *PutTest) PreconditionNameInvalid() {
 
 func (t *PutTest) PreconditionValueInvalid() {
 	t.precondition = &Precondition{
-		Name: "bar",
+		Name:  "bar",
 		Value: newString("taco\x80\x81\x82"),
 	}
 
@@ -219,8 +219,8 @@ func (t *PutTest) PreconditionMissingOperand() {
 
 func (t *PutTest) PreconditionHasTwoOperands() {
 	t.precondition = &Precondition{
-		Name: "bar",
-		Value: new(string),
+		Name:   "bar",
+		Value:  new(string),
 		Exists: new(bool),
 	}
 
@@ -288,7 +288,7 @@ func (t *PutTest) NoPrecondition() {
 
 func (t *PutTest) PositiveExistencePrecondition() {
 	t.precondition = &Precondition{
-		Name: "foo",
+		Name:   "foo",
 		Exists: new(bool),
 	}
 
@@ -313,7 +313,7 @@ func (t *PutTest) PositiveExistencePrecondition() {
 
 func (t *PutTest) NegativeExistencePrecondition() {
 	t.precondition = &Precondition{
-		Name: "foo",
+		Name:   "foo",
 		Exists: new(bool),
 	}
 
@@ -336,7 +336,7 @@ func (t *PutTest) NegativeExistencePrecondition() {
 
 func (t *PutTest) ValuePrecondition() {
 	t.precondition = &Precondition{
-		Name: "foo",
+		Name:  "foo",
 		Value: newString("taco"),
 	}
 
