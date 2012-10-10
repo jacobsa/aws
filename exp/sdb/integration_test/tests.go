@@ -171,8 +171,12 @@ func (t *DomainsTest) IdenticallyNamedDomainsHaveIdenticalItems() {
 
 	AssertEq(nil, err)
 
-	// Get attributes for the same name in the other domain.
-	attrs, err := g_domainsTestDomain1.GetAttributes(itemName, true, []string{})
+	// Get attributes for the same name in another domain object opened with the
+	// same name.
+	domain1, err := t.db.OpenDomain(g_domainsTestDomain0.Name())
+	AssertEq(nil, err)
+
+	attrs, err := domain1.GetAttributes(itemName, true, []string{})
 	AssertEq(nil, err)
 
 	ExpectThat(
