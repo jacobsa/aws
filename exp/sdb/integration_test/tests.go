@@ -100,13 +100,6 @@ func (t *DomainsTest) TearDownTestSuite() {
 	g_domainsTestDomain1 = nil
 }
 
-func (t *DomainsTest) ensureDeleted(d sdb.Domain) {
-	t.mutex.Lock()
-	defer t.mutex.Unlock()
-
-	t.domainsToDelete = append(t.domainsToDelete, d)
-}
-
 func (t *DomainsTest) TearDown() {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
@@ -188,14 +181,35 @@ func (t *DomainsTest) IdenticallyNamedDomainsHaveIdenticalItems() {
 }
 
 func (t *DomainsTest) Delete() {
-	ExpectEq("TODO", "")
+	var err error
+	domainName := "DomainsTest.Delete"
+
+	// Create a domain, then delete it.
+	domain, err := t.db.OpenDomain(domainName)
+	AssertEq(nil, err)
+
+	err = t.db.DeleteDomain(domain)
+	AssertEq(nil, err)
+
+	// Delete again; nothing should go wrong.
+	err = t.db.DeleteDomain(domain)
+	AssertEq(nil, err)
+
+	// Attempt to write to the domain.
+	err = domain.PutAttributes(
+		"some_item",
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "bar"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	ExpectThat(err, Error(HasSubstr("NoSuchDomain")))
+	ExpectThat(err, Error(HasSubstr("domain")))
+	ExpectThat(err, Error(HasSubstr("exist")))
 }
 
 func (t *DomainsTest) OpeningTwiceDoesntDeleteExistingItems() {
-	ExpectEq("TODO", "")
-}
-
-func (t *DomainsTest) DeleteTwice() {
 	ExpectEq("TODO", "")
 }
 
