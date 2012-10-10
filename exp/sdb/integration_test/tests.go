@@ -84,8 +84,40 @@ func (t *DomainsTest) InvalidAccessKey() {
 	ExpectThat(err, Error(HasSubstr("exist")))
 }
 
-func (t *DomainsTest) DomainsHaveIndependentItems() {
-	ExpectEq("TODO", "")
+func (t *DomainsTest) SeparatelyNamedDomainsHaveIndependentItems() {
+	var err error
+
+	// Open two domains.
+	domain0, err := t.db.OpenDomain("taco")
+	AssertEq(nil, err)
+	t.ensureDeleted(domain0)
+
+	domain1, err := t.db.OpenDomain("burrito")
+	AssertEq(nil, err)
+	t.ensureDeleted(domain1)
+
+	// Set up an item in the first.
+	itemName := sdb.ItemName("some_item")
+	err = domain0.PutAttributes(
+		itemName,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "enchilada", Value: "Queso"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Get attributes for the same name in the other domain. There should be
+	// none.
+	attrs, err := domain1.GetAttributes(itemName, true, []string{})
+	AssertEq(nil, err)
+
+	ExpectThat(attrs, ElementsAre())
+}
+
+func (t *DomainsTest) IdenticallyNamedDomainsHaveIdenticalItems() {
+	ExpectFalse(true, "TODO")
 }
 
 func (t *DomainsTest) Delete() {
