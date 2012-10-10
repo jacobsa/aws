@@ -16,6 +16,7 @@
 package sdb
 
 import (
+	"errors"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"strings"
@@ -153,7 +154,14 @@ func (t *OpenDomainTest) CallsConn() {
 }
 
 func (t *OpenDomainTest) ConnReturnsError() {
-	ExpectFalse(true, "TODO")
+	// Conn
+	t.c.err = errors.New("taco")
+
+	// Call
+	t.callDB()
+
+	ExpectThat(t.err, Error(HasSubstr("SendRequest")))
+	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
 
 func (t *OpenDomainTest) CallsFactoryFuncAndReturnsResult() {
