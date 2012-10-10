@@ -735,8 +735,8 @@ func (t *ItemsTest) SelectAll() {
 				sdb.SelectedItem{
 					Name: item0,
 					Attributes: []sdb.Attribute{
-						sdb.Attribute{Name: "bar", Value: "burrito"},
 						sdb.Attribute{Name: "foo", Value: "taco"},
+						sdb.Attribute{Name: "bar", Value: "burrito"},
 					},
 				},
 			),
