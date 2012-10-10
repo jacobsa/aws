@@ -591,7 +591,48 @@ func (t *ItemsTest) FailedValuePrecondition() {
 }
 
 func (t *ItemsTest) FailedPositiveExistencePrecondition() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put (first call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Put (second call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "blahblah"},
+			sdb.PutUpdate{Name: "qux", Value: "queso"},
+		},
+		&sdb.Precondition{Name: "bar", Exists: makeBoolPtr(true)},
+	)
+
+	ExpectThat(err, Error(HasSubstr("409")))
+	ExpectThat(err, Error(HasSubstr("ConditionalCheckFailed")))
+	ExpectThat(err, Error(HasSubstr("TODO")))
+
+	// Get -- the second write shouldn't have taken effect.
+	attrs, err := g_itemsTestDomain.GetAttributes(
+		item,
+		true,
+		[]string{"foo", "qux"},
+	)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
 }
 
 func (t *ItemsTest) FailedNegativeExistencePrecondition() {
