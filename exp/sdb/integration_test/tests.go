@@ -295,7 +295,49 @@ func (t *ItemsTest) PutThenGet() {
 }
 
 func (t *ItemsTest) PutThenAddAndReplace() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put (first call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Put (second call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "queso", Add: false},
+			sdb.PutUpdate{Name: "bar", Value: "burrito", Add: true},  // Same as first
+			sdb.PutUpdate{Name: "bar", Value: "carnitas", Add: true},
+			sdb.PutUpdate{Name: "baz", Value: "enchilada", Add: false},  // Same as first
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
+			DeepEquals(sdb.Attribute{Name: "bar", Value: "carnitas"}),
+			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "queso"}),
+		),
+	)
 }
 
 func (t *ItemsTest) PutThenAddThenReplace() {
