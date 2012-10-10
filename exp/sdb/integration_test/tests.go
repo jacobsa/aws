@@ -535,11 +535,63 @@ func (t *ItemsTest) GetNonExistentAttributeName() {
 	)
 }
 
-func (t *ItemsTest) PreconditionWithNonConsistentRead() {
+func (t *ItemsTest) DeleteParticularAttributes() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ItemsTest) PreconditionWithMultiValuedAttribute() {
+func (t *ItemsTest) DeleteAllAttributes() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) BatchDelete() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) InvalidSelectQuery() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectAll() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectItemName() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectCount() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectWithPredicates() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectWithSortOrder() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectWithLimit() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectEmptyResultSet() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) SelectLargeResultSet() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) ItemNamesAreCaseSensitive() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) AttributeNamesAreCaseSensitive() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) AttributeValuesAreCaseSensitive() {
 	ExpectEq("TODO", "")
 }
 
@@ -619,62 +671,10 @@ func (t *ItemsTest) SuccessfulPreconditions() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ItemsTest) DeleteParticularAttributes() {
+func (t *ItemsTest) PreconditionWithNonConsistentRead() {
 	ExpectEq("TODO", "")
 }
 
-func (t *ItemsTest) DeleteAllAttributes() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) BatchDelete() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) InvalidSelectQuery() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) SelectAll() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) SelectItemName() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) SelectCount() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) SelectWithPredicates() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) SelectWithSortOrder() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) SelectWithLimit() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) SelectEmptyResultSet() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) SelectLargeResultSet() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) ItemNamesAreCaseSensitive() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) AttributeNamesAreCaseSensitive() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) AttributeValuesAreCaseSensitive() {
+func (t *ItemsTest) PreconditionWithMultiValuedAttribute() {
 	ExpectEq("TODO", "")
 }
