@@ -770,7 +770,53 @@ func (t *ItemsTest) SuccessfulValuePrecondition() {
 }
 
 func (t *ItemsTest) SuccessfulNonExistencePrecondition() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put (first call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Put (second call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "queso"},
+		},
+		&sdb.Precondition{Name: "bar", Value: nil},
+	)
+
+	AssertEq(nil, err)
+
+	// Delete
+	err = g_itemsTestDomain.DeleteAttributes(
+		item,
+		[]sdb.DeleteUpdate{
+			sdb.DeleteUpdate{Name: "baz"},
+		},
+		&sdb.Precondition{Name: "bar", Value: nil},
+	)
+
+	AssertEq(nil, err)
+
+	// Get -- both the second put and the delete should have taken effect.
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "queso"}),
+		),
+	)
 }
 
 func (t *ItemsTest) PreconditionWithNonConsistentRead() {
