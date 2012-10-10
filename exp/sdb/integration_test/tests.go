@@ -967,7 +967,51 @@ func (t *ItemsTest) SelectWithSortOrder() {
 }
 
 func (t *ItemsTest) SelectWithLimit() {
-	ExpectEq("TODO", "")
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+	item2 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		sdb.BatchPutMap{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "017"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "013"},
+			},
+			item2: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "031"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select (first call)
+	query := fmt.Sprintf(
+		"select itemName() from `%s` where foo > '000' order by foo asc limit 2",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+
+	AssertEq(nil, err)
+
+	AssertEq(2, len(results), "Results: %v", results)
+	ExpectEq(item1, results[0].Name)
+	ExpectEq(item0, results[1].Name)
+
+	AssertNe(nil, tok)
+
+	// Select (second call)
+	results, tok, err = g_itemsTestDb.Select(query, true, tok)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	AssertEq(1, len(results), "Results: %v", results)
+	ExpectEq(item2, results[0].Name)
 }
 
 func (t *ItemsTest) SelectEmptyResultSet() {
