@@ -249,30 +249,6 @@ func (t *ItemsTest) TearDownTestSuite() {
 	g_itemsTestDomain = nil
 }
 
-func (t *ItemsTest) InvalidUtf8ItemName() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) InvalidUtf8AttributeName() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) InvalidUtf8AttributeValue() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) LongItemName() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) LongAttributeName() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) LongAttributeValue() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ItemsTest) PutThenGet() {
 	ExpectEq("TODO", "")
 }
