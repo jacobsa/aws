@@ -59,6 +59,10 @@ func sortByName(attrs []sdb.Attribute) []sdb.Attribute {
 	return res
 }
 
+func makeStrPtr(s string) *string {
+	return &s
+}
+
 ////////////////////////////////////////////////////////////////////////
 // Domains
 ////////////////////////////////////////////////////////////////////////
@@ -533,7 +537,48 @@ func (t *ItemsTest) GetNonExistentAttributeName() {
 }
 
 func (t *ItemsTest) FailedValuePrecondition() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put (first call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Put (second call)
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "blahblah"},
+			sdb.PutUpdate{Name: "qux", Value: "queso"},
+		},
+		[]sdb.Precondition{
+			sdb.Precondition{Name: "foo", Value: makeStrPtr("taco")},
+			sdb.Precondition{Name: "bar", Value: makeStrPtr("asdf")},
+			sdb.Precondition{Name: "baz", Value: makeStrPtr("enchilada")},
+		},
+	)
+
+	ExpectThat(err, Error(HasSubstr("TODO")))
+
+	// Get -- the second write shouldn't have taken effect.
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, []string{"qux"})
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
 }
 
 func (t *ItemsTest) FailedExistencePrecondition() {
