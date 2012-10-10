@@ -132,8 +132,10 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 	}
 
 	// Build a request.
-	req := conn.Request{}
-	req["DomainName"] = name
+	req := conn.Request{
+		"Action": "CreateDomain",
+		"DomainName": name,
+	}
 
 	// Call the connection.
 	if _, err = db.c.SendRequest(req); err != nil {
@@ -147,8 +149,10 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 
 func (db *simpleDB) DeleteDomain(d Domain) (err error) {
 	// Build a request.
-	req := conn.Request{}
-	req["DomainName"] = d.Name()
+	req := conn.Request{
+		"Action": "DeleteDomain",
+		"DomainName": d.Name(),
+	}
 
 	// Call the connection.
 	if _, err = db.c.SendRequest(req); err != nil {

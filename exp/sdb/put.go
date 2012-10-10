@@ -102,9 +102,11 @@ func (d *domain) PutAttributes(
 	}
 
 	// Assemble an appropriate request.
-	req := conn.Request{}
-	req["DomainName"] = d.name
-	req["ItemName"] = string(item)
+	req := conn.Request{
+		"Action": "PutAttributes",
+		"DomainName": d.name,
+		"ItemName": string(item),
+	}
 
 	for i, u := range updates {
 		keyPrefix := fmt.Sprintf("Attribute.%d.", i+1)
@@ -160,8 +162,10 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 	}
 
 	// Build a request.
-	req := conn.Request{}
-	req["DomainName"] = d.name
+	req := conn.Request{
+		"Action": "BatchPutAttributes",
+		"DomainName": d.name,
+	}
 
 	pairs := getSortedPutPairs(updateMap)
 	for i, pair := range pairs {

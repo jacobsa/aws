@@ -104,9 +104,11 @@ func (d *domain) DeleteAttributes(
 	}
 
 	// Assemble an appropriate request.
-	req := conn.Request{}
-	req["DomainName"] = d.name
-	req["ItemName"] = string(item)
+	req := conn.Request{
+		"Action": "DeleteAttributes",
+		"DomainName": d.name,
+		"ItemName": string(item),
+	}
 
 	for i, u := range deletes {
 		keyPrefix := fmt.Sprintf("Attribute.%d.", i+1)
@@ -162,8 +164,10 @@ func (d *domain) BatchDeleteAttributes(
 	}
 
 	// Build a request.
-	req := conn.Request{}
-	req["DomainName"] = d.name
+	req := conn.Request{
+		"Action": "BatchDeleteAttributes",
+		"DomainName": d.name,
+	}
 
 	pairs := getSortedDeletePairs(deleteMap)
 	for i, pair := range pairs {

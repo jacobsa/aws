@@ -63,6 +63,7 @@ func (db *simpleDB) Select(
 	// Reference:
 	//     http://goo.gl/GTsSZ
 	req := conn.Request{
+		"Action": "Select",
 		"SelectExpression": query,
 	}
 
