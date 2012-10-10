@@ -77,10 +77,14 @@ func (t *integrationTest) ensureDeleted(item sdb.ItemName) {
 type nameSortedAttrList []sdb.Attribute
 
 func (l nameSortedAttrList) Len() int           { return len(l) }
-func (l nameSortedAttrList) Less(i, j int) bool { return l[i].Name < l[j].Name }
 func (l nameSortedAttrList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
+func (l nameSortedAttrList) Less(i, j int) bool {
+	a := l[i]
+	b := l[j]
+	return a.Name < b.Name || (a.Name == b.Name && a.Value < b.Value)
+}
 
-func sortByName(attrs []sdb.Attribute) []sdb.Attribute {
+func sortByNameThenVal(attrs []sdb.Attribute) []sdb.Attribute {
 	res := make(nameSortedAttrList, len(attrs))
 	copy(res, attrs)
 	sort.Sort(res)
@@ -315,7 +319,7 @@ func (t *ItemsTest) PutThenGet() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
 			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
@@ -360,7 +364,7 @@ func (t *ItemsTest) PutThenAddAndReplace() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
 			DeepEquals(sdb.Attribute{Name: "bar", Value: "carnitas"}),
@@ -413,7 +417,7 @@ func (t *ItemsTest) PutThenAddThenReplace() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "queso"}),
 		),
@@ -445,7 +449,7 @@ func (t *ItemsTest) BatchPutThenGet() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
@@ -457,7 +461,7 @@ func (t *ItemsTest) BatchPutThenGet() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
 		),
@@ -497,7 +501,7 @@ func (t *ItemsTest) GetOneParticularAttribute() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
 		),
@@ -526,7 +530,7 @@ func (t *ItemsTest) GetTwoParticularAttributes() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "baz", Value: "enchilada"}),
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
@@ -555,7 +559,7 @@ func (t *ItemsTest) GetNonExistentAttributeName() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
 		),
@@ -599,7 +603,7 @@ func (t *ItemsTest) DeleteParticularAttributes() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
 		),
@@ -671,7 +675,7 @@ func (t *ItemsTest) BatchDelete() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
 		),
@@ -1122,7 +1126,7 @@ func (t *ItemsTest) AttributeNamesAreCaseSensitive() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "FoO", Value: "burrito"}),
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
@@ -1152,7 +1156,7 @@ func (t *ItemsTest) AttributeValuesAreCaseSensitive() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "TaCo"}),
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
@@ -1217,7 +1221,7 @@ func (t *ItemsTest) FailedValuePrecondition() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
 		),
@@ -1276,7 +1280,7 @@ func (t *ItemsTest) FailedNonExistencePrecondition() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
 		),
@@ -1327,7 +1331,7 @@ func (t *ItemsTest) SuccessfulValuePrecondition() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "bar", Value: "burrito"}),
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "queso"}),
@@ -1378,7 +1382,7 @@ func (t *ItemsTest) SuccessfulNonExistencePrecondition() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "queso"}),
 		),
@@ -1436,7 +1440,7 @@ func (t *ItemsTest) PreconditionWithMultiValuedAttribute() {
 
 	AssertEq(nil, err)
 	ExpectThat(
-		sortByName(attrs),
+		sortByNameThenVal(attrs),
 		ElementsAre(
 			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
 		),
