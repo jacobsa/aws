@@ -57,6 +57,12 @@ type Attribute struct {
 	Value string
 }
 
+// A single result from a Select operation.
+type SelectedItem struct {
+	Name ItemName
+	Attributes []Attribute
+}
+
 // SimpleDB represents an authenticated connection to a particular endpoint the
 // SimpleDB service.
 type SimpleDB interface {
@@ -83,7 +89,7 @@ type SimpleDB interface {
 	Select(
 		query string,
 		constistentRead bool,
-		nextToken []byte) (res map[ItemName][]Attribute, tok []byte, err error)
+		nextToken []byte) (results []SelectedItem, tok []byte, err error)
 }
 
 // Return a SimpleDB connection tied to the given region, using the sipplied

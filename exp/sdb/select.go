@@ -36,7 +36,7 @@ type selectResponse struct {
 }
 
 func parseSelectResponse(resp []byte) (
-	attrMap map[ItemName][]Attribute,
+	results []SelectedItem,
 	tok []byte,
 	err error) {
 	responseStruct := &selectResponse{}
@@ -45,9 +45,9 @@ func parseSelectResponse(resp []byte) (
 		return
 	}
 
-	attrMap = map[ItemName][]Attribute{}
 	for _, item := range responseStruct.SelectResult.Items {
-		attrMap[item.Name] = item.Attributes
+		selectedItem := SelectedItem{item.Name, item.Attributes}
+		results = append(results, selectedItem)
 	}
 
 	tok = responseStruct.SelectResult.NextToken
@@ -57,7 +57,7 @@ func parseSelectResponse(resp []byte) (
 func (db *simpleDB) Select(
 	query string,
 	constistentRead bool,
-	nextToken []byte) (attrMap map[ItemName][]Attribute, tok []byte, err error) {
+	nextToken []byte) (results []SelectedItem, tok []byte, err error) {
 	// Create an appropriate request.
 	//
 	// Reference:

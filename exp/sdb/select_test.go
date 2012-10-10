@@ -35,7 +35,7 @@ type SelectTest struct {
 	constistentRead bool
 	nextToken       []byte
 
-	attrMap map[ItemName][]Attribute
+	results []SelectedItem
 	tok     []byte
 	err     error
 }
@@ -46,7 +46,7 @@ func (t *SelectTest) SetUp(i *TestInfo) {
 }
 
 func (t *SelectTest) callDB() {
-	t.attrMap, t.tok, t.err = t.db.Select(t.query, t.constistentRead, t.nextToken)
+	t.results, t.tok, t.err = t.db.Select(t.query, t.constistentRead, t.nextToken)
 }
 
 func init() { RegisterTestSuite(&SelectTest{}) }
@@ -110,21 +110,13 @@ func (t *SelectTest) ConnReturnsError() {
 
 func (t *SelectTest) ConnReturnsJunk() {
 	// Conn
-	t.c.resp = []byte(`
-		<SelectResponse>
-		  <SelectResult>
-		  </SelectResult>
-		  <ResponseMetadata>
-		    <RequestId>b1e8f1f7-42e9-494c-ad09-2674e557526d</RequestId>
-		    <BoxUsage>0.0000219907</BoxUsage>
-		  </ResponseMetadata>
-		</SelectResponse>`)
+	t.c.resp = []byte("asdf")
 
 	// Call
 	t.callDB()
 
-	AssertEq(nil, t.err)
-	ExpectEq(0, len(t.attrMap))
+	ExpectThat(t.err, Error(HasSubstr("Invalid")))
+	ExpectThat(t.err, Error(HasSubstr("asdf")))
 }
 
 func (t *SelectTest) NoItemsInResponse() {
@@ -143,7 +135,7 @@ func (t *SelectTest) NoItemsInResponse() {
 	t.callDB()
 
 	AssertEq(nil, t.err)
-	ExpectEq(0, len(t.attrMap))
+	ExpectThat(t.results, ElementsAre())
 }
 
 func (t *SelectTest) SomeItemsInResponse() {
@@ -172,24 +164,26 @@ func (t *SelectTest) SomeItemsInResponse() {
 
 	AssertEq(nil, t.err)
 
-	AssertEq(2, len(t.attrMap))
-
 	ExpectThat(
-		t.attrMap["item_0"],
-		DeepEquals(
-			[]Attribute{
-				Attribute{Name: "taco", Value: "burrito"},
-				Attribute{Name: "enchilada", Value: "queso"},
-			},
-		),
-	)
-
-	ExpectThat(
-		t.attrMap["item_1"],
-		DeepEquals(
-			[]Attribute{
-				Attribute{Name: "nachos", Value: "carnitas"},
-			},
+		t.results,
+		ElementsAre(
+			DeepEquals(
+				SelectedItem{
+					Name: "item_0",
+					Attributes: []Attribute{
+						Attribute{Name: "taco", Value: "burrito"},
+						Attribute{Name: "enchilada", Value: "queso"},
+					},
+				},
+			),
+			DeepEquals(
+				SelectedItem{
+					Name: "item_1",
+					Attributes: []Attribute{
+						Attribute{Name: "nachos", Value: "carnitas"},
+					},
+				},
+			),
 		),
 	)
 }
