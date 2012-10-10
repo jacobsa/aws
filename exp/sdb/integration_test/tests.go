@@ -38,9 +38,16 @@ func (t *integrationTest) SetUp(i *TestInfo) {
 	AssertEq(nil, err)
 }
 
+// Generate an item name likely to be unique.
+func (t *integrationTest) makeItemName() sdb.ItemName
+
 ////////////////////////////////////////////////////////////////////////
 // Domains
 ////////////////////////////////////////////////////////////////////////
+
+var g_domainsTestDb sdb.SimpleDB
+var g_domainsTestDomain0 sdb.Domain
+var g_domainsTestDomain1 sdb.Domain
 
 type DomainsTest struct {
 	integrationTest
@@ -50,6 +57,33 @@ type DomainsTest struct {
 }
 
 func init() { RegisterTestSuite(&DomainsTest{}) }
+
+func (t *DomainsTest) SetUpTestSuite() {
+	var err error
+
+	// Open a connection.
+	g_domainsTestDb, err = sdb.NewSimpleDB(g_region, g_accessKey)
+	AssertEq(nil, err)
+
+	// Create domain 0.
+	g_domainsTestDomain0, err = g_domainsTestDb.OpenDomain("DomainsTest.domain0")
+	AssertEq(nil, err)
+
+	// Create domain 1.
+	g_domainsTestDomain1, err = g_domainsTestDb.OpenDomain("DomainsTest.domain1")
+	AssertEq(nil, err)
+}
+
+func (t *DomainsTest) TearDownTestSuite() {
+	// Delete both domains.
+	AssertEq(nil, g_domainsTestDb.DeleteDomain(g_domainsTestDomain0))
+	AssertEq(nil, g_domainsTestDb.DeleteDomain(g_domainsTestDomain1))
+
+	// Clear variables.
+	g_domainsTestDb = nil
+	g_domainsTestDomain0 = nil
+	g_domainsTestDomain1 = nil
+}
 
 func (t *DomainsTest) ensureDeleted(d sdb.Domain) {
 	t.mutex.Lock()
@@ -87,18 +121,9 @@ func (t *DomainsTest) InvalidAccessKey() {
 func (t *DomainsTest) SeparatelyNamedDomainsHaveIndependentItems() {
 	var err error
 
-	// Open two domains.
-	domain0, err := t.db.OpenDomain("taco")
-	AssertEq(nil, err)
-	t.ensureDeleted(domain0)
-
-	domain1, err := t.db.OpenDomain("burrito")
-	AssertEq(nil, err)
-	t.ensureDeleted(domain1)
-
-	// Set up an item in the first.
-	itemName := sdb.ItemName("some_item")
-	err = domain0.PutAttributes(
+	// Set up an item in the first domain.
+	itemName := t.makeItemName()
+	err = g_domainsTestDomain0.PutAttributes(
 		itemName,
 		[]sdb.PutUpdate{
 			sdb.PutUpdate{Name: "enchilada", Value: "queso"},
@@ -110,7 +135,7 @@ func (t *DomainsTest) SeparatelyNamedDomainsHaveIndependentItems() {
 
 	// Get attributes for the same name in the other domain. There should be
 	// none.
-	attrs, err := domain1.GetAttributes(itemName, true, []string{})
+	attrs, err := g_domainsTestDomain1.GetAttributes(itemName, true, []string{})
 	AssertEq(nil, err)
 
 	ExpectThat(attrs, ElementsAre())
@@ -119,18 +144,9 @@ func (t *DomainsTest) SeparatelyNamedDomainsHaveIndependentItems() {
 func (t *DomainsTest) IdenticallyNamedDomainsHaveIdenticalItems() {
 	var err error
 
-	// Open two domains with the same name.
-	domain0, err := t.db.OpenDomain("taco")
-	AssertEq(nil, err)
-	t.ensureDeleted(domain0)
-
-	domain1, err := t.db.OpenDomain(domain0.Name())
-	AssertEq(nil, err)
-	t.ensureDeleted(domain1)
-
-	// Set up an item in the first.
-	itemName := sdb.ItemName("some_item")
-	err = domain0.PutAttributes(
+	// Set up an item in the first domain.
+	itemName := t.makeItemName()
+	err = g_domainsTestDomain0.PutAttributes(
 		itemName,
 		[]sdb.PutUpdate{
 			sdb.PutUpdate{Name: "enchilada", Value: "queso"},
@@ -141,7 +157,7 @@ func (t *DomainsTest) IdenticallyNamedDomainsHaveIdenticalItems() {
 	AssertEq(nil, err)
 
 	// Get attributes for the same name in the other domain.
-	attrs, err := domain1.GetAttributes(itemName, true, []string{})
+	attrs, err := g_domainsTestDomain1.GetAttributes(itemName, true, []string{})
 	AssertEq(nil, err)
 
 	ExpectThat(
