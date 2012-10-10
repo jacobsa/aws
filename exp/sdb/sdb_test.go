@@ -66,3 +66,32 @@ func (t *CreateDomainTest) callDB() {
 func (t *CreateDomainTest) DoesFoo() {
 	ExpectFalse(true, "TODO")
 }
+
+////////////////////////////////////////////////////////////////////////
+// DeleteDomain
+////////////////////////////////////////////////////////////////////////
+
+type DeleteDomainTest struct {
+	simpleDBTest
+
+	name string
+	err error
+}
+
+func init() { RegisterTestSuite(&DeleteDomainTest{}) }
+
+func (t *DeleteDomainTest) SetUp(i *TestInfo) {
+	// Call common setup code.
+	t.simpleDBTest.SetUp(i)
+
+	// Make the request legal by default.
+	t.name = "foo"
+}
+
+func (t *DeleteDomainTest) callDB() {
+	t.err = t.db.DeleteDomain(t.name)
+}
+
+func (t *DeleteDomainTest) DoesFoo() {
+	ExpectFalse(true, "TODO")
+}
