@@ -41,7 +41,7 @@ func (m *mockDomain) Oglemock_Description() string {
 	return m.description
 }
 
-func (m *mockDomain) BatchDeleteAttributes(p0 map[sdb.ItemName][]sdb.DeleteUpdate) (o0 error) {
+func (m *mockDomain) BatchDeleteAttributes(p0 sdb.BatchDeleteMap) (o0 error) {
 	// Get a file name and line number for the caller.
 	_, file, line, _ := runtime.Caller(1)
 
@@ -65,7 +65,7 @@ func (m *mockDomain) BatchDeleteAttributes(p0 map[sdb.ItemName][]sdb.DeleteUpdat
 	return
 }
 
-func (m *mockDomain) BatchPutAttributes(p0 map[sdb.ItemName][]sdb.PutUpdate) (o0 error) {
+func (m *mockDomain) BatchPutAttributes(p0 sdb.BatchPutMap) (o0 error) {
 	// Get a file name and line number for the caller.
 	_, file, line, _ := runtime.Caller(1)
 

@@ -33,7 +33,7 @@ type integrationTest struct {
 	db sdb.SimpleDB
 
 	mutex sync.Mutex
-	deleteRequest map[sdb.ItemName][]sdb.DeleteUpdate  // Protected by mutex
+	deleteRequest sdb.BatchDeleteMap  // Protected by mutex
 }
 
 func (t *integrationTest) SetUp(i *TestInfo) {
@@ -42,7 +42,7 @@ func (t *integrationTest) SetUp(i *TestInfo) {
 	// Set up the record of what item names to delete.
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
-	t.deleteRequest = map[sdb.ItemName][]sdb.DeleteUpdate{}
+	t.deleteRequest = sdb.BatchDeleteMap{}
 
 	// Open a connection.
 	t.db, err = sdb.NewSimpleDB(g_region, g_accessKey)
@@ -432,7 +432,7 @@ func (t *ItemsTest) BatchPutThenGet() {
 
 	// Batch put
 	err = g_itemsTestDomain.BatchPutAttributes(
-		map[sdb.ItemName][]sdb.PutUpdate{
+		sdb.BatchPutMap{
 			item0: []sdb.PutUpdate{
 				sdb.PutUpdate{Name: "foo", Value: "taco"},
 				sdb.PutUpdate{Name: "bar", Value: "burrito"},
@@ -646,7 +646,7 @@ func (t *ItemsTest) BatchDelete() {
 
 	// Batch put
 	err = g_itemsTestDomain.BatchPutAttributes(
-		map[sdb.ItemName][]sdb.PutUpdate{
+		sdb.BatchPutMap{
 			item0: []sdb.PutUpdate{
 				sdb.PutUpdate{Name: "foo", Value: "taco"},
 				sdb.PutUpdate{Name: "bar", Value: "burrito", Add: true},
@@ -660,7 +660,7 @@ func (t *ItemsTest) BatchDelete() {
 
 	// Batch delete
 	err = g_itemsTestDomain.BatchDeleteAttributes(
-		map[sdb.ItemName][]sdb.DeleteUpdate{
+		sdb.BatchDeleteMap{
 			item0: []sdb.DeleteUpdate{
 				sdb.DeleteUpdate{Name: "foo"},
 				sdb.DeleteUpdate{Name: "bar", Value: makeStrPtr("carnitas")},
@@ -711,7 +711,7 @@ func (t *ItemsTest) SelectAll() {
 
 	// Batch put
 	err = g_itemsTestDomain.BatchPutAttributes(
-		map[sdb.ItemName][]sdb.PutUpdate{
+		sdb.BatchPutMap{
 			item0: []sdb.PutUpdate{
 				sdb.PutUpdate{Name: "foo", Value: "taco"},
 				sdb.PutUpdate{Name: "bar", Value: "burrito"},
@@ -766,7 +766,7 @@ func (t *ItemsTest) SelectItemName() {
 
 	// Batch put
 	err = g_itemsTestDomain.BatchPutAttributes(
-		map[sdb.ItemName][]sdb.PutUpdate{
+		sdb.BatchPutMap{
 			item0: []sdb.PutUpdate{
 				sdb.PutUpdate{Name: "foo", Value: "taco"},
 				sdb.PutUpdate{Name: "bar", Value: "burrito"},
@@ -809,7 +809,7 @@ func (t *ItemsTest) SelectCount() {
 
 	// Batch put
 	err = g_itemsTestDomain.BatchPutAttributes(
-		map[sdb.ItemName][]sdb.PutUpdate{
+		sdb.BatchPutMap{
 			item0: []sdb.PutUpdate{
 				sdb.PutUpdate{Name: "foo", Value: "taco"},
 				sdb.PutUpdate{Name: "bar", Value: "burrito"},
@@ -856,7 +856,7 @@ func (t *ItemsTest) SelectWithPredicatesAndParticularAttributes() {
 
 	// Batch put
 	err = g_itemsTestDomain.BatchPutAttributes(
-		map[sdb.ItemName][]sdb.PutUpdate{
+		sdb.BatchPutMap{
 			item0: []sdb.PutUpdate{
 				sdb.PutUpdate{Name: "foo", Value: "017"},
 				sdb.PutUpdate{Name: "bar", Value: "taco"},
