@@ -819,10 +819,6 @@ func (t *ItemsTest) SuccessfulNonExistencePrecondition() {
 	)
 }
 
-func (t *ItemsTest) PreconditionWithNonConsistentRead() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ItemsTest) PreconditionWithMultiValuedAttribute() {
 	ExpectEq("TODO", "")
 }
