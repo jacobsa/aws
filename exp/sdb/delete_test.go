@@ -40,9 +40,9 @@ func newString(s string) *string {
 type DeleteTest struct {
 	domainTest
 
-	item          ItemName
-	updates       []DeleteUpdate
-	preconditions []Precondition
+	item         ItemName
+	updates      []DeleteUpdate
+	precondition *Precondition
 
 	err error
 }
@@ -59,7 +59,7 @@ func (t *DeleteTest) SetUp(i *TestInfo) {
 }
 
 func (t *DeleteTest) callDomain() {
-	t.err = t.domain.DeleteAttributes(t.item, t.updates, t.preconditions)
+	t.err = t.domain.DeleteAttributes(t.item, t.updates, t.precondition)
 }
 
 func (t *DeleteTest) EmptyItemName() {
@@ -129,11 +129,10 @@ func (t *DeleteTest) OneAttributeValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("value")))
 }
 
-func (t *DeleteTest) OnePreconditionNameEmpty() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "", Exists: new(bool)},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *DeleteTest) PreconditionNameEmpty() {
+	t.precondition = &Precondition{
+		Name: "",
+		Exists: new(bool),
 	}
 
 	// Call
@@ -144,11 +143,10 @@ func (t *DeleteTest) OnePreconditionNameEmpty() {
 	ExpectThat(t.err, Error(HasSubstr("name")))
 }
 
-func (t *DeleteTest) OnePreconditionNameInvalid() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "taco\x80\x81\x82", Exists: new(bool)},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *DeleteTest) PreconditionNameInvalid() {
+	t.precondition = &Precondition{
+		Name: "taco\x80\x81\x82",
+		Exists: new(bool),
 	}
 
 	// Call
@@ -157,19 +155,14 @@ func (t *DeleteTest) OnePreconditionNameInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("Invalid")))
 	ExpectThat(t.err, Error(HasSubstr("attribute")))
 	ExpectThat(t.err, Error(HasSubstr("name")))
-	ExpectThat(t.err, Error(HasSubstr(t.preconditions[1].Name)))
+	ExpectThat(t.err, Error(HasSubstr(t.precondition.Name)))
 }
 
-func (t *DeleteTest) OnePreconditionValueInvalid() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Value: new(string)},
-		Precondition{Name: "bar", Value: new(string)},
-		Precondition{Name: "baz", Value: new(string)},
+func (t *DeleteTest) PreconditionValueInvalid() {
+	t.precondition = &Precondition{
+		Name: "bar",
+		Value: newString("taco\x80\x81\x82"),
 	}
-
-	*t.preconditions[0].Value = ""
-	*t.preconditions[1].Value = "taco\x80\x81\x82"
-	*t.preconditions[2].Value = "qux"
 
 	// Call
 	t.callDomain()
@@ -179,11 +172,9 @@ func (t *DeleteTest) OnePreconditionValueInvalid() {
 	ExpectThat(t.err, Error(HasSubstr("value")))
 }
 
-func (t *DeleteTest) OnePreconditionMissingOperand() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "bar"},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *DeleteTest) PreconditionMissingOperand() {
+	t.precondition = &Precondition{
+		Name: "bar",
 	}
 
 	// Call
@@ -194,11 +185,11 @@ func (t *DeleteTest) OnePreconditionMissingOperand() {
 	ExpectThat(t.err, Error(HasSubstr("bar")))
 }
 
-func (t *DeleteTest) OnePreconditionHasTwoOperands() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "bar", Exists: new(bool), Value: new(string)},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *DeleteTest) PreconditionHasTwoOperands() {
+	t.precondition = &Precondition{
+		Name: "bar",
+		Value: new(string),
+		Exists: new(bool),
 	}
 
 	// Call
@@ -273,7 +264,7 @@ func (t *DeleteTest) NoUpdates() {
 	ExpectEq("some_item", t.c.req["ItemName"])
 }
 
-func (t *DeleteTest) NoPreconditions() {
+func (t *DeleteTest) NoPrecondition() {
 	// Call
 	t.callDomain()
 	AssertNe(nil, t.c.req, "Error: %v", t.err)
@@ -281,16 +272,13 @@ func (t *DeleteTest) NoPreconditions() {
 	ExpectThat(getSortedKeys(t.c.req), Not(Contains(HasSubstr("Expected"))))
 }
 
-func (t *DeleteTest) SomePreconditions() {
-	t.preconditions = []Precondition{
-		Precondition{Name: "foo", Exists: new(bool)},
-		Precondition{Name: "bar", Value: new(string)},
-		Precondition{Name: "baz", Exists: new(bool)},
+func (t *DeleteTest) PositiveExistencePrecondition() {
+	t.precondition = &Precondition{
+		Name: "foo",
+		Exists: new(bool),
 	}
 
-	*t.preconditions[0].Exists = false
-	*t.preconditions[1].Value = "taco"
-	*t.preconditions[2].Exists = true
+	*t.precondition.Exists = true
 
 	// Call
 	t.callDomain()
@@ -300,21 +288,59 @@ func (t *DeleteTest) SomePreconditions() {
 		getSortedKeys(t.c.req),
 		AllOf(
 			Contains("Expected.1.Name"),
-			Contains("Expected.2.Name"),
-			Contains("Expected.3.Name"),
 			Contains("Expected.1.Exists"),
-			Contains("Expected.2.Value"),
-			Contains("Expected.3.Exists"),
+			Not(Contains("Expected.1.Value")),
 		),
 	)
 
 	ExpectEq("foo", t.c.req["Expected.1.Name"])
-	ExpectEq("bar", t.c.req["Expected.2.Name"])
-	ExpectEq("baz", t.c.req["Expected.3.Name"])
+	ExpectEq("true", t.c.req["Expected.1.Exists"])
+}
 
+func (t *DeleteTest) NegativeExistencePrecondition() {
+	t.precondition = &Precondition{
+		Name: "foo",
+		Exists: new(bool),
+	}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		AllOf(
+			Contains("Expected.1.Name"),
+			Contains("Expected.1.Exists"),
+			Not(Contains("Expected.1.Value")),
+		),
+	)
+
+	ExpectEq("foo", t.c.req["Expected.1.Name"])
 	ExpectEq("false", t.c.req["Expected.1.Exists"])
-	ExpectEq("taco", t.c.req["Expected.2.Value"])
-	ExpectEq("true", t.c.req["Expected.3.Exists"])
+}
+
+func (t *DeleteTest) ValuePrecondition() {
+	t.precondition = &Precondition{
+		Name: "foo",
+		Value: newString("taco"),
+	}
+
+	// Call
+	t.callDomain()
+	AssertNe(nil, t.c.req, "Error: %v", t.err)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		AllOf(
+			Contains("Expected.1.Name"),
+			Contains("Expected.1.Value"),
+			Not(Contains("Expected.1.Exists")),
+		),
+	)
+
+	ExpectEq("foo", t.c.req["Expected.1.Name"])
+	ExpectEq("taco", t.c.req["Expected.1.Value"])
 }
 
 func (t *DeleteTest) ConnReturnsError() {

@@ -81,7 +81,7 @@ func validateDeleteUpdates(updates []DeleteUpdate) (err error) {
 func (d *domain) DeleteAttributes(
 	item ItemName,
 	deletes []DeleteUpdate,
-	preconditions []Precondition) (err error) {
+	precondition *Precondition) (err error) {
 	// Make sure the item name is legal.
 	if item == "" {
 		return fmt.Errorf("Invalid item name; names must be non-empty.")
@@ -96,10 +96,10 @@ func (d *domain) DeleteAttributes(
 		return err
 	}
 
-	// Validate preconditions.
-	for _, p := range preconditions {
-		if err = validatePrecondition(p); err != nil {
-			return fmt.Errorf("Invalid precondition (%v): %v", err, p)
+	// Validate the precondition, if any.
+	if precondition != nil {
+		if err = validatePrecondition(*precondition); err != nil {
+			return fmt.Errorf("Invalid precondition (%v): %v", err, *precondition)
 		}
 	}
 
@@ -120,13 +120,13 @@ func (d *domain) DeleteAttributes(
 		}
 	}
 
-	for i, p := range preconditions {
-		keyPrefix := fmt.Sprintf("Expected.%d.", i+1)
-		req[keyPrefix+"Name"] = p.Name
+	if precondition != nil {
+		keyPrefix := "Expected.1."
+		req[keyPrefix+"Name"] = precondition.Name
 
-		if p.Value != nil {
-			req[keyPrefix+"Value"] = *p.Value
-		} else if *p.Exists {
+		if precondition.Value != nil {
+			req[keyPrefix+"Value"] = *precondition.Value
+		} else if *precondition.Exists {
 			req[keyPrefix+"Exists"] = "true"
 		} else {
 			req[keyPrefix+"Exists"] = "false"

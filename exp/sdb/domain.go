@@ -66,13 +66,14 @@ type Domain interface {
 	Name() string
 
 	// Atomically apply the supplied updates to the attributes of the named item,
-	// but only if the supplied preconditions hold.
+	// but only if the supplied precondition holds. If no precondition is
+	// desired, pass nil.
 	//
 	// The length of updates must be in [1, 256].
 	PutAttributes(
 		item ItemName,
 		updates []PutUpdate,
-		preconditions []Precondition) error
+		precondition *Precondition) error
 
 	// Atomically apply updates to multiple items simultaneously.
 	//
@@ -93,7 +94,7 @@ type Domain interface {
 		attrNames []string) (attrs []Attribute, err error)
 
 	// Atomically delete attributes from the named item, but only if the supplied
-	// preconditions hold.
+	// precondition holds. If no precondition is desired, pass nil.
 	//
 	// If deletes is empty, delete all attributes from the item. Otherwise
 	// perform only the deletes is specifies. Deleting a non-existent attribute
@@ -101,7 +102,7 @@ type Domain interface {
 	DeleteAttributes(
 		item ItemName,
 		deletes []DeleteUpdate,
-		preconditions []Precondition) error
+		precondition *Precondition) error
 
 	// Atomically delete attributes from multiple items simultaneously.
 	//
