@@ -29,7 +29,6 @@ type integrationTest struct {
 	db sdb.SimpleDB
 
 	mutex           sync.Mutex
-	itemsToDelete   map[sdb.Domain]sdb.ItemName  // Protected by mutex
 	domainsToDelete []Domain                     // Protected by mutex
 }
 
@@ -41,11 +40,16 @@ func (t *integrationTest) SetUp(i *TestInfo) {
 	AssertEq(nil, err)
 }
 
+func (t *integrationTest) ensureDeleted(d Domain)
+
 func (t *integrationTest) TearDown() {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
-	AssertEq("", "TODO: Delete domains and items as specified")
+	// Delete each of the domains created during the test.
+	for d := range t.domainsToDelete {
+		ExpectEq(nil, t.db.DeleteDomain(d))
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////
