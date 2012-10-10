@@ -803,7 +803,49 @@ func (t *ItemsTest) SelectItemName() {
 }
 
 func (t *ItemsTest) SelectCount() {
-	ExpectEq("TODO", "")
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		map[sdb.ItemName][]sdb.PutUpdate{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "taco"},
+				sdb.PutUpdate{Name: "bar", Value: "burrito"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "baz", Value: "enchilada"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select count(*) from `%s`",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	ExpectEq(1, len(results), "Results: %v", results)
+	AssertThat(
+		getKeys(results),
+		AllOf(
+			Contains("Domain"),
+		),
+	)
+
+	ExpectThat(
+		sortByName(results["Domain"]),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "Count", Value: "2"}),
+		),
+	)
 }
 
 func (t *ItemsTest) SelectWithPredicates() {
