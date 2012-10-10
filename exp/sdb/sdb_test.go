@@ -18,6 +18,7 @@ package sdb
 import (
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"strings"
 )
 
 ////////////////////////////////////////////////////////////////////////
@@ -103,23 +104,52 @@ func (t *OpenDomainTest) callDB() {
 	t.domain, t.err = t.db.OpenDomain(t.name)
 }
 
-func (t *OpenDomainTest) NameIsEmpty() {
-	t.name = ""
+func (t *OpenDomainTest) NameIsTooShort() {
+	t.name = "aa"
 
 	// Call
 	t.callDB()
 
 	ExpectThat(t.err, Error(HasSubstr("domain")))
 	ExpectThat(t.err, Error(HasSubstr("name")))
-	ExpectThat(t.err, Error(HasSubstr("empty")))
 }
 
-func (t *OpenDomainTest) NameIsInvalid() {
-	ExpectFalse(true, "TODO")
+func (t *OpenDomainTest) NameIsTooLong() {
+	t.name = strings.Repeat("x", 256)
+
+	// Call
+	t.callDB()
+
+	ExpectThat(t.err, Error(HasSubstr("domain")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+}
+
+func (t *OpenDomainTest) NameContainsUnusableCharacter() {
+	t.name = "foo%bar"
+
+	// Call
+	t.callDB()
+
+	ExpectThat(t.err, Error(HasSubstr("domain")))
+	ExpectThat(t.err, Error(HasSubstr("name")))
+	ExpectThat(t.err, Error(HasSubstr("foo%bar")))
 }
 
 func (t *OpenDomainTest) CallsConn() {
-	ExpectFalse(true, "TODO")
+	t.name = "taco"
+
+	// Call
+	t.callDB()
+	AssertNe(nil, t.c.req)
+
+	AssertThat(
+		getSortedKeys(t.c.req),
+		ElementsAre(
+			"DomainName",
+		),
+	)
+
+	ExpectEq("taco", t.c.req["DomainName"])
 }
 
 func (t *OpenDomainTest) ConnReturnsError() {
