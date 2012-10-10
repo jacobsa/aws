@@ -81,6 +81,17 @@ type Domain interface {
 	// SimpleDB is too large.
 	BatchPutAttributes(updateMap map[ItemName][]PutUpdate) error
 
+	// Retrieve a set of attributes for the named item, or all attributes if the
+	// attribute name slice is empty.
+	//
+	// If the named item doesn't exist, the empty set is returned.
+	//
+	// constistentRead specifies whether completely fresh data is needed or not.
+	GetAttributes(
+		item ItemName,
+		constistentRead bool,
+		attrNames []string) (attrs []Attribute, err error)
+
 	// Atomically delete attributes from the named item, but only if the supplied
 	// preconditions hold.
 	//
@@ -97,17 +108,6 @@ type Domain interface {
 	// If no updates are supplied for a particular item, delete all of its
 	// attributes.
 	BatchDeleteAttributes(deleteMap map[ItemName][]DeleteUpdate) error
-
-	// Retrieve a set of attributes for the named item, or all attributes if the
-	// attribute name slice is empty.
-	//
-	// If the named item doesn't exist, the empty set is returned.
-	//
-	// constistentRead specifies whether completely fresh data is needed or not.
-	GetAttributes(
-		item ItemName,
-		constistentRead bool,
-		attrNames []string) (attrs []Attribute, err error)
 }
 
 func newDomain(name string, c conn.Conn) (Domain, error) {
