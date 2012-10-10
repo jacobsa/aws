@@ -164,8 +164,20 @@ func (t *OpenDomainTest) ConnReturnsError() {
 	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
 
-func (t *OpenDomainTest) CallsFactoryFuncAndReturnsResult() {
-	ExpectFalse(true, "TODO")
+func (t *OpenDomainTest) ConnSaysOkay() {
+	t.name = "taco"
+
+	// Conn
+	t.c.resp = []byte{}
+
+	// Call
+	t.callDB()
+	AssertEq(nil, t.err)
+
+	castedDomain, ok := t.domain.(*domain)
+	AssertTrue(ok)
+	ExpectEq("taco", castedDomain.name)
+	ExpectEq(t.c, castedDomain.c)
 }
 
 ////////////////////////////////////////////////////////////////////////
