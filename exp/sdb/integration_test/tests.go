@@ -390,18 +390,6 @@ func (t *ItemsTest) PutThenAddThenReplace() {
 	)
 }
 
-func (t *ItemsTest) ItemNamesAreCaseSensitive() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) AttributeNamesAreCaseSensitive() {
-	ExpectEq("TODO", "")
-}
-
-func (t *ItemsTest) AttributeValuesAreCaseSensitive() {
-	ExpectEq("TODO", "")
-}
-
 func (t *ItemsTest) BatchPutThenGet() {
 	var err error
 	item0 := t.makeItemName()
@@ -581,5 +569,17 @@ func (t *ItemsTest) SelectEmptyResultSet() {
 }
 
 func (t *ItemsTest) SelectLargeResultSet() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) ItemNamesAreCaseSensitive() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) AttributeNamesAreCaseSensitive() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) AttributeValuesAreCaseSensitive() {
 	ExpectEq("TODO", "")
 }
