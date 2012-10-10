@@ -339,7 +339,14 @@ func (t *ItemsTest) BatchPutThenGet() {
 }
 
 func (t *ItemsTest) GetForNonExistentItem() {
-	ExpectEq("TODO", "")
+	var err error
+	itemName := t.makeItemName()
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(itemName, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(attrs, ElementsAre())
 }
 
 func (t *ItemsTest) GetParticularAttributes() {
