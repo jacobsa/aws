@@ -154,7 +154,7 @@ func (t *DomainsTest) SeparatelyNamedDomainsHaveIndependentItems() {
 		[]sdb.PutUpdate{
 			sdb.PutUpdate{Name: "enchilada", Value: "queso"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -177,7 +177,7 @@ func (t *DomainsTest) IdenticallyNamedDomainsHaveIdenticalItems() {
 		[]sdb.PutUpdate{
 			sdb.PutUpdate{Name: "enchilada", Value: "queso"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -219,7 +219,7 @@ func (t *DomainsTest) Delete() {
 		[]sdb.PutUpdate{
 			sdb.PutUpdate{Name: "foo", Value: "bar"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	ExpectThat(err, Error(HasSubstr("NoSuchDomain")))
@@ -279,7 +279,7 @@ func (t *ItemsTest) PutThenGet() {
 			sdb.PutUpdate{Name: "bar", Value: "burrito"},
 			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -310,7 +310,7 @@ func (t *ItemsTest) PutThenAddAndReplace() {
 			sdb.PutUpdate{Name: "bar", Value: "burrito"},
 			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -324,7 +324,7 @@ func (t *ItemsTest) PutThenAddAndReplace() {
 			sdb.PutUpdate{Name: "bar", Value: "carnitas", Add: true},
 			sdb.PutUpdate{Name: "baz", Value: "enchilada", Add: false},  // Same as first
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -354,7 +354,7 @@ func (t *ItemsTest) PutThenAddThenReplace() {
 		[]sdb.PutUpdate{
 			sdb.PutUpdate{Name: "foo", Value: "taco"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -366,7 +366,7 @@ func (t *ItemsTest) PutThenAddThenReplace() {
 			sdb.PutUpdate{Name: "foo", Value: "burrito", Add: true},
 			sdb.PutUpdate{Name: "foo", Value: "enchilada", Add: true},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -377,7 +377,7 @@ func (t *ItemsTest) PutThenAddThenReplace() {
 		[]sdb.PutUpdate{
 			sdb.PutUpdate{Name: "foo", Value: "queso"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -461,7 +461,7 @@ func (t *ItemsTest) GetOneParticularAttribute() {
 			sdb.PutUpdate{Name: "bar", Value: "burrito"},
 			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -490,7 +490,7 @@ func (t *ItemsTest) GetTwoParticularAttributes() {
 			sdb.PutUpdate{Name: "bar", Value: "burrito"},
 			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -519,7 +519,7 @@ func (t *ItemsTest) GetNonExistentAttributeName() {
 			sdb.PutUpdate{Name: "foo", Value: "taco"},
 			sdb.PutUpdate{Name: "bar", Value: "burrito"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -548,7 +548,7 @@ func (t *ItemsTest) FailedValuePrecondition() {
 			sdb.PutUpdate{Name: "bar", Value: "burrito"},
 			sdb.PutUpdate{Name: "baz", Value: "enchilada"},
 		},
-		[]sdb.Precondition{},
+		nil,
 	)
 
 	AssertEq(nil, err)
@@ -560,11 +560,7 @@ func (t *ItemsTest) FailedValuePrecondition() {
 			sdb.PutUpdate{Name: "foo", Value: "blahblah"},
 			sdb.PutUpdate{Name: "qux", Value: "queso"},
 		},
-		[]sdb.Precondition{
-			sdb.Precondition{Name: "foo", Value: makeStrPtr("taco")},
-			sdb.Precondition{Name: "bar", Value: makeStrPtr("asdf")},
-			sdb.Precondition{Name: "baz", Value: makeStrPtr("enchilada")},
-		},
+		&sdb.Precondition{Name: "bar", Value: makeStrPtr("asdf")},
 	)
 
 	ExpectThat(err, Error(HasSubstr("TODO")))
