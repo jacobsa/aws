@@ -928,7 +928,42 @@ func (t *ItemsTest) SelectWithPredicatesAndParticularAttributes() {
 }
 
 func (t *ItemsTest) SelectWithSortOrder() {
-	ExpectEq("TODO", "")
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+	item2 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		sdb.BatchPutMap{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "017"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "013"},
+			},
+			item2: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "031"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select itemName() from `%s` where foo > '000' order by foo asc",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	AssertEq(3, len(results), "Results: %v", results)
+	ExpectEq(item1, results[0].Name)
+	ExpectEq(item0, results[1].Name)
+	ExpectEq(item2, results[2].Name)
 }
 
 func (t *ItemsTest) SelectWithLimit() {
