@@ -1131,7 +1131,33 @@ func (t *ItemsTest) AttributeNamesAreCaseSensitive() {
 }
 
 func (t *ItemsTest) AttributeValuesAreCaseSensitive() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco", Add: true},
+			sdb.PutUpdate{Name: "foo", Value: "TaCo", Add: true},
+			sdb.PutUpdate{Name: "foo", Value: "taco", Add: true},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "TaCo"}),
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "taco"}),
+		),
+	)
 }
 
 func (t *ItemsTest) FailedValuePrecondition() {
