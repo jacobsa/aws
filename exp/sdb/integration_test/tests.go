@@ -16,9 +16,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/jacobsa/aws/exp/sdb"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
+	"math/rand"
 	"sync"
 )
 
@@ -39,7 +41,9 @@ func (t *integrationTest) SetUp(i *TestInfo) {
 }
 
 // Generate an item name likely to be unique.
-func (t *integrationTest) makeItemName() sdb.ItemName
+func (t *integrationTest) makeItemName() sdb.ItemName {
+	return sdb.ItemName(fmt.Sprintf("item.%16x", uint64(rand.Int63())))
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Domains
