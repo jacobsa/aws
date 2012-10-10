@@ -294,6 +294,18 @@ func (t *ItemsTest) PutThenGet() {
 	)
 }
 
+func (t *ItemsTest) PutThenReplace() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) PutThenAdd() {
+	ExpectEq("TODO", "")
+}
+
+func (t *ItemsTest) PutThenAddThenReplace() {
+	ExpectEq("TODO", "")
+}
+
 func (t *ItemsTest) BatchPutThenGet() {
 	var err error
 	item0 := t.makeItemName()
