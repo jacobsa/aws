@@ -579,7 +579,31 @@ func (t *ItemsTest) DeleteParticularAttributes() {
 }
 
 func (t *ItemsTest) DeleteAllAttributes() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Put
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+			sdb.PutUpdate{Name: "bar", Value: "burrito", Add: true},
+			sdb.PutUpdate{Name: "bar", Value: "enchilada", Add: true},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Delete
+	err = g_itemsTestDomain.DeleteAttributes( item, nil, nil)
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(attrs, ElementsAre())
 }
 
 func (t *ItemsTest) BatchDelete() {
