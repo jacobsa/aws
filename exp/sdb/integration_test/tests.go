@@ -575,7 +575,10 @@ func (t *ItemsTest) FailedValuePrecondition() {
 	ExpectThat(err, Error(HasSubstr("asdf")))
 
 	// Get -- the second write shouldn't have taken effect.
-	attrs, err := g_itemsTestDomain.GetAttributes(item, true, []string{"qux"})
+	attrs, err := g_itemsTestDomain.GetAttributes(
+		item,
+		true,
+		[]string{"foo", "qux"})
 
 	AssertEq(nil, err)
 	ExpectThat(
