@@ -101,7 +101,7 @@ func (t *DomainsTest) SeparatelyNamedDomainsHaveIndependentItems() {
 	err = domain0.PutAttributes(
 		itemName,
 		[]sdb.PutUpdate{
-			sdb.PutUpdate{Name: "enchilada", Value: "Queso"},
+			sdb.PutUpdate{Name: "enchilada", Value: "queso"},
 		},
 		[]sdb.Precondition{},
 	)
@@ -117,7 +117,43 @@ func (t *DomainsTest) SeparatelyNamedDomainsHaveIndependentItems() {
 }
 
 func (t *DomainsTest) IdenticallyNamedDomainsHaveIdenticalItems() {
-	ExpectFalse(true, "TODO")
+	var err error
+
+	// Open two domains with the same name.
+	domain0, err := t.db.OpenDomain("taco")
+	AssertEq(nil, err)
+	t.ensureDeleted(domain0)
+
+	domain1, err := t.db.OpenDomain(domain0.Name())
+	AssertEq(nil, err)
+	t.ensureDeleted(domain1)
+
+	// Set up an item in the first.
+	itemName := sdb.ItemName("some_item")
+	err = domain0.PutAttributes(
+		itemName,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "enchilada", Value: "queso"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Get attributes for the same name in the other domain.
+	attrs, err := domain1.GetAttributes(itemName, true, []string{})
+	AssertEq(nil, err)
+
+	ExpectThat(
+		attrs,
+		ElementsAre(
+			DeepEquals(
+				[]sdb.Attribute{
+					sdb.Attribute{Name: "enchilada", Value: "queso"},
+				},
+			),
+		),
+	)
 }
 
 func (t *DomainsTest) Delete() {
