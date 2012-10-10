@@ -16,7 +16,7 @@
 package sdb
 
 import (
-	"github.com/jacobsa/aws/exp/sdb/conn"
+	"github.com/jacobsa/aws/sdb/conn"
 )
 
 // A precondition for a conditional Put or Delete operation. Preconditions may

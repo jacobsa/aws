@@ -18,7 +18,7 @@ package sdb
 import (
 	"errors"
 	"fmt"
-	"github.com/jacobsa/aws/exp/sdb/conn"
+	"github.com/jacobsa/aws/sdb/conn"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"sort"

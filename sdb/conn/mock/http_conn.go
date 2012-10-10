@@ -8,7 +8,7 @@ package mock_conn
 
 import (
 	fmt "fmt"
-	conn "github.com/jacobsa/aws/exp/sdb/conn"
+	conn "github.com/jacobsa/aws/sdb/conn"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
 	unsafe "unsafe"

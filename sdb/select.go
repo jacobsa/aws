@@ -18,7 +18,7 @@ package sdb
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/jacobsa/aws/exp/sdb/conn"
+	"github.com/jacobsa/aws/sdb/conn"
 )
 
 type selectedItem struct {

@@ -16,7 +16,7 @@
 package conn_test
 
 import (
-	"github.com/jacobsa/aws/exp/sdb/conn"
+	"github.com/jacobsa/aws/sdb/conn"
 	. "github.com/jacobsa/oglematchers"
 	. "github.com/jacobsa/ogletest"
 	"io/ioutil"

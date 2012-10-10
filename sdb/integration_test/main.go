@@ -27,7 +27,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jacobsa/aws"
-	"github.com/jacobsa/aws/exp/sdb"
+	"github.com/jacobsa/aws/sdb"
 	"github.com/jacobsa/ogletest"
 	"os"
 	"regexp"

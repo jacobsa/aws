@@ -8,7 +8,7 @@ package mock_sdb
 
 import (
 	fmt "fmt"
-	sdb "github.com/jacobsa/aws/exp/sdb"
+	sdb "github.com/jacobsa/aws/sdb"
 	oglemock "github.com/jacobsa/oglemock"
 	runtime "runtime"
 	unsafe "unsafe"

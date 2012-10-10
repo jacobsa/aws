@@ -18,7 +18,7 @@ package sdb
 import (
 	"fmt"
 	"github.com/jacobsa/aws"
-	"github.com/jacobsa/aws/exp/sdb/conn"
+	"github.com/jacobsa/aws/sdb/conn"
 	"github.com/jacobsa/aws/time"
 	"net/url"
 	"regexp"
