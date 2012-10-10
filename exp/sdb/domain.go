@@ -118,3 +118,7 @@ type domain struct {
 	name string
 	c    conn.Conn
 }
+
+func (d *domain) Name() string {
+	return d.name
+}
