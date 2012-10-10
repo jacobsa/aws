@@ -119,6 +119,17 @@ type simpleDB struct {
 	c conn.Conn
 }
 
-func (db *simpleDB) OpenDomain(name string) (Domain, error)
-func (db *simpleDB) CreateDomain(name string) error
-func (db *simpleDB) DeleteDomain(name string) error
+func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
+	err = fmt.Errorf("TODO")
+	return
+}
+
+func (db *simpleDB) CreateDomain(name string) (err error) {
+	err = fmt.Errorf("TODO")
+	return
+}
+
+func (db *simpleDB) DeleteDomain(name string) (err error) {
+	err = fmt.Errorf("TODO")
+	return
+}
