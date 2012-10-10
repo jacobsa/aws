@@ -114,7 +114,7 @@ func (d *domain) PutAttributes(
 		req[keyPrefix+"Name"] = u.Name
 		req[keyPrefix+"Value"] = u.Value
 
-		if u.Replace {
+		if !u.Add {
 			req[keyPrefix+"Replace"] = "true"
 		}
 	}
@@ -179,7 +179,7 @@ func (d *domain) BatchPutAttributes(updateMap map[ItemName][]PutUpdate) (err err
 			req[updatePrefix+"Name"] = u.Name
 			req[updatePrefix+"Value"] = u.Value
 
-			if u.Replace {
+			if !u.Add {
 				req[updatePrefix+"Replace"] = "true"
 			}
 		}

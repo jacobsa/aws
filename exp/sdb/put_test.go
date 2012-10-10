@@ -244,9 +244,9 @@ func (t *PutTest) OnePreconditionHasTwoOperands() {
 func (t *PutTest) BasicParameters() {
 	t.item = "some_item"
 	t.updates = []PutUpdate{
-		PutUpdate{Name: "foo"},
-		PutUpdate{Name: "bar", Value: "taco", Replace: true},
-		PutUpdate{Name: "baz", Value: "burrito"},
+		PutUpdate{Name: "foo", Add: true},
+		PutUpdate{Name: "bar", Value: "taco"},
+		PutUpdate{Name: "baz", Value: "burrito", Add: true},
 	}
 
 	// Call
@@ -542,11 +542,11 @@ func (t *BatchPutTest) OneAttributeValueInvalid() {
 func (t *BatchPutTest) CallsConn() {
 	t.updates = map[ItemName][]PutUpdate{
 		"bar": []PutUpdate{
-			PutUpdate{Name: "a", Value: ""},
-			PutUpdate{Name: "b", Value: "qux", Replace: true},
+			PutUpdate{Name: "a", Value: "", Add: true},
+			PutUpdate{Name: "b", Value: "qux"},
 		},
 		"foo": []PutUpdate{
-			PutUpdate{Name: "c", Value: "wot"},
+			PutUpdate{Name: "c", Value: "wot", Add: true},
 		},
 	}
 
