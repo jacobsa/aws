@@ -50,17 +50,11 @@ type Attribute struct {
 // SimpleDB represents an authenticated connection to a particular endpoint the
 // SimpleDB service.
 type SimpleDB interface {
-	// Return the domain with the specified name. The domain must have previously
-	// been created on the service.
+	// Ensure that the domain with the specified name exists, then return it.
 	OpenDomain(name string) (Domain, error)
 
-	// Create a domain with the supplied name on the service. It is not an error
-	// to create a domain that already exists.
-	CreateDomain(name string) error
-
-	// Delete the domain with the supplied name from the service. It is not an
-	// error to delete a domain that does not exist.
-	DeleteDomain(name string) error
+	// Remove the supplied domain from the DB.
+	DeleteDomain(d Domain) error
 
 	// Retrieve a set of items and their attributes based on a query string.
 	//
@@ -125,12 +119,7 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 	return newDomain(name, db.c)
 }
 
-func (db *simpleDB) CreateDomain(name string) (err error) {
-	err = fmt.Errorf("TODO")
-	return
-}
-
-func (db *simpleDB) DeleteDomain(name string) (err error) {
+func (db *simpleDB) DeleteDomain(d Domain) (err error) {
 	err = fmt.Errorf("TODO")
 	return
 }

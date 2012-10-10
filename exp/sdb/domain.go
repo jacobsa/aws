@@ -62,6 +62,9 @@ type DeleteUpdate struct {
 // A domain represents a named domain within the SimpleDB service. It is a
 // collection of named items, each of which possesses a set of attributes.
 type Domain interface {
+	// Return the name of this domain.
+	Name() string
+
 	// Atomically apply the supplied updates to the attributes of the named item,
 	// but only if the supplied preconditions hold.
 	//
