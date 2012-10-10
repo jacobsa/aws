@@ -163,7 +163,7 @@ func (t *PutTest) OneAttributeValueInvalid() {
 
 func (t *PutTest) PreconditionNameEmpty() {
 	t.precondition = &Precondition{
-		Name:   "",
+		Name: "",
 	}
 
 	// Call
@@ -176,7 +176,7 @@ func (t *PutTest) PreconditionNameEmpty() {
 
 func (t *PutTest) PreconditionNameInvalid() {
 	t.precondition = &Precondition{
-		Name:   "taco\x80\x81\x82",
+		Name: "taco\x80\x81\x82",
 	}
 
 	// Call
@@ -258,7 +258,7 @@ func (t *PutTest) NoPrecondition() {
 
 func (t *PutTest) NonExistencePrecondition() {
 	t.precondition = &Precondition{
-		Name:   "foo",
+		Name: "foo",
 	}
 
 	// Call
