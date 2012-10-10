@@ -341,7 +341,53 @@ func (t *ItemsTest) PutThenAddAndReplace() {
 }
 
 func (t *ItemsTest) PutThenAddThenReplace() {
-	ExpectEq("TODO", "")
+	var err error
+	item := t.makeItemName()
+
+	// Create the first value for an attribute.
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "taco"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Add two more values.
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "burrito", Add: true},
+			sdb.PutUpdate{Name: "foo", Value: "enchilada", Add: true},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Replace all three.
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "foo", Value: "queso"},
+		},
+		[]sdb.Precondition{},
+	)
+
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByName(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "foo", Value: "queso"}),
+		),
+	)
 }
 
 func (t *ItemsTest) ItemNamesAreCaseSensitive() {
