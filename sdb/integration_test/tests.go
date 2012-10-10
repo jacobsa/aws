@@ -33,8 +33,8 @@ import (
 type integrationTest struct {
 	db sdb.SimpleDB
 
-	mutex sync.Mutex
-	deleteRequest sdb.BatchDeleteMap  // Protected by mutex
+	mutex         sync.Mutex
+	deleteRequest sdb.BatchDeleteMap // Protected by mutex
 }
 
 func (t *integrationTest) SetUp(i *TestInfo) {
@@ -76,8 +76,8 @@ func (t *integrationTest) ensureDeleted(item sdb.ItemName) {
 
 type nameSortedAttrList []sdb.Attribute
 
-func (l nameSortedAttrList) Len() int           { return len(l) }
-func (l nameSortedAttrList) Swap(i, j int)      { l[j], l[i] = l[i], l[j] }
+func (l nameSortedAttrList) Len() int      { return len(l) }
+func (l nameSortedAttrList) Swap(i, j int) { l[j], l[i] = l[i], l[j] }
 func (l nameSortedAttrList) Less(i, j int) bool {
 	a := l[i]
 	b := l[j]
@@ -628,7 +628,7 @@ func (t *ItemsTest) DeleteAllAttributes() {
 	AssertEq(nil, err)
 
 	// Delete
-	err = g_itemsTestDomain.DeleteAttributes( item, nil, nil)
+	err = g_itemsTestDomain.DeleteAttributes(item, nil, nil)
 	AssertEq(nil, err)
 
 	// Get
@@ -728,7 +728,7 @@ func (t *ItemsTest) SelectAll() {
 		"select * from `%s`",
 		g_itemsTestDomain.Name())
 
-	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
 
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
@@ -790,7 +790,7 @@ func (t *ItemsTest) SelectItemName() {
 		"select itemName() from `%s`",
 		g_itemsTestDomain.Name())
 
-	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
 
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
@@ -845,7 +845,7 @@ func (t *ItemsTest) SelectCount() {
 		"select count(*) from `%s`",
 		g_itemsTestDomain.Name())
 
-	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
 
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
@@ -898,7 +898,7 @@ func (t *ItemsTest) SelectWithPredicatesAndParticularAttributes() {
 		"select bar from `%s` where foo > '013'",
 		g_itemsTestDomain.Name())
 
-	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
 
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
@@ -962,7 +962,7 @@ func (t *ItemsTest) SelectWithSortOrder() {
 		"select itemName() from `%s` where foo > '000' order by foo asc",
 		g_itemsTestDomain.Name())
 
-	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
 
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
@@ -1001,7 +1001,7 @@ func (t *ItemsTest) SelectWithLimit() {
 		"select itemName() from `%s` where foo > '000' order by foo asc limit 2",
 		g_itemsTestDomain.Name())
 
-	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
 
 	AssertEq(nil, err)
 
@@ -1041,7 +1041,7 @@ func (t *ItemsTest) SelectEmptyResultSet() {
 		"select itemName() from `%s` where foo > '099'",
 		g_itemsTestDomain.Name())
 
-	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
 
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)
@@ -1075,7 +1075,7 @@ func (t *ItemsTest) ItemNamesAreCaseSensitive() {
 		"select itemName() from `%s`",
 		g_itemsTestDomain.Name())
 
-	results, tok, err := g_itemsTestDb.Select( query, true, nil)
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
 
 	AssertEq(nil, err)
 	ExpectEq(nil, tok)

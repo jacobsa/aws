@@ -59,7 +59,7 @@ type Attribute struct {
 
 // A single result from a Select operation.
 type SelectedItem struct {
-	Name ItemName
+	Name       ItemName
 	Attributes []Attribute
 }
 
