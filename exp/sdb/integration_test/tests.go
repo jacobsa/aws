@@ -147,11 +147,7 @@ func (t *DomainsTest) IdenticallyNamedDomainsHaveIdenticalItems() {
 	ExpectThat(
 		attrs,
 		ElementsAre(
-			DeepEquals(
-				[]sdb.Attribute{
-					sdb.Attribute{Name: "enchilada", Value: "queso"},
-				},
-			),
+			DeepEquals(sdb.Attribute{Name: "enchilada", Value: "queso"}),
 		),
 	)
 }
