@@ -30,7 +30,7 @@ type integrationTest struct {
 
 	mutex           sync.Mutex
 	itemsToDelete   map[sdb.Domain]sdb.ItemName  // Protected by mutex
-	domainsToDelete []string                     // Protected by mutex
+	domainsToDelete []Domain                     // Protected by mutex
 }
 
 func (t *integrationTest) SetUp(i *TestInfo) {
@@ -66,11 +66,15 @@ func (t *DomainsTest) DomainsHaveIndependentItems() {
 	ExpectEq("TODO", "")
 }
 
-func (t *DomainsTest) DeleteDomain() {
+func (t *DomainsTest) Delete() {
 	ExpectEq("TODO", "")
 }
 
 func (t *DomainsTest) OpeningTwiceDoesntDeleteExistingItems() {
+	ExpectEq("TODO", "")
+}
+
+func (t *DomainsTest) DeleteTwice() {
 	ExpectEq("TODO", "")
 }
 
