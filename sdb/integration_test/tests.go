@@ -934,6 +934,54 @@ func (t *ItemsTest) SelectWithPredicatesAndParticularAttributes() {
 	)
 }
 
+func (t *ItemsTest) SelectWithItemNameInPredicate() {
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		sdb.BatchPutMap{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "017"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "013"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select * from `%s` where itemName() = '%s'",
+		g_itemsTestDomain.Name(),
+		item1,
+	)
+
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	AssertEq(1, len(results), "Results: %v", results)
+
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item1,
+					Attributes: []sdb.Attribute{
+						sdb.Attribute{Name: "foo", Value: "013"},
+					},
+				},
+			),
+		),
+	)
+}
+
 func (t *ItemsTest) SelectWithSortOrder() {
 	var err error
 	item0 := t.makeItemName()
