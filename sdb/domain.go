@@ -50,8 +50,8 @@ type DeleteUpdate struct {
 	// The name of the attribute.
 	Name string
 
-	// Te requests, the particular value of the attribute to delete if present.
-	// Otherwise, all values will be deleted.
+	// The particular value of the attribute to delete, if present. Otherwise,
+	// all values for the given name will be deleted.
 	Value *string
 }
 
