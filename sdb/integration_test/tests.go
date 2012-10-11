@@ -982,6 +982,49 @@ func (t *ItemsTest) SelectWithItemNameInPredicate() {
 	)
 }
 
+func (t *ItemsTest) SelectWithItemNameInSortExpression() {
+	var err error
+	item0 := t.makeItemName()
+	item1 := t.makeItemName()
+	item2 := t.makeItemName()
+
+	sortedItems := sort.StringSlice{string(item0), string(item1), string(item2)}
+	sort.Sort(sortedItems)
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		sdb.BatchPutMap{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: ""},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: ""},
+			},
+			item2: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: ""},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select * from `%s` where itemName() != '' order by itemName() asc",
+		g_itemsTestDomain.Name(),
+	)
+
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	AssertEq(3, len(results), "Results: %v", results)
+	ExpectEq(sortedItems[0], results[0].Name)
+	ExpectEq(sortedItems[1], results[1].Name)
+	ExpectEq(sortedItems[2], results[2].Name)
+}
+
 func (t *ItemsTest) SelectWithSortOrder() {
 	var err error
 	item0 := t.makeItemName()
