@@ -1255,6 +1255,92 @@ func (t *ItemsTest) AttributeValuesAreCaseSensitive() {
 	)
 }
 
+func (t *ItemsTest) TrickyItemNames() {
+	var err error
+
+	item0 := sdb.ItemName(fmt.Sprintf("타코.%16x", uint64(rand.Int63())))
+	item1 := sdb.ItemName(fmt.Sprintf("=&+ ?.%16x", uint64(rand.Int63())))
+	t.ensureDeleted(item0)
+	t.ensureDeleted(item1)
+
+	// Batch put
+	err = g_itemsTestDomain.BatchPutAttributes(
+		sdb.BatchPutMap{
+			item0: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "taco"},
+			},
+			item1: []sdb.PutUpdate{
+				sdb.PutUpdate{Name: "foo", Value: "burrito"},
+			},
+		},
+	)
+
+	AssertEq(nil, err)
+
+	// Select
+	query := fmt.Sprintf(
+		"select itemName() from `%s`",
+		g_itemsTestDomain.Name())
+
+	results, tok, err := g_itemsTestDb.Select(query, true, nil)
+
+	AssertEq(nil, err)
+	ExpectEq(nil, tok)
+
+	AssertEq(2, len(results), "Results: %v", results)
+
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item0,
+				},
+			),
+		),
+	)
+
+	ExpectThat(
+		results,
+		Contains(
+			DeepEquals(
+				sdb.SelectedItem{
+					Name: item1,
+				},
+			),
+		),
+	)
+}
+
+func (t *ItemsTest) TrickyAttributeNamesAndValues() {
+	var err error
+	item := t.makeItemName()
+
+	// Put
+	err = g_itemsTestDomain.PutAttributes(
+		item,
+		[]sdb.PutUpdate{
+			sdb.PutUpdate{Name: "타코", Value: "taco타코"},
+			sdb.PutUpdate{Name: "=&+ ?", Value: "burrito=& +?"},
+		},
+		nil,
+	)
+
+	AssertEq(nil, err)
+
+	// Get
+	attrs, err := g_itemsTestDomain.GetAttributes(item, true, nil)
+
+	AssertEq(nil, err)
+	ExpectThat(
+		sortByNameThenVal(attrs),
+		ElementsAre(
+			DeepEquals(sdb.Attribute{Name: "=&+ ?", Value: "burrito=& +?"}),
+			DeepEquals(sdb.Attribute{Name: "타코", Value: "taco타코"}),
+		),
+	)
+}
+
 func (t *ItemsTest) FailedValuePrecondition() {
 	var err error
 	item := t.makeItemName()
