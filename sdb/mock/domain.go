@@ -89,6 +89,30 @@ func (m *mockDomain) BatchPutAttributes(p0 sdb.BatchPutMap) (o0 error) {
 	return
 }
 
+func (m *mockDomain) Db() (o0 sdb.SimpleDB) {
+	// Get a file name and line number for the caller.
+	_, file, line, _ := runtime.Caller(1)
+
+	// Hand the call off to the controller, which does most of the work.
+	retVals := m.controller.HandleMethodCall(
+		m,
+		"Db",
+		file,
+		line,
+		[]interface{}{})
+
+	if len(retVals) != 1 {
+		panic(fmt.Sprintf("mockDomain.Db: invalid return values: %v", retVals))
+	}
+
+	// o0 sdb.SimpleDB
+	if retVals[0] != nil {
+		o0 = retVals[0].(sdb.SimpleDB)
+	}
+
+	return
+}
+
 func (m *mockDomain) DeleteAttributes(p0 sdb.ItemName, p1 []sdb.DeleteUpdate, p2 *sdb.Precondition) (o0 error) {
 	// Get a file name and line number for the caller.
 	_, file, line, _ := runtime.Caller(1)
