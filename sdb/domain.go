@@ -69,6 +69,9 @@ type Domain interface {
 	// Return the name of this domain.
 	Name() string
 
+	// Return the database connection to which this domain is attached.
+	Db() SimpleDB
+
 	// Atomically apply the supplied updates to the attributes of the named item,
 	// but only if the supplied precondition holds. If no precondition is
 	// desired, pass nil.
@@ -115,15 +118,20 @@ type Domain interface {
 	BatchDeleteAttributes(deleteMap BatchDeleteMap) error
 }
 
-func newDomain(name string, c conn.Conn) (Domain, error) {
-	return &domain{name, c}, nil
+func newDomain(name string, c conn.Conn, db SimpleDB) (Domain, error) {
+	return &domain{name, c, db}, nil
 }
 
 type domain struct {
 	name string
 	c    conn.Conn
+	db   SimpleDB
 }
 
 func (d *domain) Name() string {
 	return d.name
+}
+
+func (d *domain) Db() SimpleDB {
+	return d.db
 }

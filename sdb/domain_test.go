@@ -59,6 +59,6 @@ func (t *domainTest) SetUp(i *TestInfo) {
 	t.name = "some_domain"
 	t.c = &fakeConn{}
 
-	t.domain, err = newDomain(t.name, t.c)
+	t.domain, err = newDomain(t.name, t.c, nil)
 	AssertEq(nil, err)
 }

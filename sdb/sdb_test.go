@@ -49,6 +49,10 @@ func (d *fakeDomain) Name() string {
 	return d.name
 }
 
+func (d *fakeDomain) Db() SimpleDB {
+	panic("Not supported.")
+}
+
 func (d *fakeDomain) PutAttributes(
 	item ItemName,
 	updates []PutUpdate,

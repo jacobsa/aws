@@ -154,7 +154,7 @@ func (db *simpleDB) OpenDomain(name string) (d Domain, err error) {
 	}
 
 	// Create the object.
-	return newDomain(name, db.c)
+	return newDomain(name, db.c, db)
 }
 
 func (db *simpleDB) DeleteDomain(d Domain) (err error) {
