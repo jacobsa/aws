@@ -19,8 +19,10 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
+	"reflect"
 )
 
 // A connection to a particular server over a particular protocol (HTTP or
@@ -82,6 +84,17 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 	// Call the system HTTP library.
 	sysResp, err := http.DefaultClient.Do(sysReq)
 	if err != nil {
+		// TODO(jacobsa): Remove this logging once it has yielded useful results
+		// for investigating this issue:
+		//
+		//     https://github.com/jacobsa/comeback/issues/11
+		//
+		log.Println(
+			"http.DefaultClient.Do:",
+			reflect.TypeOf(err),
+			reflect.ValueOf(err),
+		)
+
 		return nil, fmt.Errorf("http.DefaultClient.Do: %v", err)
 	}
 
