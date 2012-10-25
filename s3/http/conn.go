@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -94,6 +95,15 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 			reflect.TypeOf(err),
 			reflect.ValueOf(err),
 		)
+
+		if opErr, ok := err.(*net.OpError); ok {
+			log.Println("Op:        ", opErr.Op)
+			log.Println("Net:       ", opErr.Net)
+			log.Println("Addr:      ", opErr.Addr)
+			log.Println("Err:       ", opErr.Err)
+			log.Println("Temporary: ", opErr.Temporary())
+			log.Println("Timeout:   ", opErr.Timeout())
+		}
 
 		return nil, fmt.Errorf("http.DefaultClient.Do: %v", err)
 	}
