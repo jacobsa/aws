@@ -16,8 +16,12 @@
 package s3util
 
 import (
+	"fmt"
 	"github.com/jacobsa/aws/s3"
 )
 
 // List all keys currently contained by the bucket.
-func ListAllKeys(b s3.Bucket) (keys []string, error)
+func ListAllKeys(b s3.Bucket) (keys []string, err error) {
+	err = fmt.Errorf("TODO")
+	return
+}
