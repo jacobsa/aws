@@ -21,7 +21,26 @@ import (
 )
 
 // List all keys currently contained by the bucket.
-func ListAllKeys(b s3.Bucket) (keys []string, err error) {
-	err = fmt.Errorf("TODO")
+func ListAllKeys(bucket s3.Bucket) (keys []string, err error) {
+	for {
+		var prevKey string
+		if len(keys) > 0 {
+			prevKey = keys[len(keys)-1]
+		}
+
+		var partialKeys []string
+		partialKeys, err = bucket.ListKeys(prevKey)
+		if err != nil {
+			err = fmt.Errorf("ListKeys: %v", err)
+			return
+		}
+
+		if len(partialKeys) == 0 {
+			break
+		}
+
+		keys = append(keys, partialKeys...)
+	}
+
 	return
 }
