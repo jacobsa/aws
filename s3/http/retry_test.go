@@ -22,6 +22,7 @@ import (
 	. "github.com/jacobsa/oglematchers"
 	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
+	"net"
 	"testing"
 )
 
@@ -81,7 +82,20 @@ func (t *RetryingConnTest) WrappedReturnsWrongErrorType() {
 }
 
 func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
-	ExpectEq("TODO", "")
+	// Wrapped (first call)
+	wrappedErr := &net.OpError{
+		Op: "taco",
+		Err: errors.New("burrito"),
+	}
+
+	ExpectCall(t.wrapped, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, wrappedErr))
+
+	// Call
+	t.call()
+
+	ExpectThat(t.err, Error(HasSubstr("taco")))
+	ExpectThat(t.err, Error(HasSubstr("burrito")))
 }
 
 func (t *RetryingConnTest) WrappedReturnsUnknownErrno() {
