@@ -32,10 +32,10 @@ func TestKeys(t *testing.T) { RunTests(t) }
 ////////////////////////////////////////////////////////////////////////
 
 type ListAllKeysTest struct {
-	bucket   mock_s3.MockBucket
+	bucket mock_s3.MockBucket
 
 	keys []string
-	err error
+	err  error
 }
 
 func init() { RegisterTestSuite(&ListAllKeysTest{}) }
