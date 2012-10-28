@@ -16,12 +16,28 @@
 package http
 
 import (
-	"fmt"
+	. "github.com/jacobsa/ogletest"
+	"testing"
 )
 
-// Return a connection that wraps the supplied one, retrying a few times when
-// it returns certain errors that S3 has been known to return transiently.
-func newRetryingConn(wrapped Conn) (c Conn, err error) {
-	err = fmt.Errorf("TODO: newRetryingConn")
-	return
+func TestRetry(t *testing.T) { RunTests(t) }
+
+////////////////////////////////////////////////////////////////////////
+// Helpers
+////////////////////////////////////////////////////////////////////////
+
+type RetryingConnTest struct {
+}
+
+func init() { RegisterTestSuite(&RetryingConnTest{}) }
+
+func (t *RetryingConnTest) SetUp(i *TestInfo) {
+}
+
+////////////////////////////////////////////////////////////////////////
+// Tests
+////////////////////////////////////////////////////////////////////////
+
+func (t *RetryingConnTest) DoesFoo() {
+	ExpectEq("TODO", "")
 }
