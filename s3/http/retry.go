@@ -27,6 +27,9 @@ import (
 
 // Return a connection that wraps the supplied one, retrying a few times when
 // it returns certain errors that S3 has been known to return transiently.
+//
+// Exposed only for testing; do not use directly. NewConn incorporates this
+// functionality for you.
 func NewRetryingConn(wrapped Conn) (c Conn, err error) {
 	c = &retryingConn{wrapped}
 	return
