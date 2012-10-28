@@ -38,14 +38,16 @@ type Conn interface {
 
 // Return a connection to the supplied endpoint, based on its scheme and host
 // fields.
-func NewConn(endpoint *url.URL) (Conn, error) {
+func NewConn(endpoint *url.URL) (c Conn, err error) {
 	switch endpoint.Scheme {
 	case "http", "https":
 	default:
-		return nil, fmt.Errorf("Unsupported scheme: %s", endpoint.Scheme)
+		err = fmt.Errorf("Unsupported scheme: %s", endpoint.Scheme)
+		return
 	}
 
-	return &conn{endpoint}, nil
+	c = &conn{endpoint}
+	return
 }
 
 type conn struct {
@@ -61,7 +63,7 @@ func makeRawQuery(r *Request) string {
 	return values.Encode()
 }
 
-func (c *conn) SendRequest(r *Request) (*Response, error) {
+func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 	// Create an appropriate URL.
 	url := url.URL{
 		Scheme:   c.endpoint.Scheme,
@@ -75,7 +77,8 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 	// Create a request to the system HTTP library.
 	sysReq, err := http.NewRequest(r.Verb, urlStr, bytes.NewBuffer(r.Body))
 	if err != nil {
-		return nil, fmt.Errorf("http.NewRequest: %v", err)
+		err = fmt.Errorf("http.NewRequest: %v", err)
+		return
 	}
 
 	// Copy headers.
@@ -111,19 +114,21 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 			}
 		}
 
-		return nil, fmt.Errorf("http.DefaultClient.Do: %v", err)
+		err = fmt.Errorf("http.DefaultClient.Do: %v", err)
+		return
 	}
 
 	// Convert the response.
-	resp := &Response{
+	resp = &Response{
 		StatusCode: sysResp.StatusCode,
 	}
 
 	if resp.Body, err = ioutil.ReadAll(sysResp.Body); err != nil {
-		return nil, fmt.Errorf("Reading body: %v", err)
+		err = fmt.Errorf("Reading body: %v", err)
+		return
 	}
 
 	sysResp.Body.Close()
 
-	return resp, nil
+	return
 }
