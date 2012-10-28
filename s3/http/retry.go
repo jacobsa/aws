@@ -16,12 +16,65 @@
 package http
 
 import (
-	"fmt"
+	"log"
+	"net"
+	"syscall"
 )
+
+////////////////////////////////////////////////////////////////////////
+// Public
+////////////////////////////////////////////////////////////////////////
 
 // Return a connection that wraps the supplied one, retrying a few times when
 // it returns certain errors that S3 has been known to return transiently.
 func NewRetryingConn(wrapped Conn) (c Conn, err error) {
-	err = fmt.Errorf("TODO: newRetryingConn")
+	c = &retryingConn{wrapped}
+	return
+}
+
+////////////////////////////////////////////////////////////////////////
+// Implementation
+////////////////////////////////////////////////////////////////////////
+
+type retryingConn struct {
+	wrapped Conn
+}
+
+func shouldRetry(err error) bool {
+	// If there's no error, stop.
+	if err == nil {
+		return false
+	}
+
+	// Look for "broken pipe" errors. S3 seems to close keep-alive connections
+	// that have been in use for awhile (on the order of 20-30 minutes). Perhaps
+	// it's a machine being restarted on their end?
+	if opErr, ok := err.(*net.OpError); ok {
+		if errno, ok := opErr.Err.(syscall.Errno); ok {
+			if errno == syscall.EPIPE {
+				// TODO(jacobsa): Remove this logging once it has yielded useful
+				// results for investigating this issue:
+				//
+				//     https://github.com/jacobsa/comeback/issues/11
+				//
+				log.Println("EPIPE; retrying.")
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (c *retryingConn) SendRequest(req *Request) (resp *Response, err error) {
+	const maxTries = 3
+
+	for i := 0; i < maxTries; i++ {
+		resp, err = c.wrapped.SendRequest(req)
+		if !shouldRetry(err) {
+			break
+		}
+	}
+
 	return
 }
