@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"syscall"
 )
 
 // A connection to a particular server over a particular protocol (HTTP or
@@ -103,6 +104,11 @@ func (c *conn) SendRequest(r *Request) (*Response, error) {
 			log.Println("Err:       ", opErr.Err)
 			log.Println("Temporary: ", opErr.Temporary())
 			log.Println("Timeout:   ", opErr.Timeout())
+
+			if errno, ok := opErr.Err.(syscall.Errno); ok {
+				log.Printf("Errno: %u\n", errno)
+				log.Printf("EPIPE: %u\n", syscall.EPIPE)
+			}
 		}
 
 		return nil, fmt.Errorf("http.DefaultClient.Do: %v", err)
