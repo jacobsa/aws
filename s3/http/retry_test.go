@@ -38,6 +38,30 @@ func (t *RetryingConnTest) SetUp(i *TestInfo) {
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
-func (t *RetryingConnTest) DoesFoo() {
+func (t *RetryingConnTest) CallsWrapped() {
+	ExpectEq("TODO", "")
+}
+
+func (t *RetryingConnTest) WrappedReturnsWrongErrorType() {
+	ExpectEq("TODO", "")
+}
+
+func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
+	ExpectEq("TODO", "")
+}
+
+func (t *RetryingConnTest) WrappedReturnsUnknownErrno() {
+	ExpectEq("TODO", "")
+}
+
+func (t *RetryingConnTest) RetriesForBrokenPipe() {
+	ExpectEq("TODO", "")
+}
+
+func (t *RetryingConnTest) WrappedFailsOnThirdCall() {
+	ExpectEq("TODO", "")
+}
+
+func (t *RetryingConnTest) WrappedSucceedsOnThirdCall() {
 	ExpectEq("TODO", "")
 }
