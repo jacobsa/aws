@@ -16,6 +16,7 @@
 package http
 
 import (
+	"github.com/jacobsa/aws/s3/http/mock"
 	. "github.com/jacobsa/ogletest"
 	"testing"
 )
@@ -27,11 +28,26 @@ func TestRetry(t *testing.T) { RunTests(t) }
 ////////////////////////////////////////////////////////////////////////
 
 type RetryingConnTest struct {
+	wrapped mock_http.MockConn
+	conn Conn
+
+	req *Request
+	resp *Response
+	err error
 }
 
 func init() { RegisterTestSuite(&RetryingConnTest{}) }
 
 func (t *RetryingConnTest) SetUp(i *TestInfo) {
+	var err error
+
+	t.wrapped = mock_http.NewMockConn(i.MockController, "wrapped")
+	t.conn, err = newRetryingConn(t.wrapped)
+	AssertEq(nil, err)
+}
+
+func (t *RetryingConnTest) call() {
+	t.resp, t.err = t.conn.SendRequest(t.req)
 }
 
 ////////////////////////////////////////////////////////////////////////
