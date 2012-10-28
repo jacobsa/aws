@@ -23,6 +23,7 @@ import (
 	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
 	"net"
+	"syscall"
 	"testing"
 )
 
@@ -99,7 +100,20 @@ func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
 }
 
 func (t *RetryingConnTest) WrappedReturnsUnknownErrno() {
-	ExpectEq("TODO", "")
+	// Wrapped (first call)
+	wrappedErr := &net.OpError{
+		Op: "taco",
+		Err: syscall.EMLINK,
+	}
+
+	ExpectCall(t.wrapped, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, wrappedErr))
+
+	// Call
+	t.call()
+
+	ExpectThat(t.err, Error(HasSubstr("taco")))
+	ExpectThat(t.err, Error(HasSubstr("too many links")))
 }
 
 func (t *RetryingConnTest) RetriesForBrokenPipe() {
