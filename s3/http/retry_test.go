@@ -63,7 +63,7 @@ func (t *RetryingConnTest) call() {
 func (t *RetryingConnTest) CallsWrapped() {
 	t.req = &http.Request{}
 
-	// Wrapped (first call)
+	// Wrapped
 	ExpectCall(t.wrapped, "SendRequest")(t.req).
 		WillOnce(oglemock.Return(nil, nil))
 
@@ -72,7 +72,7 @@ func (t *RetryingConnTest) CallsWrapped() {
 }
 
 func (t *RetryingConnTest) WrappedReturnsWrongErrorType() {
-	// Wrapped (first call)
+	// Wrapped
 	ExpectCall(t.wrapped, "SendRequest")(Any()).
 		WillOnce(oglemock.Return(nil, errors.New("taco")))
 
@@ -83,7 +83,7 @@ func (t *RetryingConnTest) WrappedReturnsWrongErrorType() {
 }
 
 func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
-	// Wrapped (first call)
+	// Wrapped
 	wrappedErr := &net.OpError{
 		Op: "taco",
 		Err: errors.New("burrito"),
@@ -99,8 +99,8 @@ func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
 	ExpectThat(t.err, Error(HasSubstr("burrito")))
 }
 
-func (t *RetryingConnTest) WrappedReturnsUnknownErrno() {
-	// Wrapped (first call)
+func (t *RetryingConnTest) WrappedReturnsUninterestingErrno() {
+	// Wrapped
 	wrappedErr := &net.OpError{
 		Op: "taco",
 		Err: syscall.EMLINK,
@@ -117,7 +117,20 @@ func (t *RetryingConnTest) WrappedReturnsUnknownErrno() {
 }
 
 func (t *RetryingConnTest) RetriesForBrokenPipe() {
-	ExpectEq("TODO", "")
+	t.req = &http.Request{}
+
+	// Wrapped
+	wrappedErr := &net.OpError{
+		Err: syscall.EPIPE,
+	}
+
+	ExpectCall(t.wrapped, "SendRequest")(t.req).
+		WillOnce(oglemock.Return(nil, wrappedErr)).
+		WillOnce(oglemock.Return(nil, wrappedErr)).
+		WillOnce(oglemock.Return(nil, nil))
+
+	// Call
+	t.call()
 }
 
 func (t *RetryingConnTest) WrappedFailsOnThirdCall() {
