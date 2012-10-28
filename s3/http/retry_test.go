@@ -16,8 +16,10 @@
 package http_test
 
 import (
+	"errors"
 	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/s3/http/mock"
+	. "github.com/jacobsa/oglematchers"
 	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
 	"testing"
@@ -68,7 +70,14 @@ func (t *RetryingConnTest) CallsWrapped() {
 }
 
 func (t *RetryingConnTest) WrappedReturnsWrongErrorType() {
-	ExpectEq("TODO", "")
+	// Wrapped (first call)
+	ExpectCall(t.wrapped, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
+
+	// Call
+	t.call()
+
+	ExpectThat(t.err, Error(Equals("taco")))
 }
 
 func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
