@@ -13,9 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package http
+package http_test
 
 import (
+	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/s3/http/mock"
 	. "github.com/jacobsa/ogletest"
 	"testing"
@@ -29,10 +30,10 @@ func TestRetry(t *testing.T) { RunTests(t) }
 
 type RetryingConnTest struct {
 	wrapped mock_http.MockConn
-	conn Conn
+	conn http.Conn
 
-	req *Request
-	resp *Response
+	req *http.Request
+	resp *http.Response
 	err error
 }
 
@@ -42,7 +43,7 @@ func (t *RetryingConnTest) SetUp(i *TestInfo) {
 	var err error
 
 	t.wrapped = mock_http.NewMockConn(i.MockController, "wrapped")
-	t.conn, err = newRetryingConn(t.wrapped)
+	t.conn, err = http.NewRetryingConn(t.wrapped)
 	AssertEq(nil, err)
 }
 

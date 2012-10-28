@@ -21,7 +21,7 @@ import (
 
 // Return a connection that wraps the supplied one, retrying a few times when
 // it returns certain errors that S3 has been known to return transiently.
-func newRetryingConn(wrapped Conn) (c Conn, err error) {
+func NewRetryingConn(wrapped Conn) (c Conn, err error) {
 	err = fmt.Errorf("TODO: newRetryingConn")
 	return
 }
