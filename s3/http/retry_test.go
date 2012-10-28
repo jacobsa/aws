@@ -35,11 +35,11 @@ func TestRetry(t *testing.T) { RunTests(t) }
 
 type RetryingConnTest struct {
 	wrapped mock_http.MockConn
-	conn http.Conn
+	conn    http.Conn
 
-	req *http.Request
+	req  *http.Request
 	resp *http.Response
-	err error
+	err  error
 }
 
 func init() { RegisterTestSuite(&RetryingConnTest{}) }
@@ -85,7 +85,7 @@ func (t *RetryingConnTest) WrappedReturnsWrongErrorType() {
 func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
 	// Wrapped
 	wrappedErr := &net.OpError{
-		Op: "taco",
+		Op:  "taco",
 		Err: errors.New("burrito"),
 	}
 
@@ -102,7 +102,7 @@ func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
 func (t *RetryingConnTest) WrappedReturnsUninterestingErrno() {
 	// Wrapped
 	wrappedErr := &net.OpError{
-		Op: "taco",
+		Op:  "taco",
 		Err: syscall.EMLINK,
 	}
 
@@ -136,14 +136,14 @@ func (t *RetryingConnTest) RetriesForBrokenPipe() {
 func (t *RetryingConnTest) WrappedFailsOnThirdCall() {
 	// Wrapped
 	wrappedErr0 := &net.OpError{
-		Op: "taco",
+		Op:  "taco",
 		Err: syscall.EPIPE,
 	}
 
 	wrappedErr1 := wrappedErr0
 
 	wrappedErr2 := &net.OpError{
-		Op: "burrito",
+		Op:  "burrito",
 		Err: syscall.EPIPE,
 	}
 

@@ -23,7 +23,7 @@ import (
 // operation. It exposes the original error returned by that operation for
 // downstream consumption.
 type httpError struct {
-	operation string
+	operation   string
 	originalErr error
 }
 
