@@ -52,16 +52,18 @@ func shouldRetry(err error) bool {
 	// Look for "broken pipe" errors. S3 seems to close keep-alive connections
 	// that have been in use for awhile (on the order of 20-30 minutes). Perhaps
 	// it's a machine being restarted on their end?
-	if opErr, ok := err.(*net.OpError); ok {
-		if errno, ok := opErr.Err.(syscall.Errno); ok {
-			if errno == syscall.EPIPE {
-				// TODO(jacobsa): Remove this logging once it has yielded useful
-				// results for investigating this issue:
-				//
-				//     https://github.com/jacobsa/comeback/issues/11
-				//
-				log.Println("EPIPE; retrying.")
-				return true
+	if httpErr, ok := err.(*Error); ok {
+		if opErr, ok := httpErr.OriginalErr.(*net.OpError); ok {
+			if errno, ok := opErr.Err.(syscall.Errno); ok {
+				if errno == syscall.EPIPE {
+					// TODO(jacobsa): Remove this logging once it has yielded useful
+					// results for investigating this issue:
+					//
+					//     https://github.com/jacobsa/comeback/issues/11
+					//
+					log.Println("EPIPE; retrying.")
+					return true
+				}
 			}
 		}
 	}
