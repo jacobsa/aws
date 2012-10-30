@@ -82,11 +82,28 @@ func (t *RetryingConnTest) WrappedReturnsWrongErrorType() {
 	ExpectThat(t.err, Error(Equals("taco")))
 }
 
+func (t *RetryingConnTest) WrappedReturnsWrongWrappedErrorType() {
+	// Wrapped
+	wrappedErr := &http.Error{
+		OriginalErr: errors.New("taco"),
+	}
+
+	ExpectCall(t.wrapped, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, wrappedErr))
+
+	// Call
+	t.call()
+
+	ExpectThat(t.err, Error(HasSubstr("taco")))
+}
+
 func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
 	// Wrapped
-	wrappedErr := &net.OpError{
-		Op:  "taco",
-		Err: errors.New("burrito"),
+	wrappedErr := &http.Error{
+		OriginalErr: &net.OpError{
+			Op:  "taco",
+			Err: errors.New("burrito"),
+		},
 	}
 
 	ExpectCall(t.wrapped, "SendRequest")(Any()).
@@ -101,9 +118,11 @@ func (t *RetryingConnTest) WrappedReturnsWrongOpErrorType() {
 
 func (t *RetryingConnTest) WrappedReturnsUninterestingErrno() {
 	// Wrapped
-	wrappedErr := &net.OpError{
-		Op:  "taco",
-		Err: syscall.EMLINK,
+	wrappedErr := &http.Error{
+		OriginalErr: &net.OpError{
+			Op:  "taco",
+			Err: syscall.EMLINK,
+		},
 	}
 
 	ExpectCall(t.wrapped, "SendRequest")(Any()).
@@ -120,8 +139,10 @@ func (t *RetryingConnTest) RetriesForBrokenPipe() {
 	t.req = &http.Request{}
 
 	// Wrapped
-	wrappedErr := &net.OpError{
-		Err: syscall.EPIPE,
+	wrappedErr := &http.Error{
+		OriginalErr: &net.OpError{
+			Err: syscall.EPIPE,
+		},
 	}
 
 	ExpectCall(t.wrapped, "SendRequest")(t.req).
@@ -135,16 +156,19 @@ func (t *RetryingConnTest) RetriesForBrokenPipe() {
 
 func (t *RetryingConnTest) WrappedFailsOnThirdCall() {
 	// Wrapped
-	wrappedErr0 := &net.OpError{
-		Op:  "taco",
-		Err: syscall.EPIPE,
+	wrappedErr0 := &http.Error{
+		OriginalErr: &net.OpError{
+			Err: syscall.EPIPE,
+		},
 	}
 
 	wrappedErr1 := wrappedErr0
 
-	wrappedErr2 := &net.OpError{
-		Op:  "burrito",
-		Err: syscall.EPIPE,
+	wrappedErr2 := &http.Error{
+		OriginalErr: &net.OpError{
+			Op: "burrito",
+			Err: syscall.EPIPE,
+		},
 	}
 
 	ExpectCall(t.wrapped, "SendRequest")(Any()).
@@ -161,8 +185,10 @@ func (t *RetryingConnTest) WrappedFailsOnThirdCall() {
 
 func (t *RetryingConnTest) WrappedSucceedsOnThirdCall() {
 	// Wrapped
-	wrappedErr := &net.OpError{
-		Err: syscall.EPIPE,
+	wrappedErr := &http.Error{
+		OriginalErr: &net.OpError{
+			Err: syscall.EPIPE,
+		},
 	}
 
 	expected := &http.Response{}

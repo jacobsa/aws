@@ -22,11 +22,13 @@ import (
 // A struct representing an error generated in the process of performing some
 // operation. It exposes the original error returned by that operation for
 // downstream consumption.
-type httpError struct {
-	operation   string
-	originalErr error
+//
+// Exposed only for testing. Do not use directly.
+type Error struct {
+	Operation   string
+	OriginalErr error
 }
 
-func (e *httpError) Error() string {
-	return fmt.Sprintf("%s: %v", e.operation, e.originalErr)
+func (e *Error) Error() string {
+	return fmt.Sprintf("%s: %v", e.Operation, e.OriginalErr)
 }

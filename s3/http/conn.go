@@ -77,7 +77,7 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 	// Create a request to the system HTTP library.
 	sysReq, err := http.NewRequest(r.Verb, urlStr, bytes.NewBuffer(r.Body))
 	if err != nil {
-		err = &httpError{"http.NewRequest", err}
+		err = &Error{"http.NewRequest", err}
 		return
 	}
 
@@ -114,7 +114,7 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 			}
 		}
 
-		err = &httpError{"http.DefaultClient.Do", err}
+		err = &Error{"http.DefaultClient.Do", err}
 		return
 	}
 
@@ -124,7 +124,7 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 	}
 
 	if resp.Body, err = ioutil.ReadAll(sysResp.Body); err != nil {
-		err = &httpError{"ioutil.ReadAll", err}
+		err = &Error{"ioutil.ReadAll", err}
 		return
 	}
 
