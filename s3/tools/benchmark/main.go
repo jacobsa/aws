@@ -42,75 +42,26 @@ func storeData(
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Upstream
+// Latency
 ////////////////////////////////////////////////////////////////////////
 
-func measureUpstreamBandwidth_SingleRun(
-	bucket s3.Bucket,
-	dataSize uint,
-	parallelism uint) (bytesPerSecond float64, err error) {
-	// Time the whole process.
-	timeBefore := time.Now()
-
-	// Start several workers.
-	errs := make([]error, int(parallelism))
-	done := make(chan bool)
-
-	for i := 0; i < int(parallelism); i++ {
-		go func(i int) {
-			_, errs[i] = storeData(bucket, dataSize)
-			done<- true
-		}(i)
-	}
-
-	// Wait for all of the workers.
-	for i := 0; i < int(parallelism); i++ {
-		<-done
-	}
-
-	elapsed := time.Since(timeBefore)
-
-	// Did any of the workers fail?
-	for i := 0; i < int(parallelism); i++ {
-		if errs[i] != nil {
-			err = errs[i]
-			return
-		}
-	}
-
-	// Estimate the bandwidth.
-	bytesTransferred := float64(dataSize) * float64(parallelism)
-	secondsElapsed := float64(elapsed) / float64(time.Second)
-
-	bytesPerSecond = bytesTransferred / secondsElapsed
-	return
-}
-
-func measureUpstreamBandwidth(
-	bucket s3.Bucket,
-	dataSize uint,
-	parallelism uint) (bytesPerSecond float64, err error) {
+func measureLatency(bucket s3.Bucket) (avg time.Duration, err error) {
 	// Average over several runs until we've taken at least this much time.
-	const minDuration time.Duration = 5 * time.Second
+	const minDuration time.Duration = 4 * time.Second
 
-	var bandwidthTotal float64
+	var total time.Duration
 	var numRuns int
 
-	for timeBefore := time.Now(); time.Since(timeBefore) < minDuration; numRuns++ {
-		var singleResult float64
-		singleResult, err = measureUpstreamBandwidth_SingleRun(
-			bucket,
-			dataSize,
-			parallelism)
-
-		if err != nil {
+	for ; total < minDuration; numRuns++ {
+		timeBefore := time.Now()
+		if _, err = storeData(bucket, 1); err != nil {
 			return
 		}
 
-		bandwidthTotal += singleResult
+		total += time.Since(timeBefore)
 	}
 
-	bytesPerSecond = bandwidthTotal / float64(numRuns)
+	avg = time.Duration(float64(total) / float64(numRuns))
 	return
 }
 
@@ -208,6 +159,83 @@ func measureDownstreamBandwidth(
 	return
 }
 
+////////////////////////////////////////////////////////////////////////
+// Upstream
+////////////////////////////////////////////////////////////////////////
+
+func measureUpstreamBandwidth_SingleRun(
+	bucket s3.Bucket,
+	dataSize uint,
+	parallelism uint) (bytesPerSecond float64, err error) {
+	// Time the whole process.
+	timeBefore := time.Now()
+
+	// Start several workers.
+	errs := make([]error, int(parallelism))
+	done := make(chan bool)
+
+	for i := 0; i < int(parallelism); i++ {
+		go func(i int) {
+			_, errs[i] = storeData(bucket, dataSize)
+			done<- true
+		}(i)
+	}
+
+	// Wait for all of the workers.
+	for i := 0; i < int(parallelism); i++ {
+		<-done
+	}
+
+	elapsed := time.Since(timeBefore)
+
+	// Did any of the workers fail?
+	for i := 0; i < int(parallelism); i++ {
+		if errs[i] != nil {
+			err = errs[i]
+			return
+		}
+	}
+
+	// Estimate the bandwidth.
+	bytesTransferred := float64(dataSize) * float64(parallelism)
+	secondsElapsed := float64(elapsed) / float64(time.Second)
+
+	bytesPerSecond = bytesTransferred / secondsElapsed
+	return
+}
+
+func measureUpstreamBandwidth(
+	bucket s3.Bucket,
+	dataSize uint,
+	parallelism uint) (bytesPerSecond float64, err error) {
+	// Average over several runs until we've taken at least this much time.
+	const minDuration time.Duration = 5 * time.Second
+
+	var bandwidthTotal float64
+	var numRuns int
+
+	for timeBefore := time.Now(); time.Since(timeBefore) < minDuration; numRuns++ {
+		var singleResult float64
+		singleResult, err = measureUpstreamBandwidth_SingleRun(
+			bucket,
+			dataSize,
+			parallelism)
+
+		if err != nil {
+			return
+		}
+
+		bandwidthTotal += singleResult
+	}
+
+	bytesPerSecond = bandwidthTotal / float64(numRuns)
+	return
+}
+
+////////////////////////////////////////////////////////////////////////
+// Main
+////////////////////////////////////////////////////////////////////////
+
 func formattedFloatOrError(
 	v float64,
 	err error) string {
@@ -259,12 +287,28 @@ func main() {
 	bucket := getBucket()
 
 	/////////////////////////////////////////////
+	// Latency
+	/////////////////////////////////////////////
+
+	printHeading("Latency")
+
+	avgLatency, err := measureLatency(bucket)
+	if err != nil {
+		log.Fatalf("measureLatency: %v", err)
+	}
+
+	log.Printf(
+		"Average latency: %d ms",
+		uint64(float64(avgLatency) / float64(time.Millisecond)),
+	)
+
+	/////////////////////////////////////////////
 	// Downstream bandwidth
 	/////////////////////////////////////////////
 
 	printHeading("Downstream bandwidth")
 
-	downstreamDataSizes := []uint{1<<14, 1<<18, 1<<20}
+	downstreamDataSizes := []uint{1<<18, 1<<20}
 	downstreamParallelisms := []uint{1, 2}
 
 	for _, dataSize := range downstreamDataSizes {
