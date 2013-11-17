@@ -32,6 +32,7 @@ const (
 	RegionUsWestNorCal         Region = "s3-us-west-1.amazonaws.com"
 	RegionEuIreland            Region = "s3-eu-west-1.amazonaws.com"
 	RegionApacSingapore        Region = "s3-ap-southeast-1.amazonaws.com"
+	RegionApacSydney           Region = "s3-ap-southeast-2.amazonaws.com"
 	RegionApacTokyo            Region = "s3-ap-northeast-1.amazonaws.com"
 	RegionSouthAmericaSaoPaulo Region = "s3-sa-east-1.amazonaws.com"
 )
