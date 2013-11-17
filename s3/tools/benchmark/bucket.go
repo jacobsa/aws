@@ -55,7 +55,7 @@ func initBucket() {
 	)
 
 	accessKey := aws.AccessKey{
-		Id: *g_keyId,
+		Id:     *g_keyId,
 		Secret: password.ReadPassword(prompt),
 	}
 

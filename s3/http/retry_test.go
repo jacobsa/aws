@@ -166,7 +166,7 @@ func (t *RetryingConnTest) WrappedFailsOnThirdCall() {
 
 	wrappedErr2 := &http.Error{
 		OriginalErr: &net.OpError{
-			Op: "burrito",
+			Op:  "burrito",
 			Err: syscall.EPIPE,
 		},
 	}

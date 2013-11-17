@@ -84,13 +84,13 @@ func measureDownstreamBandwidth_SingleRun(
 	for i := 0; i < int(parallelism); i++ {
 		go func(i int) {
 			// Load data from one of the keys.
-			data, err := bucket.GetObject(keys[i % len(keys)])
+			data, err := bucket.GetObject(keys[i%len(keys)])
 			if err != nil {
 				errs[i] = err
 			}
 
 			atomic.AddUint64(&totalLoaded, uint64(len(data)))
-			done<- true
+			done <- true
 		}(i)
 	}
 
@@ -177,7 +177,7 @@ func measureUpstreamBandwidth_SingleRun(
 	for i := 0; i < int(parallelism); i++ {
 		go func(i int) {
 			_, errs[i] = storeData(bucket, dataSize)
-			done<- true
+			done <- true
 		}(i)
 	}
 
@@ -239,7 +239,7 @@ func measureUpstreamBandwidth(
 func formattedFloatOrError(
 	v float64,
 	err error) string {
-  if err != nil {
+	if err != nil {
 		return err.Error()
 	}
 
@@ -255,21 +255,21 @@ func printHeading(testName string) {
 func formatBytes(n uint64) string {
 	type exponentAndSuffix struct {
 		exponent uint
-		suffix string
+		suffix   string
 	}
 
 	suffixes := []exponentAndSuffix{
-		{ 0, "bytes" },
-		{ 10, "KiB" },
-		{ 20, "MiB" },
-		{ 30, "GiB" },
+		{0, "bytes"},
+		{10, "KiB"},
+		{20, "MiB"},
+		{30, "GiB"},
 	}
 
 	for i, element := range suffixes {
 		exponent := element.exponent
 		nextExponent := exponent + 10
-		if n < (1 << nextExponent) || i == len(suffixes) - 1 {
-			scaled := float64(n) / float64(uint(1) << exponent)
+		if n < (1<<nextExponent) || i == len(suffixes)-1 {
+			scaled := float64(n) / float64(uint(1)<<exponent)
 			return fmt.Sprintf("%.2f %s", scaled, element.suffix)
 		}
 	}
@@ -299,7 +299,7 @@ func main() {
 
 	log.Printf(
 		"Average latency: %d ms",
-		uint64(float64(avgLatency) / float64(time.Millisecond)),
+		uint64(float64(avgLatency)/float64(time.Millisecond)),
 	)
 
 	/////////////////////////////////////////////
@@ -308,7 +308,7 @@ func main() {
 
 	printHeading("Downstream bandwidth")
 
-	downstreamDataSizes := []uint{1<<18, 1<<20}
+	downstreamDataSizes := []uint{1 << 18, 1 << 20}
 	downstreamParallelisms := []uint{1, 2}
 
 	for _, dataSize := range downstreamDataSizes {
@@ -337,7 +337,7 @@ func main() {
 
 	printHeading("Upstream bandwidth")
 
-	upstreamDataSizes := []uint{1<<14, 1<<18, 1<<20}
+	upstreamDataSizes := []uint{1 << 14, 1 << 18, 1 << 20}
 	upstreamParallelisms := []uint{1, 2}
 
 	for _, dataSize := range upstreamDataSizes {
