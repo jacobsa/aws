@@ -40,7 +40,7 @@ import (
 
 var g_keyId = flag.String("key_id", "", "Access key ID.")
 
-var g_region = sdb.RegionApacTokyo
+var g_region = sdb.RegionApacSydney
 var g_accessKey aws.AccessKey
 
 ////////////////////////////////////////////////////////////////////////
