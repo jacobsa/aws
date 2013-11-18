@@ -118,6 +118,9 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 		return
 	}
 
+	// Make sure the body reader is closed no matter how we exit.
+	defer sysResp.Body.Close()
+
 	// Convert the response.
 	resp = &Response{
 		StatusCode: sysResp.StatusCode,
@@ -127,8 +130,6 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 		err = &Error{"ioutil.ReadAll", err}
 		return
 	}
-
-	sysResp.Body.Close()
 
 	return
 }
