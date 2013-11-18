@@ -23,6 +23,7 @@ import (
 	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
 	"net"
+	"net/url"
 	"syscall"
 	"testing"
 )
@@ -142,6 +143,44 @@ func (t *RetryingConnTest) RetriesForBrokenPipe() {
 	wrappedErr := &http.Error{
 		OriginalErr: &net.OpError{
 			Err: syscall.EPIPE,
+		},
+	}
+
+	ExpectCall(t.wrapped, "SendRequest")(t.req).
+		WillOnce(oglemock.Return(nil, wrappedErr)).
+		WillOnce(oglemock.Return(nil, wrappedErr)).
+		WillOnce(oglemock.Return(nil, nil))
+
+	// Call
+	t.call()
+}
+
+func (t *RetryingConnTest) WrappedReturnsUninterestingUrlError() {
+	// Wrapped
+	wrappedErr := &http.Error{
+		OriginalErr: &url.Error{
+			Op:  "Put",
+			URL: "taco",
+			Err: errors.New("foo"),
+		},
+	}
+
+	ExpectCall(t.wrapped, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, wrappedErr))
+
+	// Call -- should not retry.
+	t.call()
+
+	ExpectThat(t.err, Error(HasSubstr("taco")))
+}
+
+func (t *RetryingConnTest) RetriesForEOFError() {
+	t.req = &http.Request{}
+
+	// Wrapped
+	wrappedErr := &http.Error{
+		OriginalErr: &url.Error{
+			Err: errors.New("EOF"),
 		},
 	}
 
