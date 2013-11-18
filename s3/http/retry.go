@@ -18,6 +18,7 @@ package http
 import (
 	"log"
 	"net"
+	"net/url"
 	"syscall"
 )
 
@@ -53,17 +54,22 @@ func shouldRetry(err error) bool {
 	// that have been in use for awhile (on the order of 20-30 minutes). Perhaps
 	// it's a machine being restarted on their end?
 	if httpErr, ok := err.(*Error); ok {
+		// EPIPE errors show up (or showed up at one time) as net.OpErrors.
 		if opErr, ok := httpErr.OriginalErr.(*net.OpError); ok {
 			if errno, ok := opErr.Err.(syscall.Errno); ok {
 				if errno == syscall.EPIPE {
-					// TODO(jacobsa): Remove this logging once it has yielded useful
-					// results for investigating this issue:
-					//
-					//     https://github.com/jacobsa/comeback/issues/11
-					//
 					log.Println("EPIPE; retrying.")
 					return true
 				}
+			}
+		}
+
+		// Another class of errors that show up is url.Errors with the error string
+		// "EOF.
+		if urlErr, ok := httpErr.OriginalErr.(*url.Error); ok {
+			if urlErr.Err.Error() == "EOF" {
+					log.Println("EOF; retrying.")
+					return true
 			}
 		}
 	}
