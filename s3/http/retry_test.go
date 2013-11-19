@@ -174,13 +174,32 @@ func (t *RetryingConnTest) WrappedReturnsUninterestingUrlError() {
 	ExpectThat(t.err, Error(HasSubstr("taco")))
 }
 
-func (t *RetryingConnTest) RetriesForEOFError() {
+func (t *RetryingConnTest) RetriesForUrlErrorEOF() {
 	t.req = &http.Request{}
 
 	// Wrapped
 	wrappedErr := &http.Error{
 		OriginalErr: &url.Error{
 			Err: errors.New("EOF"),
+		},
+	}
+
+	ExpectCall(t.wrapped, "SendRequest")(t.req).
+		WillOnce(oglemock.Return(nil, wrappedErr)).
+		WillOnce(oglemock.Return(nil, wrappedErr)).
+		WillOnce(oglemock.Return(nil, nil))
+
+	// Call
+	t.call()
+}
+
+func (t *RetryingConnTest) RetriesForUrlErrorBrokenPipe() {
+	t.req = &http.Request{}
+
+	// Wrapped
+	wrappedErr := &http.Error{
+		OriginalErr: &url.Error{
+			Err: errors.New("broken pipe"),
 		},
 	}
 

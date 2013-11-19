@@ -64,11 +64,16 @@ func shouldRetry(err error) bool {
 			}
 		}
 
-		// Another class of errors that show up is url.Errors with the error string
-		// "EOF.
+		// Another class of errors that show up as of 2013-11 is url.Errors with
+		// the error string "EOF" or "broken pipe".
 		if urlErr, ok := httpErr.OriginalErr.(*url.Error); ok {
 			if urlErr.Err.Error() == "EOF" {
 					log.Println("EOF; retrying.")
+					return true
+			}
+
+			if urlErr.Err.Error() == "broken pipe" {
+					log.Println("Broken pipe; retrying.")
 					return true
 			}
 		}
