@@ -19,12 +19,8 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
-	"net"
 	"net/http"
 	"net/url"
-	"reflect"
-	"syscall"
 )
 
 // A connection to a particular server over a particular protocol (HTTP or
@@ -89,31 +85,6 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 	// Call the system HTTP library.
 	sysResp, err := http.DefaultClient.Do(sysReq)
 	if err != nil {
-		// TODO(jacobsa): Remove this logging once it has yielded useful results
-		// for investigating this issue:
-		//
-		//     https://github.com/jacobsa/comeback/issues/11
-		//
-		log.Println(
-			"http.DefaultClient.Do:",
-			reflect.TypeOf(err),
-			reflect.ValueOf(err),
-		)
-
-		if opErr, ok := err.(*net.OpError); ok {
-			log.Println("Op:        ", opErr.Op)
-			log.Println("Net:       ", opErr.Net)
-			log.Println("Addr:      ", opErr.Addr)
-			log.Println("Err:       ", opErr.Err)
-			log.Println("Temporary: ", opErr.Temporary())
-			log.Println("Timeout:   ", opErr.Timeout())
-
-			if errno, ok := opErr.Err.(syscall.Errno); ok {
-				log.Printf("Errno: %u\n", errno)
-				log.Printf("EPIPE: %u\n", syscall.EPIPE)
-			}
-		}
-
 		err = &Error{"http.DefaultClient.Do", err}
 		return
 	}
