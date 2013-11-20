@@ -54,7 +54,7 @@ func runForRange(n int, f func(int) error) (err error) {
 		}
 	}
 
-	const numWorkers = 128
+	const numWorkers = 16
 	for i := 0; i < numWorkers; i++ {
 		go processWork()
 	}
