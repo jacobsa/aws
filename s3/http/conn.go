@@ -47,7 +47,7 @@ func NewConn(endpoint *url.URL) (c Conn, err error) {
 	}
 
 	c = &conn{endpoint}
-	return NewRetryingConn(c)
+	return
 }
 
 type conn struct {
