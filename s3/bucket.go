@@ -25,6 +25,7 @@ import (
 	"github.com/jacobsa/aws/s3/auth"
 	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/time"
+	sys_http "net/http"
 	"net/url"
 	sys_time "time"
 	"unicode/utf8"
@@ -46,6 +47,9 @@ import (
 type Bucket interface {
 	// Retrieve data for the object with the given key.
 	GetObject(key string) (data []byte, err error)
+
+	// Retrieve headr information for the object with the given key.
+	GetHeader(key string) (header sys_http.Header, err error)
 
 	// Store the supplied data with the given key, overwriting any previous
 	// version. The object is created with the default ACL of "private".
@@ -213,6 +217,47 @@ func (b *bucket) GetObject(key string) (data []byte, err error) {
 	}
 
 	return httpResp.Body, nil
+}
+
+////////////////////////////////////////////////////////////////////////
+// GetHeader
+////////////////////////////////////////////////////////////////////////
+
+func (b *bucket) GetHeader(key string) (header sys_http.Header, err error) {
+	// Validate the key.
+	if err := validateKey(key); err != nil {
+		return nil, err
+	}
+
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectGET.html
+	httpReq := &http.Request{
+		Verb: "HEAD",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Headers: map[string]string{
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return nil, fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+	}
+
+	return httpResp.Header, nil
 }
 
 ////////////////////////////////////////////////////////////////////////

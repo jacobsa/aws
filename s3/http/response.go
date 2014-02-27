@@ -15,10 +15,17 @@
 
 package http
 
+import (
+	"net/http"
+)
+
 // An HTTP response from S3.
 type Response struct {
 	// The HTTP status code, e.g. 200 or 404.
 	StatusCode int
+
+	// The response headers. e.g. x-amz-expiration
+	Header http.Header
 
 	// The response body. This is the empty slice if the body was empty.
 	Body []byte

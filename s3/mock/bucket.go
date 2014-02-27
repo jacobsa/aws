@@ -10,6 +10,7 @@ import (
 	fmt "fmt"
 	s3 "github.com/jacobsa/aws/s3"
 	oglemock "github.com/jacobsa/oglemock"
+	http "net/http"
 	runtime "runtime"
 	unsafe "unsafe"
 )
@@ -60,6 +61,35 @@ func (m *mockBucket) DeleteObject(p0 string) (o0 error) {
 	// o0 error
 	if retVals[0] != nil {
 		o0 = retVals[0].(error)
+	}
+
+	return
+}
+
+func (m *mockBucket) GetHeader(p0 string) (o0 http.Header, o1 error) {
+	// Get a file name and line number for the caller.
+	_, file, line, _ := runtime.Caller(1)
+
+	// Hand the call off to the controller, which does most of the work.
+	retVals := m.controller.HandleMethodCall(
+		m,
+		"GetHeader",
+		file,
+		line,
+		[]interface{}{p0})
+
+	if len(retVals) != 2 {
+		panic(fmt.Sprintf("mockBucket.GetHeader: invalid return values: %v", retVals))
+	}
+
+	// o0 http.Header
+	if retVals[0] != nil {
+		o0 = retVals[0].(http.Header)
+	}
+
+	// o1 error
+	if retVals[1] != nil {
+		o1 = retVals[1].(error)
 	}
 
 	return

@@ -95,6 +95,7 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 	// Convert the response.
 	resp = &Response{
 		StatusCode: sysResp.StatusCode,
+		Header:     sysResp.Header,
 	}
 
 	if resp.Body, err = ioutil.ReadAll(sysResp.Body); err != nil {

@@ -151,6 +151,10 @@ func (t *BucketTest) InvalidUtf8Key() {
 	_, err = t.bucket.GetObject(key)
 	ExpectThat(err, Error(HasSubstr("UTF-8")))
 
+	// Head
+	_, err = t.bucket.GetHeader(key)
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+
 	// Delete
 	err = t.bucket.DeleteObject(key)
 	ExpectThat(err, Error(HasSubstr("UTF-8")))
@@ -171,6 +175,11 @@ func (t *BucketTest) LongKey() {
 
 	// Get
 	_, err = t.bucket.GetObject(key)
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+
+	// Head
+	_, err = t.bucket.GetHeader(key)
 	ExpectThat(err, Error(HasSubstr("1024")))
 	ExpectThat(err, Error(HasSubstr("bytes")))
 
@@ -197,6 +206,10 @@ func (t *BucketTest) NullByteInKey() {
 	_, err = t.bucket.GetObject(key)
 	ExpectThat(err, Error(HasSubstr("U+0000")))
 
+	// Header
+	_, err = t.bucket.GetHeader(key)
+	ExpectThat(err, Error(HasSubstr("U+0000")))
+
 	// Delete
 	err = t.bucket.DeleteObject(key)
 	ExpectThat(err, Error(HasSubstr("U+0000")))
@@ -217,6 +230,11 @@ func (t *BucketTest) NonGraphicalCharacterInKey() {
 
 	// Get
 	_, err = t.bucket.GetObject(key)
+	ExpectThat(err, Error(HasSubstr("codepoint")))
+	ExpectThat(err, Error(HasSubstr("U+0008")))
+
+	// Header
+	_, err = t.bucket.GetHeader(key)
 	ExpectThat(err, Error(HasSubstr("codepoint")))
 	ExpectThat(err, Error(HasSubstr("U+0008")))
 
@@ -241,6 +259,10 @@ func (t *BucketTest) EmptyKey() {
 
 	// Get
 	_, err = t.bucket.GetObject(key)
+	ExpectThat(err, Error(HasSubstr("empty")))
+
+	// Header
+	_, err = t.bucket.GetHeader(key)
 	ExpectThat(err, Error(HasSubstr("empty")))
 
 	// Delete
@@ -270,6 +292,11 @@ func (t *BucketTest) StoreThenGetEmptyObject() {
 	returnedData, err := t.bucket.GetObject(key)
 	AssertEq(nil, err)
 	ExpectThat(returnedData, DeepEquals(data))
+
+	// Head
+	header, err := t.bucket.GetHeader(key)
+	AssertEq(nil, err)
+	ExpectNe(header.Get("X-Amz-Request-Id"), "")
 }
 
 func (t *BucketTest) StoreThenGetNonEmptyObject() {
@@ -286,6 +313,11 @@ func (t *BucketTest) StoreThenGetNonEmptyObject() {
 	returnedData, err := t.bucket.GetObject(key)
 	AssertEq(nil, err)
 	ExpectThat(returnedData, DeepEquals(data))
+
+	// Head
+	header, err := t.bucket.GetHeader(key)
+	AssertEq(nil, err)
+	ExpectNe(header.Get("X-Amz-Request-Id"), "")
 }
 
 func (t *BucketTest) OverwriteObject() {
