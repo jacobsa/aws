@@ -178,6 +178,14 @@ func addMd5Header(r *http.Request, body []byte) error {
 	return nil
 }
 
+func serverError(httpResp *http.Response) (err error) {
+	body, readErr := httpResp.ReadBody()
+	if readErr != nil {
+		return readErr
+	}
+	return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, body)
+}
+
 ////////////////////////////////////////////////////////////////////////
 // GetObject
 ////////////////////////////////////////////////////////////////////////
@@ -213,10 +221,15 @@ func (b *bucket) GetObject(key string) (data []byte, err error) {
 
 	// Check the response.
 	if httpResp.StatusCode != 200 {
-		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return nil, serverError(httpResp)
 	}
 
-	return httpResp.Body, nil
+	data, err = httpResp.ReadBody()
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -254,7 +267,7 @@ func (b *bucket) GetHeader(key string) (header sys_http.Header, err error) {
 
 	// Check the response.
 	if httpResp.StatusCode != 200 {
-		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return httpResp.Header, serverError(httpResp)
 	}
 
 	return httpResp.Header, nil
@@ -301,7 +314,7 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 
 	// Check the response.
 	if httpResp.StatusCode != 200 {
-		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return serverError(httpResp)
 	}
 
 	return nil
@@ -347,7 +360,7 @@ func (b *bucket) DeleteObject(key string) error {
 
 	// Check the response.
 	if httpResp.StatusCode != 204 {
-		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return serverError(httpResp)
 	}
 
 	return nil
@@ -402,16 +415,21 @@ func (b *bucket) ListKeys(prevKey string) (keys []string, err error) {
 
 	// Check the response.
 	if httpResp.StatusCode != 200 {
-		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return nil, serverError(httpResp)
 	}
 
 	// Attempt to parse the body.
+	body, err := httpResp.ReadBody()
+	if err != nil {
+		return nil, err
+	}
+
 	result := listBucketResult{}
-	if err := xml.Unmarshal(httpResp.Body, &result); err != nil {
+	if err := xml.Unmarshal(body, &result); err != nil {
 		return nil, fmt.Errorf(
 			"Invalid data from server (%s): %s",
 			err.Error(),
-			httpResp.Body)
+			body)
 	}
 
 	// Make sure the server agress with us about the interpretation of the

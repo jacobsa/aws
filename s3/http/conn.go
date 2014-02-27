@@ -18,7 +18,6 @@ package http
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -89,18 +88,11 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 		return
 	}
 
-	// Make sure the body reader is closed no matter how we exit.
-	defer sysResp.Body.Close()
-
 	// Convert the response.
 	resp = &Response{
 		StatusCode: sysResp.StatusCode,
 		Header:     sysResp.Header,
-	}
-
-	if resp.Body, err = ioutil.ReadAll(sysResp.Body); err != nil {
-		err = &Error{"ioutil.ReadAll", err}
-		return
+		Body:       sysResp.Body,
 	}
 
 	return

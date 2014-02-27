@@ -16,6 +16,8 @@
 package http
 
 import (
+	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -27,6 +29,15 @@ type Response struct {
 	// The response headers. e.g. x-amz-expiration
 	Header http.Header
 
-	// The response body. This is the empty slice if the body was empty.
-	Body []byte
+	// The response body.
+	Body io.ReadCloser
+}
+
+func (resp *Response) ReadBody() (body []byte, err error) {
+	defer resp.Body.Close()
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		err = &Error{"ioutil.ReadAll", err}
+	}
+	return
 }

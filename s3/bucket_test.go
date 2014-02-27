@@ -26,6 +26,8 @@ import (
 	. "github.com/jacobsa/oglematchers"
 	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
+	"io"
+	"io/ioutil"
 	sys_http "net/http"
 	"strings"
 	"testing"
@@ -78,6 +80,10 @@ func (t *bucketTest) SetUp(i *TestInfo) {
 
 	t.bucket, err = openBucket("some.bucket", t.httpConn, t.signer, t.clock)
 	AssertEq(nil, err)
+}
+
+func stringReadCloser(s string) io.ReadCloser {
+	return ioutil.NopCloser(strings.NewReader(s))
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -227,7 +233,7 @@ func (t *GetObjectTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -251,7 +257,7 @@ func (t *GetObjectTest) ReturnsResponseBody() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -411,7 +417,7 @@ func (t *GetHeaderTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -607,7 +613,7 @@ func (t *StoreObjectTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -632,7 +638,7 @@ func (t *StoreObjectTest) ServerSaysOkay() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -791,7 +797,7 @@ func (t *DeleteObjectTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -815,7 +821,7 @@ func (t *DeleteObjectTest) ServerReturnsNoContent() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 204,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -991,7 +997,7 @@ func (t *ListKeysTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -1015,7 +1021,7 @@ func (t *ListKeysTest) ResponseBodyIsJunk() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -1038,7 +1044,7 @@ func (t *ListKeysTest) WrongRootTag() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body: []byte(`
+		Body: stringReadCloser(`
 			<?xml version="1.0" encoding="UTF-8"?>
 			<FooBar xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
 				<Contents>
@@ -1067,7 +1073,7 @@ func (t *ListKeysTest) ResponseContainsNoKeys() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body: []byte(`
+		Body: stringReadCloser(`
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
 			</ListBucketResult>`),
@@ -1093,7 +1099,7 @@ func (t *ListKeysTest) ResponseContainsSomeKeys() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body: []byte(`
+		Body: stringReadCloser(`
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
 				<Contents>

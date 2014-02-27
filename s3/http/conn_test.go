@@ -289,7 +289,10 @@ func (t *ConnTest) ReturnsBody() {
 	resp, err := conn.SendRequest(req)
 	AssertEq(nil, err)
 
-	ExpectThat(resp.Body, DeepEquals(t.handler.body))
+	body, err := resp.ReadBody()
+	AssertEq(nil, err)
+
+	ExpectThat(body, DeepEquals(t.handler.body))
 }
 
 func (t *ConnTest) ServerReturnsEmptyBody() {
@@ -311,7 +314,10 @@ func (t *ConnTest) ServerReturnsEmptyBody() {
 	resp, err := conn.SendRequest(req)
 	AssertEq(nil, err)
 
-	ExpectThat(resp.Body, ElementsAre())
+	body, err := resp.ReadBody()
+	AssertEq(nil, err)
+
+	ExpectThat(body, ElementsAre())
 }
 
 func (t *ConnTest) HttpsAllowed() {
