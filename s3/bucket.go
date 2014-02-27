@@ -290,14 +290,14 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	httpReq := &http.Request{
 		Verb: "PUT",
 		Path: fmt.Sprintf("/%s/%s", b.name, key),
-		Body: data,
 		Headers: map[string]string{
 			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
 		},
+		Body: bytes.NewBuffer(data),
 	}
 
 	// Add a Content-MD5 header, as advised in the Amazon docs.
-	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
+	if err := addMd5Header(httpReq, data); err != nil {
 		return err
 	}
 
@@ -343,7 +343,7 @@ func (b *bucket) DeleteObject(key string) error {
 	}
 
 	// Add a Content-MD5 header, as advised in the Amazon docs.
-	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
+	if err := addMd5Header(httpReq, []byte{}); err != nil {
 		return err
 	}
 

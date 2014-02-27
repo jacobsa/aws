@@ -15,6 +15,10 @@
 
 package http
 
+import (
+	"io"
+)
+
 // An HTTP request to S3.
 type Request struct {
 	// The HTTP verb; e.g. "PUT" or "GET".
@@ -42,5 +46,5 @@ type Request struct {
 	Headers map[string]string
 
 	// The body of the request.
-	Body []byte
+	Body io.Reader
 }

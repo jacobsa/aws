@@ -458,6 +458,7 @@ func (t *BucketTest) ListManyKeys() {
 	// Create them.
 	err = runForRange(numKeys, func(i int) error {
 		key := allKeys[i]
+		//		println(i)
 		t.ensureDeleted(key)
 		return t.bucket.StoreObject(key, []byte{})
 	})

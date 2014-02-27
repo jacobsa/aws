@@ -16,7 +16,6 @@
 package http
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -70,7 +69,7 @@ func (c *conn) SendRequest(r *Request) (resp *Response, err error) {
 	urlStr := url.String()
 
 	// Create a request to the system HTTP library.
-	sysReq, err := http.NewRequest(r.Verb, urlStr, bytes.NewBuffer(r.Body))
+	sysReq, err := http.NewRequest(r.Verb, urlStr, r.Body)
 	if err != nil {
 		err = &Error{"http.NewRequest", err}
 		return

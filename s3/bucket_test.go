@@ -539,7 +539,11 @@ func (t *StoreObjectTest) CallsSigner() {
 	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
 	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
 	ExpectEq(computeBase64Md5(data), httpReq.Headers["Content-MD5"])
-	ExpectThat(httpReq.Body, DeepEquals(data))
+
+	body, err := ioutil.ReadAll(httpReq.Body)
+	ExpectEq(nil, err)
+
+	ExpectThat(body, DeepEquals(data))
 }
 
 func (t *StoreObjectTest) SignerReturnsError() {
