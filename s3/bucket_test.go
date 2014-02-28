@@ -26,6 +26,9 @@ import (
 	. "github.com/jacobsa/oglematchers"
 	"github.com/jacobsa/oglemock"
 	. "github.com/jacobsa/ogletest"
+	"io"
+	"io/ioutil"
+	sys_http "net/http"
 	"strings"
 	"testing"
 	"time"
@@ -77,6 +80,10 @@ func (t *bucketTest) SetUp(i *TestInfo) {
 
 	t.bucket, err = openBucket("some.bucket", t.httpConn, t.signer, t.clock)
 	AssertEq(nil, err)
+}
+
+func stringReadCloser(s string) io.ReadCloser {
+	return ioutil.NopCloser(strings.NewReader(s))
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -226,7 +233,7 @@ func (t *GetObjectTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -250,7 +257,7 @@ func (t *GetObjectTest) ReturnsResponseBody() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -261,6 +268,190 @@ func (t *GetObjectTest) ReturnsResponseBody() {
 	AssertEq(nil, err)
 
 	ExpectThat(data, DeepEquals([]byte("taco")))
+}
+
+////////////////////////////////////////////////////////////////////////
+// GetHeader
+////////////////////////////////////////////////////////////////////////
+
+type GetHeaderTest struct {
+	bucketTest
+}
+
+func init() { RegisterTestSuite(&GetHeaderTest{}) }
+
+func (t *GetHeaderTest) KeyNotValidUtf8() {
+	key := "\x80\x81\x82"
+
+	// Call
+	_, err := t.bucket.GetHeader(key)
+
+	ExpectThat(err, Error(HasSubstr("valid")))
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+}
+
+func (t *GetHeaderTest) KeyTooLong() {
+	key := strings.Repeat("a", 1025)
+
+	// Call
+	_, err := t.bucket.GetHeader(key)
+
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+}
+
+func (t *GetHeaderTest) KeyContainsNullByte() {
+	key := "taco\x00burrito"
+
+	// Call
+	_, err := t.bucket.GetHeader(key)
+
+	ExpectThat(err, Error(HasSubstr("U+0000")))
+}
+
+func (t *GetHeaderTest) KeyContainsOutOfRangeCodepoint() {
+	key := "taco\uFFFEburrito"
+
+	// Call
+	_, err := t.bucket.GetHeader(key)
+
+	ExpectThat(err, Error(HasSubstr("U+FFFE")))
+}
+
+func (t *GetHeaderTest) KeyIsEmpty() {
+	key := ""
+
+	// Call
+	_, err := t.bucket.GetHeader(key)
+
+	ExpectThat(err, Error(HasSubstr("empty")))
+}
+
+func (t *GetHeaderTest) CallsSigner() {
+	key := "foo/bar/baz"
+
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+
+	// Signer
+	var httpReq *http.Request
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		httpReq = r
+		return errors.New("")
+	}))
+
+	// Call
+	t.bucket.GetHeader(key)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("HEAD", httpReq.Verb)
+	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
+	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
+}
+
+func (t *GetHeaderTest) SignerReturnsError() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(errors.New("taco")))
+
+	// Call
+	_, err := t.bucket.GetHeader(key)
+
+	ExpectThat(err, Error(HasSubstr("Sign")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *GetHeaderTest) CallsConn() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		r.Verb = "burrito"
+		return nil
+	}))
+
+	// Conn
+	var httpReq *http.Request
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) (*http.Response, error) {
+		httpReq = r
+		return nil, errors.New("")
+	}))
+
+	// Call
+	t.bucket.GetHeader(key)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("burrito", httpReq.Verb)
+}
+
+func (t *GetHeaderTest) ConnReturnsError() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
+
+	// Call
+	_, err := t.bucket.GetHeader(key)
+
+	ExpectThat(err, Error(HasSubstr("SendRequest")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *GetHeaderTest) ServerReturnsError() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 500,
+		Body:       stringReadCloser("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	_, err := t.bucket.GetHeader(key)
+
+	ExpectThat(err, Error(HasSubstr("server")))
+	ExpectThat(err, Error(HasSubstr("500")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *GetHeaderTest) ReturnsResponseHeader() {
+	key := "a"
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 200,
+		Header:     sys_http.Header{"x-amz-expiration": {"foobar"}},
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	header, err := t.bucket.GetHeader(key)
+	AssertEq(nil, err)
+
+	ExpectThat(header, DeepEquals(sys_http.Header{"x-amz-expiration": {"foobar"}}))
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -348,7 +539,11 @@ func (t *StoreObjectTest) CallsSigner() {
 	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
 	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
 	ExpectEq(computeBase64Md5(data), httpReq.Headers["Content-MD5"])
-	ExpectThat(httpReq.Body, DeepEquals(data))
+
+	body, err := ioutil.ReadAll(httpReq.Body)
+	ExpectEq(nil, err)
+
+	ExpectThat(body, DeepEquals(data))
 }
 
 func (t *StoreObjectTest) SignerReturnsError() {
@@ -422,7 +617,7 @@ func (t *StoreObjectTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -447,7 +642,7 @@ func (t *StoreObjectTest) ServerSaysOkay() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -606,7 +801,7 @@ func (t *DeleteObjectTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -630,7 +825,7 @@ func (t *DeleteObjectTest) ServerReturnsNoContent() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 204,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -638,6 +833,207 @@ func (t *DeleteObjectTest) ServerReturnsNoContent() {
 
 	// Call
 	err := t.bucket.DeleteObject(key)
+	ExpectEq(nil, err)
+}
+
+////////////////////////////////////////////////////////////////////////
+// Put
+////////////////////////////////////////////////////////////////////////
+
+type PutTest struct {
+	bucketTest
+}
+
+func init() { RegisterTestSuite(&PutTest{}) }
+
+func (t *PutTest) KeyNotValidUtf8() {
+	key := "\x80\x81\x82"
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("valid")))
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+}
+
+func (t *PutTest) KeyTooLong() {
+	key := strings.Repeat("a", 1025)
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+}
+
+func (t *PutTest) KeyContainsNullByte() {
+	key := "taco\x00burrito"
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("U+0000")))
+}
+
+func (t *PutTest) KeyContainsOutOfRangeCodepoint() {
+	key := "taco\uFFFEburrito"
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("U+FFFE")))
+}
+
+func (t *PutTest) KeyIsEmpty() {
+	key := ""
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("empty")))
+}
+
+func (t *PutTest) CallsSigner() {
+	key := "foo/bar/baz"
+	content := []byte{0x00, 0xde, 0xad, 0xbe, 0xef}
+	data := bytes.NewReader(content)
+
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+
+	// Signer
+	var httpReq *http.Request
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		httpReq = r
+		return errors.New("")
+	}))
+
+	// Call
+	t.bucket.Put(key, data)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("PUT", httpReq.Verb)
+	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
+	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
+	ExpectEq(computeBase64Md5(content), httpReq.Headers["Content-MD5"])
+
+	body, err := ioutil.ReadAll(httpReq.Body)
+	ExpectEq(nil, err)
+
+	ExpectThat(body, DeepEquals(content))
+}
+
+func (t *PutTest) SignerReturnsError() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(errors.New("taco")))
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("Sign")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *PutTest) CallsConn() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		r.Verb = "burrito"
+		return nil
+	}))
+
+	// Conn
+	var httpReq *http.Request
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) (*http.Response, error) {
+		httpReq = r
+		return nil, errors.New("")
+	}))
+
+	// Call
+	t.bucket.Put(key, data)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("burrito", httpReq.Verb)
+}
+
+func (t *PutTest) ConnReturnsError() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("SendRequest")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *PutTest) ServerReturnsError() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 500,
+		Body:       stringReadCloser("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("server")))
+	ExpectThat(err, Error(HasSubstr("500")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *PutTest) ServerSaysOkay() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 200,
+		Body:       stringReadCloser("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	err := t.bucket.Put(key, data)
+
 	ExpectEq(nil, err)
 }
 
@@ -806,7 +1202,7 @@ func (t *ListKeysTest) ServerReturnsError() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 500,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -830,7 +1226,7 @@ func (t *ListKeysTest) ResponseBodyIsJunk() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body:       []byte("taco"),
+		Body:       stringReadCloser("taco"),
 	}
 
 	ExpectCall(t.httpConn, "SendRequest")(Any()).
@@ -853,7 +1249,7 @@ func (t *ListKeysTest) WrongRootTag() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body: []byte(`
+		Body: stringReadCloser(`
 			<?xml version="1.0" encoding="UTF-8"?>
 			<FooBar xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
 				<Contents>
@@ -882,7 +1278,7 @@ func (t *ListKeysTest) ResponseContainsNoKeys() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body: []byte(`
+		Body: stringReadCloser(`
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
 			</ListBucketResult>`),
@@ -908,7 +1304,7 @@ func (t *ListKeysTest) ResponseContainsSomeKeys() {
 	// Conn
 	resp := &http.Response{
 		StatusCode: 200,
-		Body: []byte(`
+		Body: stringReadCloser(`
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
 				<Contents>

@@ -25,6 +25,8 @@ import (
 	"github.com/jacobsa/aws/s3/auth"
 	"github.com/jacobsa/aws/s3/http"
 	"github.com/jacobsa/aws/time"
+	"io"
+	sys_http "net/http"
 	"net/url"
 	sys_time "time"
 	"unicode/utf8"
@@ -47,12 +49,19 @@ type Bucket interface {
 	// Retrieve data for the object with the given key.
 	GetObject(key string) (data []byte, err error)
 
+	// Retrieve headr information for the object with the given key.
+	GetHeader(key string) (header sys_http.Header, err error)
+
 	// Store the supplied data with the given key, overwriting any previous
 	// version. The object is created with the default ACL of "private".
 	StoreObject(key string, data []byte) error
 
 	// Delete the object with the supplied key.
 	DeleteObject(key string) error
+
+	// Stream the supplied data with the given key, overwriting any previous
+	// version. The object is created with the default ACL of "private".
+	Put(key string, data io.ReadSeeker) error
 
 	// Return an ordered set of contiguous object keys in the bucket that are
 	// strictly greater than prevKey (or at the beginning of the range if prevKey
@@ -156,22 +165,52 @@ func validateKey(key string) error {
 	return nil
 }
 
-func addMd5Header(r *http.Request, body []byte) error {
+func encodeMD5(body io.ReadSeeker) (result string, err error) {
+	// start at the begining
+	_, err = body.Seek(0, 0)
+	if err != nil {
+		return
+	}
+
+	// make sure we rewind
+	defer func() {
+		_, err = body.Seek(0, 0)
+	}()
+
 	md5Hash := md5.New()
-	if _, err := md5Hash.Write(body); err != nil {
-		return fmt.Errorf("md5Hash.Write: %v", err)
+
+	if _, err := io.Copy(md5Hash, body); err != nil {
+		return "", fmt.Errorf("md5Hash.Copy: %v", err)
 	}
 
 	base64Md5Buf := new(bytes.Buffer)
 	base64Encoder := base64.NewEncoder(base64.StdEncoding, base64Md5Buf)
+
 	if _, err := base64Encoder.Write(md5Hash.Sum(nil)); err != nil {
-		return fmt.Errorf("base64Encoder.Write: %v", err)
+		return "", fmt.Errorf("base64Encoder.Write: %v", err)
+	}
+	base64Encoder.Close()
+
+	result = base64Md5Buf.String()
+	return
+}
+
+func addMd5Header(r *http.Request, body []byte) error {
+	bodyMD5, err := encodeMD5(bytes.NewReader(body))
+	if err != nil {
+		return err
 	}
 
-	base64Encoder.Close()
-	r.Headers["Content-MD5"] = base64Md5Buf.String()
-
+	r.Headers["Content-MD5"] = bodyMD5
 	return nil
+}
+
+func serverError(httpResp *http.Response) (err error) {
+	body, readErr := httpResp.ReadBody()
+	if readErr != nil {
+		return readErr
+	}
+	return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, body)
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -209,10 +248,56 @@ func (b *bucket) GetObject(key string) (data []byte, err error) {
 
 	// Check the response.
 	if httpResp.StatusCode != 200 {
-		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return nil, serverError(httpResp)
 	}
 
-	return httpResp.Body, nil
+	data, err = httpResp.ReadBody()
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+////////////////////////////////////////////////////////////////////////
+// GetHeader
+////////////////////////////////////////////////////////////////////////
+
+func (b *bucket) GetHeader(key string) (header sys_http.Header, err error) {
+	// Validate the key.
+	if err := validateKey(key); err != nil {
+		return nil, err
+	}
+
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectGET.html
+	httpReq := &http.Request{
+		Verb: "HEAD",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Headers: map[string]string{
+			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
+		},
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return nil, fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return httpResp.Header, serverError(httpResp)
+	}
+
+	return httpResp.Header, nil
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -232,14 +317,14 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 	httpReq := &http.Request{
 		Verb: "PUT",
 		Path: fmt.Sprintf("/%s/%s", b.name, key),
-		Body: data,
 		Headers: map[string]string{
 			"Date": b.clock.Now().UTC().Format(sys_time.RFC1123),
 		},
+		Body: bytes.NewBuffer(data),
 	}
 
 	// Add a Content-MD5 header, as advised in the Amazon docs.
-	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
+	if err := addMd5Header(httpReq, data); err != nil {
 		return err
 	}
 
@@ -256,7 +341,7 @@ func (b *bucket) StoreObject(key string, data []byte) error {
 
 	// Check the response.
 	if httpResp.StatusCode != 200 {
-		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return serverError(httpResp)
 	}
 
 	return nil
@@ -285,7 +370,7 @@ func (b *bucket) DeleteObject(key string) error {
 	}
 
 	// Add a Content-MD5 header, as advised in the Amazon docs.
-	if err := addMd5Header(httpReq, httpReq.Body); err != nil {
+	if err := addMd5Header(httpReq, []byte{}); err != nil {
 		return err
 	}
 
@@ -302,7 +387,57 @@ func (b *bucket) DeleteObject(key string) error {
 
 	// Check the response.
 	if httpResp.StatusCode != 204 {
-		return fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return serverError(httpResp)
+	}
+
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////
+// StoreObject
+////////////////////////////////////////////////////////////////////////
+
+func (b *bucket) Put(key string, data io.ReadSeeker) error {
+	// Validate the key.
+	err := validateKey(key)
+	if err != nil {
+		return err
+	}
+
+	// calculate md5 hash for server verification, as advised in the Amazon docs.
+	contentMD5, err := encodeMD5(data)
+	if err != nil {
+		return err
+	}
+
+	// Build an appropriate HTTP request.
+	//
+	// Reference:
+	//     http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectPUT.html
+	httpReq := &http.Request{
+		Verb: "PUT",
+		Path: fmt.Sprintf("/%s/%s", b.name, key),
+		Headers: map[string]string{
+			"Date":        b.clock.Now().UTC().Format(sys_time.RFC1123),
+			"Content-MD5": contentMD5,
+		},
+		Body: data,
+	}
+
+	// Sign the request.
+	if err := b.signer.Sign(httpReq); err != nil {
+		return fmt.Errorf("Sign: %v", err)
+	}
+
+	// Send the request.
+	httpResp, err := b.httpConn.SendRequest(httpReq)
+	if err != nil {
+		return fmt.Errorf("SendRequest: %v", err)
+	}
+
+	// Check the response.
+	if httpResp.StatusCode != 200 {
+		return serverError(httpResp)
 	}
 
 	return nil
@@ -357,16 +492,21 @@ func (b *bucket) ListKeys(prevKey string) (keys []string, err error) {
 
 	// Check the response.
 	if httpResp.StatusCode != 200 {
-		return nil, fmt.Errorf("Error from server: %d %s", httpResp.StatusCode, httpResp.Body)
+		return nil, serverError(httpResp)
 	}
 
 	// Attempt to parse the body.
+	body, err := httpResp.ReadBody()
+	if err != nil {
+		return nil, err
+	}
+
 	result := listBucketResult{}
-	if err := xml.Unmarshal(httpResp.Body, &result); err != nil {
+	if err := xml.Unmarshal(body, &result); err != nil {
 		return nil, fmt.Errorf(
 			"Invalid data from server (%s): %s",
 			err.Error(),
-			httpResp.Body)
+			body)
 	}
 
 	// Make sure the server agress with us about the interpretation of the
