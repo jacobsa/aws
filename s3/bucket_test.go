@@ -837,6 +837,207 @@ func (t *DeleteObjectTest) ServerReturnsNoContent() {
 }
 
 ////////////////////////////////////////////////////////////////////////
+// Put
+////////////////////////////////////////////////////////////////////////
+
+type PutTest struct {
+	bucketTest
+}
+
+func init() { RegisterTestSuite(&PutTest{}) }
+
+func (t *PutTest) KeyNotValidUtf8() {
+	key := "\x80\x81\x82"
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("valid")))
+	ExpectThat(err, Error(HasSubstr("UTF-8")))
+}
+
+func (t *PutTest) KeyTooLong() {
+	key := strings.Repeat("a", 1025)
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("1024")))
+	ExpectThat(err, Error(HasSubstr("bytes")))
+}
+
+func (t *PutTest) KeyContainsNullByte() {
+	key := "taco\x00burrito"
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("U+0000")))
+}
+
+func (t *PutTest) KeyContainsOutOfRangeCodepoint() {
+	key := "taco\uFFFEburrito"
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("U+FFFE")))
+}
+
+func (t *PutTest) KeyIsEmpty() {
+	key := ""
+	data := bytes.NewReader([]byte{})
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("empty")))
+}
+
+func (t *PutTest) CallsSigner() {
+	key := "foo/bar/baz"
+	content := []byte{0x00, 0xde, 0xad, 0xbe, 0xef}
+	data := bytes.NewReader(content)
+
+	// Clock
+	t.clock.now = time.Date(1985, time.March, 18, 15, 33, 17, 123, time.UTC)
+
+	// Signer
+	var httpReq *http.Request
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		httpReq = r
+		return errors.New("")
+	}))
+
+	// Call
+	t.bucket.Put(key, data)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("PUT", httpReq.Verb)
+	ExpectEq("/some.bucket/foo/bar/baz", httpReq.Path)
+	ExpectEq("Mon, 18 Mar 1985 15:33:17 UTC", httpReq.Headers["Date"])
+	ExpectEq(computeBase64Md5(content), httpReq.Headers["Content-MD5"])
+
+	body, err := ioutil.ReadAll(httpReq.Body)
+	ExpectEq(nil, err)
+
+	ExpectThat(body, DeepEquals(content))
+}
+
+func (t *PutTest) SignerReturnsError() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(errors.New("taco")))
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("Sign")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *PutTest) CallsConn() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) error {
+		r.Verb = "burrito"
+		return nil
+	}))
+
+	// Conn
+	var httpReq *http.Request
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Invoke(func(r *http.Request) (*http.Response, error) {
+		httpReq = r
+		return nil, errors.New("")
+	}))
+
+	// Call
+	t.bucket.Put(key, data)
+
+	AssertNe(nil, httpReq)
+	ExpectEq("burrito", httpReq.Verb)
+}
+
+func (t *PutTest) ConnReturnsError() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(nil, errors.New("taco")))
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("SendRequest")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *PutTest) ServerReturnsError() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 500,
+		Body:       stringReadCloser("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectThat(err, Error(HasSubstr("server")))
+	ExpectThat(err, Error(HasSubstr("500")))
+	ExpectThat(err, Error(HasSubstr("taco")))
+}
+
+func (t *PutTest) ServerSaysOkay() {
+	key := "a"
+	data := bytes.NewReader([]byte{})
+
+	// Signer
+	ExpectCall(t.signer, "Sign")(Any()).
+		WillOnce(oglemock.Return(nil))
+
+	// Conn
+	resp := &http.Response{
+		StatusCode: 200,
+		Body:       stringReadCloser("taco"),
+	}
+
+	ExpectCall(t.httpConn, "SendRequest")(Any()).
+		WillOnce(oglemock.Return(resp, nil))
+
+	// Call
+	err := t.bucket.Put(key, data)
+
+	ExpectEq(nil, err)
+}
+
+////////////////////////////////////////////////////////////////////////
 // ListKeys
 ////////////////////////////////////////////////////////////////////////
 

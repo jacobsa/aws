@@ -16,6 +16,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/jacobsa/aws/s3"
 	. "github.com/jacobsa/oglematchers"
@@ -320,7 +321,7 @@ func (t *BucketTest) StoreThenGetNonEmptyObject() {
 	ExpectNe(header.Get("X-Amz-Request-Id"), "")
 }
 
-func (t *BucketTest) OverwriteObject() {
+func (t *BucketTest) StoreOverwriteObject() {
 	key := "some_key"
 	t.ensureDeleted(key)
 
@@ -339,6 +340,62 @@ func (t *BucketTest) OverwriteObject() {
 	returnedData, err := t.bucket.GetObject(key)
 	AssertEq(nil, err)
 	ExpectThat(returnedData, DeepEquals(data1))
+}
+
+func (t *BucketTest) PutThenGetEmptyObject() {
+	key := "some_key"
+	t.ensureDeleted(key)
+
+	data := bytes.NewReader([]byte{})
+
+	// Store
+	err := t.bucket.Put(key, data)
+	AssertEq(nil, err)
+
+	// Get
+	returnedData, err := t.bucket.GetObject(key)
+	AssertEq(nil, err)
+	ExpectThat(returnedData, DeepEquals([]byte{}))
+}
+
+func (t *BucketTest) PutThenGetNonEmptyObject() {
+	key := "some_key"
+	t.ensureDeleted(key)
+
+	content := []byte{0x17, 0x19, 0x00, 0x02, 0x03}
+	data := bytes.NewReader(content)
+
+	// Store
+	err := t.bucket.Put(key, data)
+	AssertEq(nil, err)
+
+	// Get
+	returnedData, err := t.bucket.GetObject(key)
+	AssertEq(nil, err)
+	ExpectThat(returnedData, DeepEquals(content))
+}
+
+func (t *BucketTest) PutOverwriteObject() {
+	key := "some_key"
+	t.ensureDeleted(key)
+
+	content0 := []byte{0x17, 0x19, 0x00, 0x02, 0x03}
+	content1 := []byte{0x23, 0x29, 0x31}
+	data0 := bytes.NewReader(content0)
+	data1 := bytes.NewReader(content1)
+
+	// Store (first time)
+	err := t.bucket.Put(key, data0)
+	AssertEq(nil, err)
+
+	// Store (second time)
+	err = t.bucket.Put(key, data1)
+	AssertEq(nil, err)
+
+	// Get
+	returnedData, err := t.bucket.GetObject(key)
+	AssertEq(nil, err)
+	ExpectThat(returnedData, DeepEquals(content1))
 }
 
 func (t *BucketTest) ListEmptyBucket() {
